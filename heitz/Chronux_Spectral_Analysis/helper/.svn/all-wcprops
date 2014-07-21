@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper
+END
+jackknife.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/jackknife.m
+END
+change_row_to_column.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/change_row_to_column.m
+END
+cohmathelper.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/cohmathelper.m
+END
+getfgrid.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/getfgrid.m
+END
+check_consistency.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/check_consistency.m
+END
+den_jack.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/den_jack.m
+END
+dpsschk.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/dpsschk.m
+END
+coherr.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/coherr.m
+END
+getparams.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/getparams.m
+END
+specerr.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/helper/specerr.m
+END

@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/6172/middlebrooks/matlab/create_datafile
+END
+plexon_events_translation.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/jschall/!svn/ver/5738/middlebrooks/matlab/create_datafile/plexon_events_translation.m
+END
+plexon_translate_datafile.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/jschall/!svn/ver/5740/middlebrooks/matlab/create_datafile/plexon_translate_datafile.m
+END
+convert_translated_plexon_data.asv
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/jschall/!svn/ver/5563/middlebrooks/matlab/create_datafile/convert_translated_plexon_data.asv
+END
+saccade_data.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5287/middlebrooks/matlab/create_datafile/saccade_data.m
+END
+plexon_translate_datafile_batch.m
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/jschall/!svn/ver/5575/middlebrooks/matlab/create_datafile/plexon_translate_datafile_batch.m
+END
+get_taskID.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/6172/middlebrooks/matlab/create_datafile/get_taskID.m
+END
+TranslationCodes.txt
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5187/middlebrooks/matlab/create_datafile/TranslationCodes.txt
+END
+convert_translated_plexon_data.m
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/jschall/!svn/ver/6172/middlebrooks/matlab/create_datafile/convert_translated_plexon_data.m
+END
+convert_translated_plexon_data_batch.m
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/jschall/!svn/ver/5573/middlebrooks/matlab/create_datafile/convert_translated_plexon_data_batch.m
+END
+plexon_ADchannels_translation.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/jschall/!svn/ver/5203/middlebrooks/matlab/create_datafile/plexon_ADchannels_translation.m
+END

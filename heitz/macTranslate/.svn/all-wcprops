@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/6062/heitz/macTranslate
+END
+getWaves.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/getWaves.m
+END
+macTranslate_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/macTranslate_SAT.m
+END
+Translate_zap.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/Translate_zap.m
+END
+breakFiles.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/breakFiles.m
+END
+ADTranslator_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/ADTranslator_longBase.m
+END
+ProcessFile_batch_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/ProcessFile_batch_longBase.m
+END
+EventTranslator_SAT_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/EventTranslator_SAT_longBase.m
+END
+ADTranslator_behavior_only.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/ADTranslator_behavior_only.m
+END
+Translate_SAT_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/Translate_SAT_longBase.m
+END
+SpikeTranslator_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/6062/heitz/macTranslate/SpikeTranslator_longBase.m
+END

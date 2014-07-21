@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/6258/middlebrooks/matlab/neural
+END
+align_raster_sets.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/6258/middlebrooks/matlab/neural/align_raster_sets.m
+END
+single_neuron_reward_outcomes.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/6187/middlebrooks/matlab/neural/single_neuron_reward_outcomes.m
+END
+fat_raster.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5838/middlebrooks/matlab/neural/fat_raster.m
+END
+align_signals.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/6187/middlebrooks/matlab/neural/align_signals.m
+END
+jpsth_analysis.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5742/middlebrooks/matlab/neural/jpsth_analysis.m
+END
+spike_to_raster.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/6189/middlebrooks/matlab/neural/spike_to_raster.m
+END
+sort_rasters_events.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5845/middlebrooks/matlab/neural/sort_rasters_events.m
+END
+variance_conditional_expectation.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/jschall/!svn/ver/5841/middlebrooks/matlab/neural/variance_conditional_expectation.m
+END
+ding_gold_ddm_like.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6060/middlebrooks/matlab/neural/ding_gold_ddm_like.m
+END
+spike_density_function.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/6211/middlebrooks/matlab/neural/spike_density_function.m
+END
+peristimulus_time_histogram.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5921/middlebrooks/matlab/neural/peristimulus_time_histogram.m
+END
+signal_baseline_correct.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/6098/middlebrooks/matlab/neural/signal_baseline_correct.m
+END
+signal_reject_saturate.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/6098/middlebrooks/matlab/neural/signal_reject_saturate.m
+END
+fano_factor.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5841/middlebrooks/matlab/neural/fano_factor.m
+END

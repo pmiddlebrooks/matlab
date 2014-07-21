@@ -1,0 +1,202 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Annotated Heat Maps</title>
+      <meta name="generator" content="MATLAB 7.5">
+      <meta name="date" content="2007-08-09">
+      <meta name="m-file" content="heatmapdemo"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>Annotated Heat Maps</h1>
+         <introduction>
+            <p>A number of people have asked me whether MATLAB can add text to heatmaps to show the exact values. This is very easy to do,
+               however, making a the text robust to resizing, zooming and other operations is a little trickier.
+            </p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">A basic heat map</a></li>
+               <li><a href="#2">Adding text</a></li>
+               <li><a href="#3">Problems with this basic method</a></li>
+               <li><a href="#4">A function to work around this problem</a></li>
+               <li><a href="#6">Some more examples</a></li>
+            </ul>
+         </div>
+         <h2>A basic heat map<a name="1"></a></h2>
+         <p>The <b>image</b> command or <b>imagesc</b> command can be used to create heat maps. The difference between the two functions is that <b>imagesc</b> scales the colormap of the image to give the maximum range of colors. For this example I will use some of the matrices in
+            <b>gallery</b>.
+         </p><pre class="codeinput">data = gallery(<span class="string">'invhess'</span>,20);
+imagesc(data)
+axis <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="heatmapdemo_01.png"> <h2>Adding text<a name="2"></a></h2>
+         <p>When the heat map is small, it is sometimes convenient to see the actual data values on the image. These are easy to add using
+            the <b>text</b> function.
+         </p><pre class="codeinput">[rows,cols] = size(data);
+<span class="keyword">for</span> i = 1:rows
+    <span class="keyword">for</span> j = 1:cols
+                 textHandles(j,i) = text(j,i,num2str(data(i,j)),<span class="keyword">...</span>
+                <span class="string">'horizontalAlignment'</span>,<span class="string">'center'</span>);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="heatmapdemo_02.png"> <h2>Problems with this basic method<a name="3"></a></h2>
+         <p>This is fine until you resize the figure or zoom in. The font size for the text is fixed so the image quickly gets messy if
+            you make it small.
+         </p><pre class="codeinput">set(gcf,<span class="string">'position'</span>,[100,100,300,300])
+</pre><img vspace="5" hspace="5" src="heatmapdemo_03.png"> <h2>A function to work around this problem<a name="4"></a></h2>
+         <p>around this I have created a function <b>heatmaptext</b> that adds listeners to the figure that adjust the font size of the text if the figure is resized or if you zoom in on the
+            heat map.
+         </p><pre class="codeinput">figure
+heatmaptext(data);
+</pre><img vspace="5" hspace="5" src="heatmapdemo_04.png"> <p>This function is robust to resizing of the figure.</p><pre class="codeinput">set(gcf,<span class="string">'position'</span>,[100,100,300,300])
+</pre><img vspace="5" hspace="5" src="heatmapdemo_05.png"> <h2>Some more examples<a name="6"></a></h2><pre class="codeinput">figure
+data = randn(40,20);
+heatmaptext(data,<span class="string">'fontcolor'</span>,<span class="string">'w'</span>,<span class="string">'precision'</span>,3);
+colormap(redgreencmap)
+set(gca,<span class="string">'Xlim'</span>,[4.5,10.5],<span class="string">'Ylim'</span>,[5.5,9.5]);
+</pre><img vspace="5" hspace="5" src="heatmapdemo_06.png"> <pre class="codeinput">figure
+data = gallery(<span class="string">'moler'</span>,25);
+heatmaptext(data,<span class="string">'fontcolor'</span>,<span class="string">'r'</span>);
+colormap(bone)
+</pre><img vspace="5" hspace="5" src="heatmapdemo_07.png"> <p class="footer">Copyright 2007 The MathWorks, Inc.<br>
+            Published with MATLAB&reg; 7.5<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Annotated Heat Maps 
+% A number of people have asked me whether MATLAB can add text to heatmaps
+% to show the exact values. This is very easy to do, however, making a the
+% text robust to resizing, zooming and other operations is a little
+% trickier.
+
+%% A basic heat map
+% The *image* command or *imagesc* command can be used to create heat maps.
+% The difference between the two functions is that *imagesc* scales the
+% colormap of the image to give the maximum range of colors. For this
+% example I will use some of the matrices in *gallery*. 
+
+data = gallery('invhess',20);
+imagesc(data)
+axis off
+
+
+%% Adding text
+% When the heat map is small, it is sometimes convenient to see the actual
+% data values on the image. These are easy to add using the *text*
+% function.
+
+[rows,cols] = size(data);
+for i = 1:rows
+    for j = 1:cols
+                 textHandles(j,i) = text(j,i,num2str(data(i,j)),...
+                'horizontalAlignment','center');
+    end
+end
+
+%% Problems with this basic method
+% This is fine until you resize the figure or zoom in. The font size for the text is
+% fixed so the image quickly gets messy if you make it small. 
+set(gcf,'position',[100,100,300,300])
+
+%% A function to work around this problem
+% around this I have created a function *heatmaptext* that adds listeners
+% to the figure that adjust the font size of the text if the figure is
+% resized or if you zoom in on the heat map.
+figure
+heatmaptext(data);
+
+
+%%
+% This function is robust to resizing of the figure.
+set(gcf,'position',[100,100,300,300])
+
+%% Some more examples
+
+figure
+data = randn(40,20);
+heatmaptext(data,'fontcolor','w','precision',3);
+colormap(redgreencmap)
+set(gca,'Xlim',[4.5,10.5],'Ylim',[5.5,9.5]);
+
+%% 
+
+figure
+data = gallery('moler',25);
+heatmaptext(data,'fontcolor','r');
+colormap(bone)
+
+
+
+%%
+%   Copyright 2007 The MathWorks, Inc.
+
+
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

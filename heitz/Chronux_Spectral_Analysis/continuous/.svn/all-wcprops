@@ -1,0 +1,197 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous
+END
+ftestc.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/ftestc.m
+END
+mtspecgramtrigc.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtspecgramtrigc.m
+END
+coherencyc_unequal_length_trials.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/coherencyc_unequal_length_trials.m
+END
+spsvd.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/spsvd.m
+END
+cohmatrixc.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/cohmatrixc.m
+END
+mtspectrumsegc.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtspectrumsegc.m
+END
+mtspectrumc.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtspectrumc.m
+END
+extractdatac.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/extractdatac.m
+END
+locsmooth.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/locsmooth.m
+END
+mtdspectrumc.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtdspectrumc.m
+END
+rmlinesc.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/rmlinesc.m
+END
+mtspectrum_of_spectrumc.m
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtspectrum_of_spectrumc.m
+END
+mtspectrumc_unequal_length_trials.m
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtspectrumc_unequal_length_trials.m
+END
+fitlinesc.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/fitlinesc.m
+END
+cohgramc.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/cohgramc.m
+END
+mtpowerandfstatc.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtpowerandfstatc.m
+END
+nonst_stat.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/nonst_stat.m
+END
+mtspectrumtrigc.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtspectrumtrigc.m
+END
+createdatamatc.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/createdatamatc.m
+END
+findpeaks.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/findpeaks.m
+END
+mtspecgramc.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtspecgramc.m
+END
+quadinv.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/quadinv.m
+END
+CrossSpecMatc.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/CrossSpecMatc.m
+END
+mtdspecgramc.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtdspecgramc.m
+END
+rmlinesmovingwinc.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/rmlinesmovingwinc.m
+END
+runline.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/runline.m
+END
+evoked.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/evoked.m
+END
+coherencysegc.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/coherencysegc.m
+END
+quadcof.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/quadcof.m
+END
+coherencyc.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/coherencyc.m
+END
+mtfftc.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/mtfftc.m
+END
+locdetrend.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/1084/heitz/Chronux_Spectral_Analysis/continuous/locdetrend.m
+END

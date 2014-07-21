@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/5816/heitz/Analyses/Fano/PopOut
+END
+Fano_PopOut_FEF_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5507/heitz/Analyses/Fano/PopOut/Fano_PopOut_FEF_Q.txt
+END
+Fano_PopOut_FEF_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5508/heitz/Analyses/Fano/PopOut/Fano_PopOut_FEF_S.txt
+END
+Fano_PopOut_SEF_F.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5507/heitz/Analyses/Fano/PopOut/Fano_PopOut_SEF_F.txt
+END
+Fano_PopOut_SEF_Z.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5507/heitz/Analyses/Fano/PopOut/Fano_PopOut_SEF_Z.txt
+END
+compileFano_PopOut_vis.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5816/heitz/Analyses/Fano/PopOut/compileFano_PopOut_vis.m
+END

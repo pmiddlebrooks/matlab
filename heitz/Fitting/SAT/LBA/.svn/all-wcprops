@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/6056/heitz/Fitting/SAT/LBA
+END
+integrate_targ_to_thresh_RTs_model.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/integrate_targ_to_thresh_RTs_model.m
+END
+fitLBA_SAT_free_s.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_free_s.m
+END
+fitLBA_SAT_multiLBA_calcLL2.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_multiLBA_calcLL2.m
+END
+fitLBA_SAT_Dissertation.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/5264/heitz/Fitting/SAT/LBA/fitLBA_SAT_Dissertation.m
+END
+single_trial_recovery_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/single_trial_recovery_SAT.m
+END
+LBA_sim_calc_X2.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5339/heitz/Fitting/SAT/LBA/LBA_sim_calc_X2.m
+END
+fitLBA_SAT_multiLBA.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_multiLBA.m
+END
+integrate_targ_to_thresh_RTs_calcX2.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/5303/heitz/Fitting/SAT/LBA/integrate_targ_to_thresh_RTs_calcX2.m
+END
+fitLBA_SAT_block_switch.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_block_switch.m
+END
+fitLBA_SAT_calcX2.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5822/heitz/Fitting/SAT/LBA/fitLBA_SAT_calcX2.m
+END
+fitLBA_SAT_free_s_calcLL.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_free_s_calcLL.m
+END
+LBA_sim.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5339/heitz/Fitting/SAT/LBA/LBA_sim.m
+END
+fitLBA_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/6003/heitz/Fitting/SAT/LBA/fitLBA_SAT.m
+END
+fitLBA_SAT_multiLBA_calcLL.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_multiLBA_calcLL.m
+END
+fitLBA_SAT_block_switch_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_block_switch_population.m
+END
+fitLBA_SAT_calcLL_block_switch.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_calcLL_block_switch.m
+END
+integrate_targ_to_thresh_RTs_calcLL.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/integrate_targ_to_thresh_RTs_calcLL.m
+END
+fitLBA_SAT_sessions_vampire.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/4894/heitz/Fitting/SAT/LBA/fitLBA_SAT_sessions_vampire.m
+END
+fitLBA_SAT_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/6056/heitz/Fitting/SAT/LBA/fitLBA_SAT_population.m
+END
+fitLBA_SAT_calcLL.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5822/heitz/Fitting/SAT/LBA/fitLBA_SAT_calcLL.m
+END
+draw_LBA_sim.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/4903/heitz/Fitting/SAT/LBA/draw_LBA_sim.m
+END

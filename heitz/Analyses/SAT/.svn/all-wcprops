@@ -1,0 +1,1007 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/6061/heitz/Analyses/SAT
+END
+SAT_VisMove_NoMed_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/5497/heitz/Analyses/SAT/SAT_VisMove_NoMed_Q.txt
+END
+SAT_VisMove_NoMed_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/4506/heitz/Analyses/SAT/SAT_VisMove_NoMed_S.txt
+END
+SAT2_SC_Vis_NoMed_E.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/5949/heitz/Analyses/SAT/SAT2_SC_Vis_NoMed_E.txt
+END
+randwlkSIM_blackBack.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/4983/heitz/Analyses/SAT/randwlkSIM_blackBack.m
+END
+pCOH_SAT_SPKLFP_Tune_NeurRF_isect_vamp_overlap_shuff.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/jschall/!svn/ver/4540/heitz/Analyses/SAT/pCOH_SAT_SPKLFP_Tune_NeurRF_isect_vamp_overlap_shuff.m
+END
+fitDMAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/4063/heitz/Analyses/SAT/fitDMAT.m
+END
+compileSAT_mov_allTrials.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/4970/heitz/Analyses/SAT/compileSAT_mov_allTrials.m
+END
+plotSAT_ACC_SL.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/4147/heitz/Analyses/SAT/plotSAT_ACC_SL.m
+END
+animate_FFC_SAT_longBase_blackBack.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5064/heitz/Analyses/SAT/animate_FFC_SAT_longBase_blackBack.m
+END
+SAT_Vis_NoMed_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/5497/heitz/Analyses/SAT/SAT_Vis_NoMed_Q.txt
+END
+plot_baseline_LFPLFP_coherence.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5038/heitz/Analyses/SAT/plot_baseline_LFPLFP_coherence.m
+END
+SAT_Vis_NoMed_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/5497/heitz/Analyses/SAT/SAT_Vis_NoMed_S.txt
+END
+baseline_agg.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/6045/heitz/Analyses/SAT/baseline_agg.m
+END
+SAT2_Beh_NoMed_E.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5976/heitz/Analyses/SAT/SAT2_Beh_NoMed_E.txt
+END
+put_files_together_SAT_movement_integration1.m
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/jschall/!svn/ver/4756/heitz/Analyses/SAT/put_files_together_SAT_movement_integration1.m
+END
+block_switch_RTs.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5872/heitz/Analyses/SAT/block_switch_RTs.m
+END
+move_threshold_bar_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5003/heitz/Analyses/SAT/move_threshold_bar_plot.m
+END
+block_switch_thresh_agg.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5099/heitz/Analyses/SAT/block_switch_thresh_agg.m
+END
+visual_integration.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/4561/heitz/Analyses/SAT/visual_integration.m
+END
+getRewardRate_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/4760/heitz/Analyses/SAT/getRewardRate_SAT.m
+END
+mean_RT_acc_rate_overmonkeys.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/5971/heitz/Analyses/SAT/mean_RT_acc_rate_overmonkeys.m
+END
+saccade_velocity_SAT_batch.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/5247/heitz/Analyses/SAT/saccade_velocity_SAT_batch.m
+END
+sload_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5475/heitz/Analyses/SAT/sload_SAT.m
+END
+randwlkSIM.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5559/heitz/Analyses/SAT/randwlkSIM.m
+END
+baseline_RT_corr.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5464/heitz/Analyses/SAT/baseline_RT_corr.m
+END
+fitDDM_SAT_vincentized.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5559/heitz/Analyses/SAT/fitDDM_SAT_vincentized.m
+END
+animate_eye_SAT_exampleTrials.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5017/heitz/Analyses/SAT/animate_eye_SAT_exampleTrials.m
+END
+compileSAT_saccMets.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5344/heitz/Analyses/SAT/compileSAT_saccMets.m
+END
+compileSAT_vis_LFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5787/heitz/Analyses/SAT/compileSAT_vis_LFP.m
+END
+baseline_agg_fixTime.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/4716/heitz/Analyses/SAT/baseline_agg_fixTime.m
+END
+plotSAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/5958/heitz/Analyses/SAT/plotSAT.m
+END
+SAT_VisMove_Med_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/4459/heitz/Analyses/SAT/SAT_VisMove_Med_Q.txt
+END
+SAT_VisMove_Med_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/4497/heitz/Analyses/SAT/SAT_VisMove_Med_S.txt
+END
+SAT_SPKLFP_Coherence_overlap.txt
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5485/heitz/Analyses/SAT/SAT_SPKLFP_Coherence_overlap.txt
+END
+movement_integration.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5013/heitz/Analyses/SAT/movement_integration.m
+END
+Dissertation_Behavioral_Data.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/5264/heitz/Analyses/SAT/Dissertation_Behavioral_Data.m
+END
+parameter_importance.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/4476/heitz/Analyses/SAT/parameter_importance.m
+END
+linreg_over_leakage_movement_integration.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/jschall/!svn/ver/5013/heitz/Analyses/SAT/linreg_over_leakage_movement_integration.m
+END
+draw_histograms_remove_1st_acc_trial.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/jschall/!svn/ver/6052/heitz/Analyses/SAT/draw_histograms_remove_1st_acc_trial.m
+END
+plotSAT_summary.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/6045/heitz/Analyses/SAT/plotSAT_summary.m
+END
+SAT_Move_Med_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/4459/heitz/Analyses/SAT/SAT_Move_Med_Q.txt
+END
+SAT_Move_Med_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/4497/heitz/Analyses/SAT/SAT_Move_Med_S.txt
+END
+bar_allTDT.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5196/heitz/Analyses/SAT/bar_allTDT.m
+END
+combine_integrators_made_and_missed.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/4577/heitz/Analyses/SAT/combine_integrators_made_and_missed.m
+END
+SAT_spike_waveforms.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/4989/heitz/Analyses/SAT/SAT_spike_waveforms.m
+END
+baseline_predict_made_missed_deadline.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/4525/heitz/Analyses/SAT/baseline_predict_made_missed_deadline.m
+END
+coherence_SAT_compare_conditions_targ.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/5596/heitz/Analyses/SAT/coherence_SAT_compare_conditions_targ.m
+END
+plot_move_target_aligned_over_sessions.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/5348/heitz/Analyses/SAT/plot_move_target_aligned_over_sessions.m
+END
+SDF_SL_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5966/heitz/Analyses/SAT/SDF_SL_SAT.m
+END
+compileSAT_vis.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/6045/heitz/Analyses/SAT/compileSAT_vis.m
+END
+SATdir.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/3825/heitz/Analyses/SAT/SATdir.m
+END
+qload_SAT2.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/4801/heitz/Analyses/SAT/qload_SAT2.m
+END
+compare_behavior_over_sessions_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5724/heitz/Analyses/SAT/compare_behavior_over_sessions_SAT.m
+END
+get_mean_parameter_values.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/4527/heitz/Analyses/SAT/get_mean_parameter_values.m
+END
+all_SAT_data_Main_Sequence.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/5664/heitz/Analyses/SAT/all_SAT_data_Main_Sequence.m
+END
+SAT2_SEF_Move_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5976/heitz/Analyses/SAT/SAT2_SEF_Move_NoMed_D.txt
+END
+SAT_SPKLFP_Coherence.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5486/heitz/Analyses/SAT/SAT_SPKLFP_Coherence.txt
+END
+aggregate_all_RTs.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/5010/heitz/Analyses/SAT/aggregate_all_RTs.m
+END
+all_noise_correlation.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/4000/heitz/Analyses/SAT/all_noise_correlation.m
+END
+trial_breakdown.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/5988/heitz/Analyses/SAT/trial_breakdown.m
+END
+movement_integration_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5348/heitz/Analyses/SAT/movement_integration_longBase.m
+END
+all_noise_correlation_batch.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/4000/heitz/Analyses/SAT/all_noise_correlation_batch.m
+END
+n2pc_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/5755/heitz/Analyses/SAT/n2pc_SAT.m
+END
+plot_summary_over_files_LFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5385/heitz/Analyses/SAT/plot_summary_over_files_LFP.m
+END
+SAT_SPKSPK_Coherence.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5481/heitz/Analyses/SAT/SAT_SPKSPK_Coherence.txt
+END
+plotSAT_noBias.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/5900/heitz/Analyses/SAT/plotSAT_noBias.m
+END
+plotSAT_errors.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/6061/heitz/Analyses/SAT/plotSAT_errors.m
+END
+compile_baseline_RT_corr.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5464/heitz/Analyses/SAT/compile_baseline_RT_corr.m
+END
+SAT2_SEF_VisMove_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6003/heitz/Analyses/SAT/SAT2_SEF_VisMove_NoMed_D.txt
+END
+repeated_measures_regression_tests_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/5017/heitz/Analyses/SAT/repeated_measures_regression_tests_SAT.m
+END
+SAT2_FEF_Move_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5976/heitz/Analyses/SAT/SAT2_FEF_Move_NoMed_D.txt
+END
+compile_SAT_LFPLFP_alltrls_shuff.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5038/heitz/Analyses/SAT/compile_SAT_LFPLFP_alltrls_shuff.m
+END
+compileSAT_mov_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/6056/heitz/Analyses/SAT/compileSAT_mov_longBase.m
+END
+G2_bar_chart_across_monkeys.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/4527/heitz/Analyses/SAT/G2_bar_chart_across_monkeys.m
+END
+SAT2_SC_Move_NoMed_E.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5951/heitz/Analyses/SAT/SAT2_SC_Move_NoMed_E.txt
+END
+SAT2_SEF_Vis_NoMed_E.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5976/heitz/Analyses/SAT/SAT2_SEF_Vis_NoMed_E.txt
+END
+bar_threshold_sig_notsig.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5012/heitz/Analyses/SAT/bar_threshold_sig_notsig.m
+END
+SAT_test_model.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/4106/heitz/Analyses/SAT/SAT_test_model.m
+END
+Export_Behavioral_Data.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/6052/heitz/Analyses/SAT/Export_Behavioral_Data.m
+END
+pCOH_SAT_SPKLFP_alltrls_shuff.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5802/heitz/Analyses/SAT/pCOH_SAT_SPKLFP_alltrls_shuff.m
+END
+DDM_Models_NoMed.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/4834/heitz/Analyses/SAT/DDM_Models_NoMed.txt
+END
+SAT_vis_visMove_Med_NoMed_WithBaseEffect.txt
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/jschall/!svn/ver/5394/heitz/Analyses/SAT/SAT_vis_visMove_Med_NoMed_WithBaseEffect.txt
+END
+SAT2_SC_VisMove_NoMed_E.txt
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/5967/heitz/Analyses/SAT/SAT2_SC_VisMove_NoMed_E.txt
+END
+visual_integration_leakage.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/4525/heitz/Analyses/SAT/visual_integration_leakage.m
+END
+visual_integration_difference.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/4561/heitz/Analyses/SAT/visual_integration_difference.m
+END
+integrator_simulation.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/4756/heitz/Analyses/SAT/integrator_simulation.m
+END
+remove_MED.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/4451/heitz/Analyses/SAT/remove_MED.m
+END
+pCOH_SAT_SPKSPK_alltrls_shuff.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5484/heitz/Analyses/SAT/pCOH_SAT_SPKSPK_alltrls_shuff.m
+END
+compile_baseline_predict_made_missed_deadline.m
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/jschall/!svn/ver/4525/heitz/Analyses/SAT/compile_baseline_predict_made_missed_deadline.m
+END
+SAT2_SC_Vis_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/6003/heitz/Analyses/SAT/SAT2_SC_Vis_NoMed_D.txt
+END
+missed_dead_by_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5953/heitz/Analyses/SAT/missed_dead_by_screenloc.m
+END
+integrator_ttests_over_leakage.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/4754/heitz/Analyses/SAT/integrator_ttests_over_leakage.m
+END
+SAT_LFP_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/4766/heitz/Analyses/SAT/SAT_LFP_Q.txt
+END
+SAT_LFP_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/4766/heitz/Analyses/SAT/SAT_LFP_S.txt
+END
+SAT_Beh_Med_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/4460/heitz/Analyses/SAT/SAT_Beh_Med_Q.txt
+END
+SAT2_Beh_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/6003/heitz/Analyses/SAT/SAT2_Beh_NoMed_D.txt
+END
+SAT_Beh_Med_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/4497/heitz/Analyses/SAT/SAT_Beh_Med_S.txt
+END
+SAT_Move_NoMed_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/4506/heitz/Analyses/SAT/SAT_Move_NoMed_Q.txt
+END
+SAT_Move_NoMed_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/4506/heitz/Analyses/SAT/SAT_Move_NoMed_S.txt
+END
+integrate_targ_to_thresh_RTs.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/4580/heitz/Analyses/SAT/integrate_targ_to_thresh_RTs.m
+END
+coherence_SAT_compare_conditions_fix.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/jschall/!svn/ver/5739/heitz/Analyses/SAT/coherence_SAT_compare_conditions_fix.m
+END
+qload_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/4484/heitz/Analyses/SAT/qload_SAT.m
+END
+saccade_velocity_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5247/heitz/Analyses/SAT/saccade_velocity_SAT.m
+END
+SAT2_FEF_VisMove_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6003/heitz/Analyses/SAT/SAT2_FEF_VisMove_NoMed_D.txt
+END
+put_files_together_SAT_movement_integration.m
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/jschall/!svn/ver/5013/heitz/Analyses/SAT/put_files_together_SAT_movement_integration.m
+END
+plot_movement_integration_thresholds_withinCond.m
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/jschall/!svn/ver/4734/heitz/Analyses/SAT/plot_movement_integration_thresholds_withinCond.m
+END
+SAT2_FEF_Vis_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/6003/heitz/Analyses/SAT/SAT2_FEF_Vis_NoMed_D.txt
+END
+compileSAT_mov_LFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/4766/heitz/Analyses/SAT/compileSAT_mov_LFP.m
+END
+plotSAT_blocks.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/3734/heitz/Analyses/SAT/plotSAT_blocks.m
+END
+plotSAT_old.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/3812/heitz/Analyses/SAT/plotSAT_old.m
+END
+qload_SAT_MG.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/5377/heitz/Analyses/SAT/qload_SAT_MG.m
+END
+beh_by_screenloc_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5959/heitz/Analyses/SAT/beh_by_screenloc_SAT.m
+END
+compileSAT_mov_getThresh.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5802/heitz/Analyses/SAT/compileSAT_mov_getThresh.m
+END
+getSTA_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5286/heitz/Analyses/SAT/getSTA_SAT.m
+END
+plotPupil_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/5994/heitz/Analyses/SAT/plotPupil_SAT.m
+END
+plot_integrators_with_CI.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/4718/heitz/Analyses/SAT/plot_integrators_with_CI.m
+END
+getTrials_SAT_OLD_ANALYSIS.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/5880/heitz/Analyses/SAT/getTrials_SAT_OLD_ANALYSIS.m
+END
+RT_vs_threshold.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/4581/heitz/Analyses/SAT/RT_vs_threshold.m
+END
+qload_SAT_MG2.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/5377/heitz/Analyses/SAT/qload_SAT_MG2.m
+END
+compileSAT_MicroSaccades.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5770/heitz/Analyses/SAT/compileSAT_MicroSaccades.m
+END
+SATdat.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/3825/heitz/Analyses/SAT/SATdat.m
+END
+compileSAT_mov.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/5017/heitz/Analyses/SAT/compileSAT_mov.m
+END
+compileSAT_n2pc.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/5786/heitz/Analyses/SAT/compileSAT_n2pc.m
+END
+movement_integration_target_aligned.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5559/heitz/Analyses/SAT/movement_integration_target_aligned.m
+END
+block_switch_thresh.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/4594/heitz/Analyses/SAT/block_switch_thresh.m
+END
+SAT_LFPLFP_Coherence.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5030/heitz/Analyses/SAT/SAT_LFPLFP_Coherence.txt
+END
+get_all_VMI_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/5102/heitz/Analyses/SAT/get_all_VMI_SAT.m
+END
+block_switch_baseline_agg.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/5092/heitz/Analyses/SAT/block_switch_baseline_agg.m
+END
+SAT_PURELY_VISUAL.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/4527/heitz/Analyses/SAT/SAT_PURELY_VISUAL.txt
+END
+parameter_bar_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/4525/heitz/Analyses/SAT/parameter_bar_plot.m
+END
+get_all_Tuning_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/4972/heitz/Analyses/SAT/get_all_Tuning_SAT.m
+END
+baseline_over_trials_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5672/heitz/Analyses/SAT/baseline_over_trials_SAT.m
+END
+movement_integration_meanSDF_longBase_.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/4730/heitz/Analyses/SAT/movement_integration_meanSDF_longBase_.m
+END
+error_locations.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/5003/heitz/Analyses/SAT/error_locations.m
+END
+getTrials_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/6051/heitz/Analyses/SAT/getTrials_SAT.m
+END
+made_deadlines_by_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5958/heitz/Analyses/SAT/made_deadlines_by_screenloc.m
+END
+SAT2_SEF_Move_NoMed_E.txt
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5967/heitz/Analyses/SAT/SAT2_SEF_Move_NoMed_E.txt
+END
+compileSAT_fix_LFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5754/heitz/Analyses/SAT/compileSAT_fix_LFP.m
+END
+vis_act_bar_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5003/heitz/Analyses/SAT/vis_act_bar_plot.m
+END
+plot_solved_model.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/4856/heitz/Analyses/SAT/plot_solved_model.m
+END
+compileSAT_beh.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/6045/heitz/Analyses/SAT/compileSAT_beh.m
+END
+block_switch_RTs_agg.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/6045/heitz/Analyses/SAT/block_switch_RTs_agg.m
+END
+compile_grandaverage_SPK_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/5792/heitz/Analyses/SAT/compile_grandaverage_SPK_SAT.m
+END
+SAT2_SEF_VisMove_NoMed_E.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/5976/heitz/Analyses/SAT/SAT2_SEF_VisMove_NoMed_E.txt
+END
+plotWinningModel.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/4525/heitz/Analyses/SAT/plotWinningModel.m
+END
+multiHist_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/3783/heitz/Analyses/SAT/multiHist_SAT.m
+END
+SAT_SPKLFP_Coherence_nooverlap.txt
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5485/heitz/Analyses/SAT/SAT_SPKLFP_Coherence_nooverlap.txt
+END
+SAT_Beh_NoMed_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/4834/heitz/Analyses/SAT/SAT_Beh_NoMed_Q.txt
+END
+pCOH_SAT_LFPLFP_alltrls_shuff.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5481/heitz/Analyses/SAT/pCOH_SAT_LFPLFP_alltrls_shuff.m
+END
+SAT_Beh_NoMed_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/4459/heitz/Analyses/SAT/SAT_Beh_NoMed_S.txt
+END
+SAT2_SC_Move_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5949/heitz/Analyses/SAT/SAT2_SC_Move_NoMed_D.txt
+END
+sload_SAT_MG.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/5377/heitz/Analyses/SAT/sload_SAT_MG.m
+END
+SAT2_SEF_Vis_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/6003/heitz/Analyses/SAT/SAT2_SEF_Vis_NoMed_D.txt
+END
+SAT_Vis_Med_Q.txt
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/4459/heitz/Analyses/SAT/SAT_Vis_Med_Q.txt
+END
+compile_baseline_SDF_longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/6045/heitz/Analyses/SAT/compile_baseline_SDF_longBase.m
+END
+ReverseAmp_Vis_Qsession.txt
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/4527/heitz/Analyses/SAT/ReverseAmp_Vis_Qsession.txt
+END
+all_beh_dat.txt
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/4525/heitz/Analyses/SAT/all_beh_dat.txt
+END
+SAT_Vis_Med_S.txt
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/4503/heitz/Analyses/SAT/SAT_Vis_Med_S.txt
+END
+plotTrialHistory_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5248/heitz/Analyses/SAT/plotTrialHistory_SAT.m
+END
+plot_movement_integration_leakage.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/5011/heitz/Analyses/SAT/plot_movement_integration_leakage.m
+END
+compile_SAT_SPKLFP_alltrls_shuff.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5793/heitz/Analyses/SAT/compile_SAT_SPKLFP_alltrls_shuff.m
+END
+plot_summary_over_files.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5364/heitz/Analyses/SAT/plot_summary_over_files.m
+END
+block_switch.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/5092/heitz/Analyses/SAT/block_switch.m
+END
+SAT2_SC_VisMove_NoMed_D.txt
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/5949/heitz/Analyses/SAT/SAT2_SC_VisMove_NoMed_D.txt
+END
+SAT_vis_visMove_Med_NoMed_NoBaseEffect.txt
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/jschall/!svn/ver/5394/heitz/Analyses/SAT/SAT_vis_visMove_Med_NoMed_NoBaseEffect.txt
+END
+bar_act_sig_notsig.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5012/heitz/Analyses/SAT/bar_act_sig_notsig.m
+END
+compile_SAT_SPKSPK_alltrls_shuff.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5735/heitz/Analyses/SAT/compile_SAT_SPKSPK_alltrls_shuff.m
+END

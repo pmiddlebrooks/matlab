@@ -1,0 +1,247 @@
+function obs = ccm_translate_dataflie_sam(subjectID, sessionID)
+%
+% TRANSLATE_DATAFILE_SAM:   Translates an existing choice countermanding
+% datafile into a structure suitable to input into the SAM (Stochastic
+% accumulator model)
+% toolbox
+%
+% DESCRIPTION
+% Creates a dataset called "obs", with as many rows as there are task
+% conditions (e.g. 6 levels of signal strength)
+%
+% SYNTAX
+% SAM_RUN_JOB;
+%
+% EXAMPLES
+%
+%
+% REFERENCES
+%
+% .........................................................................
+% paul middlebrooks     paul.g.middlebrooks@vanderbilt.edu
+% $Created : Sat 21 Sep 2013 12:48:45 CDT by bram
+% $Modified: Sat 21 Sep 2013 12:56:52 CDT by bram
+
+
+% CONTENTS
+% 1.PROCESS INPUTS AND SPECIFY VARIABLES
+%   1.1. Process inputs
+%   1.2. Pre-allocate empty arrays
+% 2.FILL DATASET ARRAY
+% 3.CREATE DATASET
+
+
+
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. PROCESS INPUTS AND SPECIFY VARIABLES
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 1.1. Process inputs
+% =========================================================================
+
+% Load the data
+[trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
+pSignalArray = ExtraVar.pSignalArray;
+ssdArray = ExtraVar.ssdArray;
+pSignalArray = pSignalArray(pSignalArray ~= .5);
+
+% Get local data path for saving obs file below
+[tebDataFile, localDataPath, localDataFile] = data_file_path(subjectID, sessionID);
+
+% Truncate RTs
+rtMin                       = 150;
+rtMax                       = 1200;
+[rt, outlierTrial]          = truncate_rt(trialData.rt, rtMin, rtMax);
+trialData(outlierTrial, :)  = [];
+
+
+% Number of conditions
+nCnd        = length(pSignalArray);
+
+% Number of stop-signal delays
+nSsd        = length(ssdArray);
+
+% Number of go and stop units
+nGoUnit     = 2;
+nStopUnit   = 1;
+
+
+
+% 1.2. Define and preallocate arrays for the dataset
+% =========================================================================
+nGo             = nan(nCnd, 1);     % # of total Go trials
+nGoCorr         = nan(nCnd, 1);     % # of Go Target trials
+nGoComm         = nan(nCnd, 1);     % # of Go Distractor trials
+nStop           = nan(nCnd, nSsd); 	% # of stop trials
+nStopFailureCorr   	= nan(nCnd, nSsd);	% # of noncanceled stop trials
+nStopFailureComm   	= nan(nCnd, nSsd);	% # of noncanceled stop trials
+nStopSuccess   	= nan(nCnd, nSsd); 	% # of canceled stop trials
+pGoCorr         = nan(nCnd, 1);     % proportion of Go Target Trials
+pGoComm         = nan(nCnd, 1);     % proportion of Go Distractor Trials
+pStopFailure   	= nan(nCnd, nSsd); 	% inhibition function
+pStopFailureCorr   	= nan(nCnd, nSsd); 	% inhibition function
+pStopFailureComm   	= nan(nCnd, nSsd); 	% inhibition function
+ssd             = nan(nCnd, nSsd); 	% SSDs
+inhibFunc   	= nan(nCnd, nSsd);  % inhibition function
+rtGoCorr        = cell(nCnd, 1);  	% Go Target RTs
+rtGoComm        = cell(nCnd, 1);    % Go Distractor RTs
+rtStopFailureCorr   = cell(nCnd, nSsd); % Noncanceled RTs
+rtStopFailureComm   = cell(nCnd, nSsd); % Noncanceled RTs
+onset           = cell(nCnd, 1 + nSsd); % Response Cue (checker) Onset times
+duration      	= cell(nCnd, 1 + nSsd); % Response Cue Duration times
+
+
+
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 2. FILL DATASET ARRAY VARIABLES
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for iCnd = 1 : nCnd
+    
+    % Signal strength/coherence (right target checker color pct)
+    pct = pSignalArray(iCnd) * 100;
+    
+    
+    jSsd                 = 'none';
+    targetHemifield     = 'all';
+    
+    % Number of Go Target trials
+    goTargOutcome       = {'goCorrectTarget', 'targetHoldAbort'};
+    goTargTrial         = ccm_trial_selection(trialData, goTargOutcome, pct, jSsd, targetHemifield);
+    nGoCorr(iCnd)       = length(goTargTrial);
+    
+    % Number of Go Distractor trials (Errors of Commission)
+    goDistOutcome       = {'goCorrectDistractor', 'distractorHoldAbort'};
+    goDistTrial         = ccm_trial_selection(trialData, goDistOutcome, pct, jSsd, targetHemifield);
+    nGoComm(iCnd)       = length(goDistTrial);
+    
+    % Number of total Go trials
+    nGo(iCnd)           = nGoCorr(iCnd) + nGoComm(iCnd);
+    
+    % proportion of Go Target Trials
+    pGoCorr(iCnd)    	= nGoCorr(iCnd) / nGo(iCnd);
+    
+    % proportion of Go Distractor Trials
+    pGoComm(iCnd)     	= nGoComm(iCnd) / nGo(iCnd);
+    
+    % Correct and Error RTs
+    rtGoCorr{iCnd}  	= trialData.rt(goTargTrial);
+    rtGoComm{iCnd}  	= trialData.rt(goDistTrial);
+    
+    % Onset and duration of stimuli (relative to stimulus onset for now)
+    onset{iCnd, 1}      = zeros(nGoUnit + nStopUnit, 1);
+    onset{iCnd, 1}      = zeros(nGoUnit + nStopUnit, 1);
+    duration{iCnd, 1}  	= [2250 * ones(nGoUnit, 1); 0];
+    
+    
+    % ************************
+    % ************************
+    % ************************
+    % ************************
+    for jSsdInd = 1 : nSsd
+        
+        % Stop signal delay
+        jSsd = ssdArray(jSsdInd);
+        targetHemifield         = 'all';
+        
+        % ************************************************
+        % Differentiate stop to target vs stop to distractor?
+        % ************************************************
+        %         % Number of Stop Target trials (errors of ommission)
+        %         stopTargOutcome         = {'stopIncorrectTarget', 'targetHoldAbort'};
+        %         stopTargTrial           = ccm_trial_selection(trialData, stopTargOutcome, pct, ssd, targetHemifield);
+        %         nStopCorr(nCnd, jSsd) 	= length(stopTargTrial);
+        %
+        %         % Number of Stop Distractor trials (Errors of Commission and Ommission)
+        %         stopDistOutcome         = {'stopIncorrectDistractor', 'distractorHoldAbort'};
+        %         stopDistTrial           = ccm_trial_selection(trialData, stopDistOutcome, pct, ssd, targetHemifield);
+        %         nStopComm(nCnd, jSsd) 	= length(stopDistTrial);
+        
+        % Number of Stop Target trials (errors of ommission)
+        stopTargOutcome         = {'stopIncorrectTarget', 'targetHoldAbort'};
+        stopTargTrial           = ccm_trial_selection(trialData, stopTargOutcome, pct, jSsd, targetHemifield);
+        stopDistOutcome         = {'stopIncorrectDistractor', 'distractorHoldAbort'};
+        stopDistTrial           = ccm_trial_selection(trialData, stopDistOutcome, pct, jSsd, targetHemifield);
+        nStopFailureCorr(iCnd, jSsdInd) 	= length(stopTargTrial);
+        nStopFailureComm(iCnd, jSsdInd) 	= length(stopDistTrial);
+        
+        % Number of Stop Distractor trials (Errors of Commission and Ommission)
+        stopCorrOutcome         = {'stopCorrect'};
+        stopCorrTrial           = ccm_trial_selection(trialData, stopCorrOutcome, pct, jSsd, targetHemifield);
+        nStopSuccess(iCnd, jSsdInd) = length(stopCorrTrial);
+        
+        
+        % Number of total Stop trials
+        nStop(iCnd, jSsdInd)       = nStopFailureCorr(iCnd, jSsdInd) + nStopFailureComm(iCnd, jSsdInd) + nStopSuccess(iCnd, jSsdInd);
+        
+        
+        % ************************************************
+        % Differentiate stop to target vs stop to distractor?
+        % ************************************************
+        %         % proportion of Stop Target Trials
+        %         pStopFailure(iCnd, jSsd) = (nStopCorr(iCnd, jSsd) / nStop(iCnd, jSsd);
+        %
+        %         % proportion of Stop Distractor Trials
+        %         pStopFailure(iCnd, jSsd) = (nStopComm(iCnd, jSsd) / nStop(iCnd, jSsd);
+        
+        % proportion of Stop Failure Trials
+        pStopFailure(iCnd, jSsdInd)    = (nStopFailureCorr(iCnd, jSsdInd) + nStopFailureComm(iCnd, jSsdInd)) / nStop(iCnd, jSsdInd);
+        pStopFailureCorr(iCnd, jSsdInd)    = nStopFailureCorr(iCnd, jSsdInd) / nStop(iCnd, jSsdInd);
+        pStopFailureComm(iCnd, jSsdInd)    = nStopFailureComm(iCnd, jSsdInd) / nStop(iCnd, jSsdInd);
+        inhibFunc(iCnd, jSsdInd)       = pStopFailure(iCnd, jSsdInd);
+        
+        %         % proportion of Stop Success Trials
+        %         pStopSuccess(iCnd, jSsd) 	= nStopSuccess(iCnd, jSsd) / nStop(iCnd, jSsd);
+        
+        
+        % Correct and Error RTs
+        rtStopFailureCorr{iCnd, jSsdInd}            = trialData.rt(stopTargTrial);
+        rtStopFailureComm{iCnd, jSsdInd}            = trialData.rt(stopDistTrial);
+        
+        
+        % Onset and duration of stimuli (relative to stimulus onset for now)
+        onset{iCnd, 1+jSsdInd}      = [zeros(nGoUnit, 1); jSsd];
+        onset{iCnd, 1+jSsdInd}      = [zeros(nGoUnit, 1); jSsd];
+        duration{iCnd, 1+jSsdInd}  	= [2250 * ones(nGoUnit, 1); 2250 - jSsd];
+        
+    end % for jSsd = 1 : nSsd
+    
+    
+    % SSDs in condition iCnd
+    ssd(iCnd, :)        = ssdArray;
+    
+end % for iCnd = 1 : cCnd
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3. CREATE DATASET
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+obs  = dataset({nGo,'nGo'}, ...
+    {nGoCorr,'nGoCorr'}, ...
+    {nGoComm,'nGoComm'}, ...
+    {nStop,'nStop'}, ...
+    {nStopFailureCorr,'nStopFailureCorr'}, ...
+    {nStopFailureComm,'nStopFailureComm'}, ...
+    {nStopSuccess,'nStopSuccess'}, ...
+    {pGoCorr,'pGoCorr'}, ...
+    {pGoComm,'pGoComm'}, ...
+    {pStopFailure,'pStopFailure'}, ...
+    {pStopFailureCorr,'pStopFailureCorr'}, ...
+    {pStopFailureComm,'pStopFailureComm'}, ...
+    {ssd,'ssd'}, ...
+    {inhibFunc,'inhibFunc'}, ...
+    {rtGoCorr,'rtGoCorr'}, ...
+    {rtGoComm,'rtGoComm'}, ...
+    {rtStopFailureCorr,'rtStopFailureCorr'}, ...
+    {rtStopFailureComm,'rtStopFailureComm'}, ...
+    {onset,'onset'}, ...
+    {duration,'duration'});
+
+fName = [localDataPath, 'obs_', subjectID, sessionID, '_sam.mat']
+save(fName, 'obs', '-mat')

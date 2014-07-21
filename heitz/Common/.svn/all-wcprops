@@ -1,0 +1,1355 @@
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/jschall/!svn/ver/6072/heitz/Common
+END
+negdline.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/4769/heitz/Common/negdline.m
+END
+fixClipped.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5024/heitz/Common/fixClipped.m
+END
+rmvar.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2005/heitz/Common/rmvar.m
+END
+getJPSTH.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5644/heitz/Common/getJPSTH.m
+END
+getVMI.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/5102/heitz/Common/getVMI.m
+END
+trial_history.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/5440/heitz/Common/trial_history.m
+END
+renvar.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4724/heitz/Common/renvar.m
+END
+combine_units.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/3994/heitz/Common/combine_units.m
+END
+MG_accuracy_over_sessions.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5755/heitz/Common/MG_accuracy_over_sessions.m
+END
+prob2odds.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/6068/heitz/Common/prob2odds.m
+END
+get_all_RTs.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/3704/heitz/Common/get_all_RTs.m
+END
+sSDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/5767/heitz/Common/sSDF.m
+END
+times2counts.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5390/heitz/Common/times2counts.m
+END
+getFano_targ.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5803/heitz/Common/getFano_targ.m
+END
+getRewardRate.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/1738/heitz/Common/getRewardRate.m
+END
+SPIKEtuning.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/5281/heitz/Common/SPIKEtuning.m
+END
+plot_reciprobit.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/4791/heitz/Common/plot_reciprobit.m
+END
+print_beh_by_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5717/heitz/Common/print_beh_by_screenloc.m
+END
+sload.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/4484/heitz/Common/sload.m
+END
+avRef_LFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5034/heitz/Common/avRef_LFP.m
+END
+getQuantiles.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5238/heitz/Common/getQuantiles.m
+END
+LFPtuning.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5281/heitz/Common/LFPtuning.m
+END
+response_align.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/5426/heitz/Common/response_align.m
+END
+getAveRef.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/1754/heitz/Common/getAveRef.m
+END
+getCVLV.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/5745/heitz/Common/getCVLV.m
+END
+rt_by_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5781/heitz/Common/rt_by_screenloc.m
+END
+getStim.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/5005/heitz/Common/getStim.m
+END
+plotCatchSDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/3631/heitz/Common/plotCatchSDF.m
+END
+fill_area.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/6045/heitz/Common/fill_area.m
+END
+sload2.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4484/heitz/Common/sload2.m
+END
+f_.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/jschall/!svn/ver/1091/heitz/Common/f_.m
+END
+beh_by_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5818/heitz/Common/beh_by_screenloc.m
+END
+getVec_zap.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5967/heitz/Common/getVec_zap.m
+END
+getSTA.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/5281/heitz/Common/getSTA.m
+END
+fig2.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/4724/heitz/Common/fig2.m
+END
+getFano_fix.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/5978/heitz/Common/getFano_fix.m
+END
+getSpikeStats.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/5336/heitz/Common/getSpikeStats.m
+END
+parallelCheck.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/5767/heitz/Common/parallelCheck.m
+END
+getchunks.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/1858/heitz/Common/getchunks.m
+END
+cleanPreStimInterval.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/5770/heitz/Common/cleanPreStimInterval.m
+END
+getJackKnife_onset.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/5792/heitz/Common/getJackKnife_onset.m
+END
+change_point.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/3780/heitz/Common/change_point.m
+END
+n2pc_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/5834/heitz/Common/n2pc_screenloc.m
+END
+plotRaster.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5380/heitz/Common/plotRaster.m
+END
+scalp_distribution.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/2173/heitz/Common/scalp_distribution.m
+END
+nanzscore.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5102/heitz/Common/nanzscore.m
+END
+match_spike_rate.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5281/heitz/Common/match_spike_rate.m
+END
+getMonk.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/260/heitz/Common/getMonk.m
+END
+v_.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/jschall/!svn/ver/1770/heitz/Common/v_.m
+END
+myrandint.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/1226/heitz/Common/myrandint.m
+END
+GaborGrating.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/3715/heitz/Common/GaborGrating.m
+END
+getVisAngle.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/2558/heitz/Common/getVisAngle.m
+END
+getSRT.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/5802/heitz/Common/getSRT.m
+END
+ang2pos.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/2536/heitz/Common/ang2pos.m
+END
+plotAllSig.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/2808/heitz/Common/plotAllSig.m
+END
+SDF_SL.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/5063/heitz/Common/SDF_SL.m
+END
+fw.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/jschall/!svn/ver/2365/heitz/Common/fw.m
+END
+Vincentize_TL.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/4970/heitz/Common/Vincentize_TL.m
+END
+bload.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/5247/heitz/Common/bload.m
+END
+getROC.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/5755/heitz/Common/getROC.m
+END
+keep.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/960/heitz/Common/keep.m
+END
+save_saccLoc.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/4985/heitz/Common/save_saccLoc.m
+END
+sload_MG.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/1548/heitz/Common/sload_MG.m
+END
+equate_clim.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/5461/heitz/Common/equate_clim.m
+END
+brute_sort.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/3170/heitz/Common/brute_sort.m
+END
+dload_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/6016/heitz/Common/dload_SAT.m
+END
+switchax.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/2581/heitz/Common/switchax.m
+END
+retrieve_all_search_SRT.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/2565/heitz/Common/retrieve_all_search_SRT.m
+END
+getCDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4599/heitz/Common/getCDF.m
+END
+getTuning_SP_move.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/4972/heitz/Common/getTuning_SP_move.m
+END
+graylines.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/3373/heitz/Common/graylines.m
+END
+plotSDF_fix_ntiles.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/6020/heitz/Common/plotSDF_fix_ntiles.m
+END
+bootSDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/1248/heitz/Common/bootSDF.m
+END
+time2phase.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/2843/heitz/Common/time2phase.m
+END
+n2pc.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/5024/heitz/Common/n2pc.m
+END
+nancorr.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/4718/heitz/Common/nancorr.m
+END
+figs2subplots.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/2074/heitz/Common/figs2subplots.m
+END
+truncateAD_targ.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5754/heitz/Common/truncateAD_targ.m
+END
+plotSDF_errors.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/6057/heitz/Common/plotSDF_errors.m
+END
+undoc.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2581/heitz/Common/undoc.m
+END
+equate_y.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/4544/heitz/Common/equate_y.m
+END
+stub.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/6062/heitz/Common/stub.m
+END
+disperse.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/4874/heitz/Common/disperse.m
+END
+AD2Sound.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/3825/heitz/Common/AD2Sound.m
+END
+c__.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/1548/heitz/Common/c__.m
+END
+filledCircle.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5377/heitz/Common/filledCircle.m
+END
+shorten_file.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5981/heitz/Common/shorten_file.m
+END
+qload2.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4484/heitz/Common/qload2.m
+END
+plot_eyetraces.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/5945/heitz/Common/plot_eyetraces.m
+END
+getNV.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2946/heitz/Common/getNV.m
+END
+plotAD.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/5281/heitz/Common/plotAD.m
+END
+getBurst_SD.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/4071/heitz/Common/getBurst_SD.m
+END
+getVec_new.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5966/heitz/Common/getVec_new.m
+END
+plotCatchAD.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/3642/heitz/Common/plotCatchAD.m
+END
+playRaster.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5366/heitz/Common/playRaster.m
+END
+findRuns.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/1769/heitz/Common/findRuns.m
+END
+fig3.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/4724/heitz/Common/fig3.m
+END
+getOnset.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/3835/heitz/Common/getOnset.m
+END
+randinterval.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/961/heitz/Common/randinterval.m
+END
+plotLFPwithNeuronRF.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/2768/heitz/Common/plotLFPwithNeuronRF.m
+END
+aggregate_all_behavior.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/3412/heitz/Common/aggregate_all_behavior.m
+END
+beh.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/5726/heitz/Common/beh.m
+END
+plotxx.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4520/heitz/Common/plotxx.m
+END
+odds2prob.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/6068/heitz/Common/odds2prob.m
+END
+errorbarxy.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/1792/heitz/Common/errorbarxy.m
+END
+subsubplot_showlayout.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/260/heitz/Common/subsubplot_showlayout.m
+END
+getFixAcquire.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/4704/heitz/Common/getFixAcquire.m
+END
+phase2time.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/3015/heitz/Common/phase2time.m
+END
+findPos.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/2557/heitz/Common/findPos.m
+END
+barweb.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/2984/heitz/Common/barweb.m
+END
+baseline_correct.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/3860/heitz/Common/baseline_correct.m
+END
+rotateticklabel.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/260/heitz/Common/rotateticklabel.m
+END
+linear_regression.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/3758/heitz/Common/linear_regression.m
+END
+spikedensityfunct.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/5476/heitz/Common/spikedensityfunct.m
+END
+getFano_resp.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5337/heitz/Common/getFano_resp.m
+END
+vline.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/1762/heitz/Common/vline.m
+END
+move_onset.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/3832/heitz/Common/move_onset.m
+END
+SDFConv_Nelson.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/3927/heitz/Common/SDFConv_Nelson.m
+END
+dsk.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/5708/heitz/Common/dsk.m
+END
+clim.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/5802/heitz/Common/clim.m
+END
+simSpike.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5412/heitz/Common/simSpike.m
+END
+latsq.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/6061/heitz/Common/latsq.m
+END
+plot_across_files_find_keepers.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5497/heitz/Common/plot_across_files_find_keepers.m
+END
+balance_clim.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5423/heitz/Common/balance_clim.m
+END
+SDF_screenloc_raster.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/5995/heitz/Common/SDF_screenloc_raster.m
+END
+CAF.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/6068/heitz/Common/CAF.m
+END
+eload_SAT.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/6016/heitz/Common/eload_SAT.m
+END
+shake.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/1711/heitz/Common/shake.m
+END
+medfig.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4971/heitz/Common/medfig.m
+END
+getTDT_SP.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5745/heitz/Common/getTDT_SP.m
+END
+qload.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/4484/heitz/Common/qload.m
+END
+findValid.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/260/heitz/Common/findValid.m
+END
+mf.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/jschall/!svn/ver/4130/heitz/Common/mf.m
+END
+TuningTest.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/2127/heitz/Common/TuningTest.m
+END
+getFIXtime.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5028/heitz/Common/getFIXtime.m
+END
+plotBW.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4774/heitz/Common/plotBW.m
+END
+suplabel.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/3789/heitz/Common/suplabel.m
+END
+getTuning_AD.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5281/heitz/Common/getTuning_AD.m
+END
+SendEmailNotification.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/3631/heitz/Common/SendEmailNotification.m
+END
+loadChan.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5947/heitz/Common/loadChan.m
+END
+acc_by_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5698/heitz/Common/acc_by_screenloc.m
+END
+PSTH.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/5386/heitz/Common/PSTH.m
+END
+plotSDF_SS.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5376/heitz/Common/plotSDF_SS.m
+END
+amort.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/5597/heitz/Common/amort.m
+END
+roundoff.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/1771/heitz/Common/roundoff.m
+END
+getTuning_SP_targ.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/4986/heitz/Common/getTuning_SP_targ.m
+END
+wilcoxon_paired.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/1757/heitz/Common/wilcoxon_paired.m
+END
+colormapNew.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/5799/heitz/Common/colormapNew.m
+END
+saveRF_Hemi.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/5951/heitz/Common/saveRF_Hemi.m
+END
+getSaccVelocity.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5478/heitz/Common/getSaccVelocity.m
+END
+ws.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/jschall/!svn/ver/1738/heitz/Common/ws.m
+END
+fig4.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/4724/heitz/Common/fig4.m
+END
+longBase.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5023/heitz/Common/longBase.m
+END
+removeNaN.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/4601/heitz/Common/removeNaN.m
+END
+rgbslide.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5797/heitz/Common/rgbslide.m
+END
+plotLum.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/3808/heitz/Common/plotLum.m
+END
+getEmpty.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/954/heitz/Common/getEmpty.m
+END
+getBEH.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/3413/heitz/Common/getBEH.m
+END
+getTDT_AD.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5781/heitz/Common/getTDT_AD.m
+END
+transpose3.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/3762/heitz/Common/transpose3.m
+END
+normalize_SP.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5802/heitz/Common/normalize_SP.m
+END
+getCellnames.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/3292/heitz/Common/getCellnames.m
+END
+fig.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/4724/heitz/Common/fig.m
+END
+selectOutliers.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/2204/heitz/Common/selectOutliers.m
+END
+RTD_over_sessions.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/5729/heitz/Common/RTD_over_sessions.m
+END
+plotSDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/5947/heitz/Common/plotSDF.m
+END
+plotTrain.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/1920/heitz/Common/plotTrain.m
+END
+getVec.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/6011/heitz/Common/getVec.m
+END
+getMainSequence.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5453/heitz/Common/getMainSequence.m
+END
+f_comparison.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5238/heitz/Common/f_comparison.m
+END
+rtd_by_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5781/heitz/Common/rtd_by_screenloc.m
+END
+FindClipTrs.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/1858/heitz/Common/FindClipTrs.m
+END
+AD_SL.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2777/heitz/Common/AD_SL.m
+END
+fon.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/3685/heitz/Common/fon.m
+END
+maximize.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/260/heitz/Common/maximize.m
+END
+getAntiRF.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/1739/heitz/Common/getAntiRF.m
+END
+getBinomialErrors.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/5417/heitz/Common/getBinomialErrors.m
+END
+bigfig.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/4971/heitz/Common/bigfig.m
+END
+cla_all.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/4544/heitz/Common/cla_all.m
+END
+saveSRT.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/5802/heitz/Common/saveSRT.m
+END
+shadedplot.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/2173/heitz/Common/shadedplot.m
+END
+lsl.m
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/jschall/!svn/ver/2479/heitz/Common/lsl.m
+END
+getThresh.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5802/heitz/Common/getThresh.m
+END
+SDF_consistency.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5974/heitz/Common/SDF_consistency.m
+END
+getTrials.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/3483/heitz/Common/getTrials.m
+END
+getJackKnife_TDT.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5788/heitz/Common/getJackKnife_TDT.m
+END
+SDF_screenloc_raster_allTrials.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/260/heitz/Common/SDF_screenloc_raster_allTrials.m
+END
+subsubplot.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/260/heitz/Common/subsubplot.m
+END
+normalize_AD.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/4766/heitz/Common/normalize_AD.m
+END
+getRF.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/1467/heitz/Common/getRF.m
+END
+plotSDF_screenloc.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/5947/heitz/Common/plotSDF_screenloc.m
+END
+rescale_subplots.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/2138/heitz/Common/rescale_subplots.m
+END
+Acc2Dprime.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/6072/heitz/Common/Acc2Dprime.m
+END
+Base_Batch.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/260/heitz/Common/Base_Batch.m
+END
+removeTrials.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/3538/heitz/Common/removeTrials.m
+END
+noise_correlation.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/5456/heitz/Common/noise_correlation.m
+END
+spikeDensityfunction_singletrial.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/3787/heitz/Common/spikeDensityfunction_singletrial.m
+END
+multiHist.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/6056/heitz/Common/multiHist.m
+END
+mergeFiles.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5816/heitz/Common/mergeFiles.m
+END
+fixErrors.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/3723/heitz/Common/fixErrors.m
+END
+getCurve.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/3471/heitz/Common/getCurve.m
+END
+saveBursts_vamp.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/3749/heitz/Common/saveBursts_vamp.m
+END
+sr.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/jschall/!svn/ver/4200/heitz/Common/sr.m
+END
+Aggregate_Pburst.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/260/heitz/Common/Aggregate_Pburst.m
+END
+dockf.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2581/heitz/Common/dockf.m
+END
+fig1.m
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/jschall/!svn/ver/4724/heitz/Common/fig1.m
+END
+genSine.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/3662/heitz/Common/genSine.m
+END
+fixEye.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/3464/heitz/Common/fixEye.m
+END
+arrow.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2066/heitz/Common/arrow.m
+END
+dline.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2498/heitz/Common/dline.m
+END
+hline.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/1762/heitz/Common/hline.m
+END
+diagind.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/412/heitz/Common/diagind.m
+END
+plotLFP_Raster.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/5425/heitz/Common/plotLFP_Raster.m
+END
+colorbarlabel.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/1767/heitz/Common/colorbarlabel.m
+END
+truncateSP_targ.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/2156/heitz/Common/truncateSP_targ.m
+END
+tileFigs.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/3543/heitz/Common/tileFigs.m
+END
+saveSRT_openfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5726/heitz/Common/saveSRT_openfile.m
+END
+colorlines.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/2398/heitz/Common/colorlines.m
+END
+getSpikeWidth.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/5932/heitz/Common/getSpikeWidth.m
+END
+getFano_fix_acq.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5980/heitz/Common/getFano_fix_acq.m
+END
+printPlots.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/555/heitz/Common/printPlots.m
+END
+printPlots_batch.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/636/heitz/Common/printPlots_batch.m
+END
+c_.m
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/jschall/!svn/ver/1547/heitz/Common/c_.m
+END
+newax.m
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/jschall/!svn/ver/2581/heitz/Common/newax.m
+END
+qload_MG.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/1548/heitz/Common/qload_MG.m
+END

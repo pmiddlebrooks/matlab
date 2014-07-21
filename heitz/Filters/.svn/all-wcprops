@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/jschall/!svn/ver/5736/heitz/Filters
+END
+highpass.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5452/heitz/Filters/highpass.m
+END
+lowpass.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5452/heitz/Filters/lowpass.m
+END
+bandstop.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5678/heitz/Filters/bandstop.m
+END
+bandpass.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5678/heitz/Filters/bandpass.m
+END
+notch.m
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/jschall/!svn/ver/5678/heitz/Filters/notch.m
+END
+filtSig.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5736/heitz/Filters/filtSig.m
+END

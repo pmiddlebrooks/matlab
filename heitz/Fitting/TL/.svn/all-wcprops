@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/jschall/!svn/ver/5880/heitz/Fitting/TL
+END
+fitLBA_oneCond.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/5880/heitz/Fitting/TL/fitLBA_oneCond.m
+END
+fitLBA_TL_multiLBA.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/4695/heitz/Fitting/TL/fitLBA_TL_multiLBA.m
+END
+fitLBA_TL_2AFC_setsize_calcLL.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5250/heitz/Fitting/TL/fitLBA_TL_2AFC_setsize_calcLL.m
+END
+fitLBA_oneCond_calcLL.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5880/heitz/Fitting/TL/fitLBA_oneCond_calcLL.m
+END
+fitLBA_TL_2AFC_setsize.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/4970/heitz/Fitting/TL/fitLBA_TL_2AFC_setsize.m
+END
+fitLBA_TL_multiLBA_calcLL.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/4570/heitz/Fitting/TL/fitLBA_TL_multiLBA_calcLL.m
+END

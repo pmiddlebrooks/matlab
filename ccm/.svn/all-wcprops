@@ -1,0 +1,317 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/6320/middlebrooks/matlab/ccm
+END
+ccm_latency_probability_function.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/6212/middlebrooks/matlab/ccm/ccm_latency_probability_function.m
+END
+ccm_microsaccade_before_RT.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/6212/middlebrooks/matlab/ccm/ccm_microsaccade_before_RT.m
+END
+ccm_ssrt_distribution_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/6266/middlebrooks/matlab/ccm/ccm_ssrt_distribution_population.m
+END
+ccm_concat_neural_conditions.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/6261/middlebrooks/matlab/ccm/ccm_concat_neural_conditions.m
+END
+ccm_chronometric_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/6325/middlebrooks/matlab/ccm/ccm_chronometric_population.m
+END
+ccm_trial_history_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/5734/middlebrooks/matlab/ccm/ccm_trial_history_population.m
+END
+ccm_inhibition_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/6330/middlebrooks/matlab/ccm/ccm_inhibition_population.m
+END
+ccm_checkerboard_trial.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5895/middlebrooks/matlab/ccm/ccm_checkerboard_trial.m
+END
+ccm_population_behavior.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/5573/middlebrooks/matlab/ccm/ccm_population_behavior.m
+END
+trial_visualization.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/5675/middlebrooks/matlab/ccm/trial_visualization.m
+END
+ccm_n2pc_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/6092/middlebrooks/matlab/ccm/ccm_n2pc_population.m
+END
+ccm_colormap.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/6244/middlebrooks/matlab/ccm/ccm_colormap.m
+END
+ccm_session_data.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/6263/middlebrooks/matlab/ccm/ccm_session_data.m
+END
+ccm_compare_rt_dist.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/6090/middlebrooks/matlab/ccm/ccm_compare_rt_dist.m
+END
+ccm_compare_conditions.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/6277/middlebrooks/matlab/ccm/ccm_compare_conditions.m
+END
+ccm_trial_selection.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/6241/middlebrooks/matlab/ccm/ccm_trial_selection.m
+END
+ccm_sam_batch.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/6330/middlebrooks/matlab/ccm/ccm_sam_batch.m
+END
+ccm_cell_to_mat.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5284/middlebrooks/matlab/ccm/ccm_cell_to_mat.m
+END
+ccm_EZ_diffusion.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/6212/middlebrooks/matlab/ccm/ccm_EZ_diffusion.m
+END
+ccm_rt_distribution.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/6172/middlebrooks/matlab/ccm/ccm_rt_distribution.m
+END
+ccm_n2pc_ddm_like.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/6212/middlebrooks/matlab/ccm/ccm_n2pc_ddm_like.m
+END
+ccm_go_vs_canceled.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/6277/middlebrooks/matlab/ccm/ccm_go_vs_canceled.m
+END
+ccm_trial_history.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/6216/middlebrooks/matlab/ccm/ccm_trial_history.m
+END
+ccm_inhibition.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/6335/middlebrooks/matlab/ccm/ccm_inhibition.m
+END
+ccm_chronometric.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/6325/middlebrooks/matlab/ccm/ccm_chronometric.m
+END
+ccm_behavior.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/6172/middlebrooks/matlab/ccm/ccm_behavior.m
+END
+ccm_canceled_vs_noncanceled.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/6277/middlebrooks/matlab/ccm/ccm_canceled_vs_noncanceled.m
+END
+ccm_match_rt.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/6252/middlebrooks/matlab/ccm/ccm_match_rt.m
+END
+ccm_session_behavior.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/6327/middlebrooks/matlab/ccm/ccm_session_behavior.m
+END
+ccm_n2pc.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/6212/middlebrooks/matlab/ccm/ccm_n2pc.m
+END
+ccm_go_vs_canceled_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/6265/middlebrooks/matlab/ccm/ccm_go_vs_canceled_population.m
+END
+ccm_go_vs_noncanceled.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6277/middlebrooks/matlab/ccm/ccm_go_vs_noncanceled.m
+END
+ccm_ddm_like.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/6277/middlebrooks/matlab/ccm/ccm_ddm_like.m
+END
+ccm_neuron_stop_vs_go.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6252/middlebrooks/matlab/ccm/ccm_neuron_stop_vs_go.m
+END
+ccm_psychometric.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/6325/middlebrooks/matlab/ccm/ccm_psychometric.m
+END
+ccm_epoch_range.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/6190/middlebrooks/matlab/ccm/ccm_epoch_range.m
+END
+ccm_session_data_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6335/middlebrooks/matlab/ccm/ccm_session_data_plot.m
+END
+ccm_concat_sessions_behavior.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/6330/middlebrooks/matlab/ccm/ccm_concat_sessions_behavior.m
+END
+ccm_inhibition_vs_accuracy.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/6337/middlebrooks/matlab/ccm/ccm_inhibition_vs_accuracy.m
+END
+ccm_checkerboard_session.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/6211/middlebrooks/matlab/ccm/ccm_checkerboard_session.m
+END
+ccm_psychometric_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/6325/middlebrooks/matlab/ccm/ccm_psychometric_population.m
+END
+ccm_sam_simulation.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/6325/middlebrooks/matlab/ccm/ccm_sam_simulation.m
+END
+ccm_erp.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/6095/middlebrooks/matlab/ccm/ccm_erp.m
+END
+ccm_checkerboard_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/6211/middlebrooks/matlab/ccm/ccm_checkerboard_population.m
+END
+ccm_sam_translate_datafile.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/6330/middlebrooks/matlab/ccm/ccm_sam_translate_datafile.m
+END
+ccm_collapse_sessions.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/6172/middlebrooks/matlab/ccm/ccm_collapse_sessions.m
+END
+ccm_plot_epoch.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/6260/middlebrooks/matlab/ccm/ccm_plot_epoch.m
+END
+ccm_chronometric_fit.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/5435/middlebrooks/matlab/ccm/ccm_chronometric_fit.m
+END
+ccm_rt_distribution_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/6328/middlebrooks/matlab/ccm/ccm_rt_distribution_population.m
+END
+ccm_choice_wrt_ssd.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/6211/middlebrooks/matlab/ccm/ccm_choice_wrt_ssd.m
+END
+ccm_n2pc_ddm_population.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/6060/middlebrooks/matlab/ccm/ccm_n2pc_ddm_population.m
+END
+ccm_choice_wrt_stop_pct.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/6211/middlebrooks/matlab/ccm/ccm_choice_wrt_stop_pct.m
+END

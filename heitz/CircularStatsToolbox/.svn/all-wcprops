@@ -1,0 +1,317 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/6052/heitz/CircularStatsToolbox
+END
+circ_vmpar.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_vmpar.m
+END
+circ_confmean.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_confmean.m
+END
+circ_var.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_var.m
+END
+circ_kappa.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_kappa.m
+END
+circ_median.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_median.m
+END
+circ_wwtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_wwtest.m
+END
+circ_axial.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_axial.m
+END
+circ_samplecdf.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_samplecdf.m
+END
+circ_stats.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_stats.m
+END
+circ_disptest.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/2906/heitz/CircularStatsToolbox/circ_disptest.m
+END
+plot_circle.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/4180/heitz/CircularStatsToolbox/plot_circle.m
+END
+circ_r.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_r.m
+END
+circ_hktest.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_hktest.m
+END
+circ_medtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_medtest.m
+END
+license.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/5239/heitz/CircularStatsToolbox/license.txt
+END
+circ_corrcc.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_corrcc.m
+END
+circ_vmpdf.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_vmpdf.m
+END
+ang2rad.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/ang2rad.m
+END
+circ_ang2rad.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_ang2rad.m
+END
+circ_rad2ang.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_rad2ang.m
+END
+rad2ang.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/rad2ang.m
+END
+circ_raotest.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_raotest.m
+END
+circ_corrcl.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_corrcl.m
+END
+circ_dist2.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_dist2.m
+END
+bessi0.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/bessi0.m
+END
+bessip.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/bessip.m
+END
+circ_gtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/circ_gtest.m
+END
+bessi1.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/bessi1.m
+END
+circ_vmrnd.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_vmrnd.m
+END
+circ_randvm.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/circ_randvm.m
+END
+circ_clust.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_clust.m
+END
+circ_ktest.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_ktest.m
+END
+circ_std.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_std.m
+END
+circ_mtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_mtest.m
+END
+Contents.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/Contents.m
+END
+circ_otest.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_otest.m
+END
+circ_moment.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_moment.m
+END
+circ_kuipertest.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_kuipertest.m
+END
+circ_axialmean.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_axialmean.m
+END
+circ_cmtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_cmtest.m
+END
+circ_kappa2r.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/circ_kappa2r.m
+END
+circ_r2kappa.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/2060/heitz/CircularStatsToolbox/circ_r2kappa.m
+END
+circ_rtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_rtest.m
+END
+circ_skewness.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_skewness.m
+END
+circ_dist.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_dist.m
+END
+circ_vtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_vtest.m
+END
+circ_symtest.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_symtest.m
+END
+circ_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_plot.m
+END
+circ_mean.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/circ_mean.m
+END
+readme.txt
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/jschall/!svn/ver/5235/heitz/CircularStatsToolbox/readme.txt
+END
+circ_kurtosis.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/5236/heitz/CircularStatsToolbox/circ_kurtosis.m
+END
+mypolar.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/4972/heitz/CircularStatsToolbox/mypolar.m
+END

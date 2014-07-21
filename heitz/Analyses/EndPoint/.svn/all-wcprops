@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/3566/heitz/Analyses/EndPoint
+END
+standardized_angles.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/2565/heitz/Analyses/EndPoint/standardized_angles.m
+END
+Two_Dimension_Gaussian.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/2061/heitz/Analyses/EndPoint/Two_Dimension_Gaussian.m
+END
+stats_SDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/3415/heitz/Analyses/EndPoint/stats_SDF.m
+END
+endpoint_heitz_median_split.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/3415/heitz/Analyses/EndPoint/endpoint_heitz_median_split.m
+END
+plot_sloppy_accurate.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/3334/heitz/Analyses/EndPoint/plot_sloppy_accurate.m
+END
+stats_variability.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/2570/heitz/Analyses/EndPoint/stats_variability.m
+END
+endpoint_post_processing.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/2581/heitz/Analyses/EndPoint/endpoint_post_processing.m
+END
+Saccade_End_Point.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/2061/heitz/Analyses/EndPoint/Saccade_End_Point.m
+END
+endpoint_heitz.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/jschall/!svn/ver/3566/heitz/Analyses/EndPoint/endpoint_heitz.m
+END
+plot_compass.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/2565/heitz/Analyses/EndPoint/plot_compass.m
+END
+stats_scatter.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/3150/heitz/Analyses/EndPoint/stats_scatter.m
+END

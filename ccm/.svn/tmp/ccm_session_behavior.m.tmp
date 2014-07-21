@@ -1,0 +1,890 @@
+function [ssdArray, stopRespondProb, nStop, goTargetProb, stopTargetProb, inhibitionFn, ssrt, stopRespondProbGrand, inhibitionFnGrand, ssrtGrand, goRightProb, stopRightProb, ...
+    signalStrengthLeft, signalStrengthRight ...
+    goLeftToTarg, goRightToTarg, goLeftToDist, goRightToDist ...
+    stopLeftToTarg, stopRightToTarg, stopLeftToDist, stopRightToDist] = ccm_session_behavior(subjectID, sessionID, plotFlag)
+%%
+stopRespondProb = [];
+stopTargetProb = [];
+inhibitionFn = [];
+ssrt = [];
+stopRightProb = [];
+stopTargRT = [];
+stopDistRT = [];
+
+% Load the data
+[dataFile, localDataPath, localDataFile] = data_file_path(subjectID, sessionID)
+% If the file hasn't already been copied to a local directory, do it now
+if exist(localDataFile, 'file') ~= 2
+    copyfile(dataFile, localDataPath)
+end
+load(localDataFile);
+
+% Flag to determine whether we want to include stop trial analyses for the
+% session
+DO_STOPS = 1;
+
+if ~strcmp(sessionData.task.taskID, 'ccm')
+    fprintf('Not a choice countermanding session, try again\n')
+    return
+end
+
+
+% Convert cells to doubles if necessary
+trialData = cell_to_mat(trialData);
+
+
+
+% sessionID = 'bp032n04';
+
+% axes names
+pRightvRT = 1;
+pRightvProbRight = 2;
+inhibition = 3;
+SSDvPCorrect = 4;
+ssrtPRight = 5;
+targDistRT = 6;
+pRightVsPCorrect = 7;
+
+
+
+
+if plotFlag
+    nRow = 3;
+    nColumn = 3;
+    screenOrSave = 'save';
+    figureHandle = 9239;
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = big_figure(nRow, nColumn, figureHandle, screenOrSave);
+    
+    choicePlotXMargin = .03;
+    ssdMargin = 20;
+    ylimArray = [];
+    
+end
+
+
+
+
+nTrial = size(trialData, 1);
+goColor = [0 0 0];
+stopColor = [1 0 0];
+target1ProportionArray = unique(trialData.target1CheckerProportion);
+target1ProportionArray(isnan(target1ProportionArray)) = [];
+
+% Need to do a little SSD value adjusting, due to ms difference and 1-frame
+% differences in SSD values
+ssdArray = unique(trialData.stopOnset - trialData.responseCueOnset);
+ssdArray(isnan(ssdArray)) = [];
+if ~isempty(ssdArray) && DO_STOPS
+    a = diff(ssdArray);
+    ssdArray(a == 1) = ssdArray(a == 1) + 1;
+    ssdArray = unique(ssdArray);
+    b = [ssdArray(1); diff(ssdArray)];
+    ssdArray(b < 18) = [];
+end
+
+
+
+
+
+
+
+
+
+
+
+% ***********************************************************************
+% Inhibition Function:
+%       &
+% SSD vs. Proportion of Response trials
+%       &
+% SSD vs. Proportion(Correct Choice)
+% ***********************************************************************
+
+% If there weren't stop trials, skip all stop-related analyses
+if ~isempty(ssdArray) && DO_STOPS
+    if plotFlag
+        % inhibition function
+        ax(inhibition) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
+        hold(ax(inhibition), 'on')
+        % p(right) vs ssrt
+        ax(ssrtPRight) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 1) yAxesPosition(2, 1) axisWidth axisHeight]);
+        hold(ax(ssrtPRight), 'on')
+        % SSD vs p(correct)
+        ax(SSDvPCorrect) = axes('units', 'centimeters', 'position', [xAxesPosition(3, 1) yAxesPosition(3, 1) axisWidth axisHeight]);
+        hold(ax(SSDvPCorrect), 'on')
+    end
+
+    stopCorrectTotal    = cell(length(target1ProportionArray), length(ssdArray));
+    stopTotal  = cell(length(target1ProportionArray), length(ssdArray));
+    goTargTotal  = cell(length(target1ProportionArray), 1);
+    goTotalRT    = cell(length(target1ProportionArray), 1);
+    stopRespondProb     = nan(length(target1ProportionArray), length(ssdArray));
+    stopTargetProb      = nan(length(target1ProportionArray), length(ssdArray));
+    inhibitionFn        = cell(length(target1ProportionArray), 1);
+    goTargRT     = zeros(length(target1ProportionArray), 1);
+    nStop               = nan(length(target1ProportionArray), length(ssdArray));
+    ssrt                = nan(length(target1ProportionArray), 1);
+    minColorGun = .25;
+    maxColorGun = 1;
+    for iPropIndex = 1 : length(target1ProportionArray);
+        iPercent = target1ProportionArray(iPropIndex) * 100;
+
+        % Determine color to use for plot based on which checkerboard color
+        % proportion being used. Normalize the available color spectrum to do
+        % it
+        if iPercent == 50
+            inhColor = [0 0 0];
+        elseif iPercent < 50
+            colorNorm = .5 - target1ProportionArray(1);
+            colorProp = (.5 - target1ProportionArray(iPropIndex)) / colorNorm;
+            colorGun = minColorGun + (maxColorGun - minColorGun) * colorProp;
+            inhColor = [0 colorGun colorGun];
+        elseif iPercent > 50
+            colorNorm = target1ProportionArray(end) - .5;
+            colorProp = (target1ProportionArray(iPropIndex) - .5) / colorNorm;
+            colorGun = minColorGun + (maxColorGun - minColorGun) * colorProp;
+            inhColor = [colorGun 0 colorGun];
+        end
+
+        for jSSDIndex = 1 : length(ssdArray)
+%             tic
+            jSSD = ssdArray(jSSDIndex);
+
+            % stop correct trials
+            stopCorrectTrial = ccm_trial_selection(subjectID, sessionID,  {'stopCorrect'}, iPercent, jSSD, 'all');
+            stopCorrectTotal{iPropIndex, jSSDIndex} = stopCorrectTrial;  % Keep track of totals for grand inhibition fnct
+
+            % stop incorrect trials
+            stopTargetOutcome = {'targetHoldAbort', 'stopIncorrectTarget'};
+            stopDistractorOutcome = {'distractorHoldAbort', 'stopIncorrectDistractor'};
+
+            stopTargTrial = ccm_trial_selection(subjectID, sessionID,  stopTargetOutcome, iPercent, jSSD, 'all');
+            stopDistTrial = ccm_trial_selection(subjectID, sessionID,  stopDistractorOutcome, iPercent, jSSD, 'all');
+
+            % stop incorrect trials for inhibition: do we want stop incorrect to the target or to
+            % target/distractor?
+            stopIncorrectTrial = union(stopTargTrial, stopDistTrial);
+            stopTotal{iPropIndex, jSSDIndex} = stopIncorrectTrial;  % Keep track of totals for grand inhibition fnct
+
+            % Inhibition function data points:
+            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopCorrectTrial) + length(stopIncorrectTrial));
+            nStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial) + length(stopIncorrectTrial);
+
+            % p(Correct choice) vs. SSD data points:
+            stopTargetProb(iPropIndex, jSSDIndex) = length(stopTargTrial) / (length(stopTargTrial) + length(stopDistTrial));
+%             toc
+        end % iSSDIndex
+
+
+        % Inhibition function data points
+        iStopProbRespond = stopRespondProb(iPropIndex, :);
+        keepSSD = ~isnan(iStopProbRespond);
+        iStopProbRespond = iStopProbRespond(keepSSD);
+
+        % p(Correct choice) vs. SSD data points:
+        iStopProbTarget = stopTargetProb(iPropIndex, :);
+        keepSSDChoice = ~isnan(iStopProbTarget);
+        iStopProbTarget = iStopProbTarget(keepSSDChoice);
+        iSSDArrayChoice = ssdArray(keepSSDChoice)';
+        [p, s] = polyfit(iSSDArrayChoice, iStopProbTarget, 1);
+        xVal = min(iSSDArrayChoice) : max(iSSDArrayChoice);
+
+
+        % Inhibition function calculation
+        iNStop = nStop(iPropIndex, :);
+        iNStop = iNStop(keepSSD);
+        iSSDArray = ssdArray(keepSSD);
+
+        [fitParameters, lowestSSE] = Weibull(iSSDArray, iStopProbRespond, iNStop);
+        %         [fitParameters, lowestSSE] = Weibull_fast(iSSDArray, iStopProbRespond, iNStop);
+        timePoints = iSSDArray(1) : iSSDArray(end);
+        inhibitionFn{iPropIndex} = weibull_curve(fitParameters, timePoints);
+
+
+        % SSRT: get go RTs and number of stop trials (already have other
+        % necessary variables)
+        goOutcome = {'goCorrectTarget'};
+        goTarget = ccm_trial_selection(subjectID, sessionID, goOutcome, iPercent, 'none', 'all');
+        iGoTargIndices = zeros(nTrial, 1);
+        iGoTargIndices(goTarget) = 1;
+
+        oddData = find(isnan(trialData.saccadeToTargetIndex) & iGoTargIndices & ismember(trialData.target1CheckerProportion, target1ProportionArray));
+        if oddData
+            fprintf('%d trials to signalStrength %d are listed as %s but don''t have valid saccades to target:\n', length(oddData), iPercent, 'goCorrectTarget')
+            disp(oddData)
+        end
+        iGoTargIndices(oddData) = 0;
+
+        if sum(iGoTargIndices)
+            iGoTarg = find(iGoTargIndices);
+            goTargTotal{iPropIndex} = iGoTarg;  % Keep track of totals for grand inhibition fnct
+
+            responseOnset = trialData.responseOnset(iGoTarg);
+            responseCueOnset = trialData.responseCueOnset(iGoTarg);
+            iGoTargRT = responseOnset - responseCueOnset;
+            goTotalRT{iPropIndex} = iGoTargRT;
+            goTargRT(iPropIndex) = mean(iGoTargRT);
+        end
+        iNStop = nStop(iPropIndex, :)';
+        iNStop(iNStop == 0) = [];
+        [SSRT both_SSRTs SSRT_c SSRT_r meanSSD] = get_SSRT(iSSDArray, iStopProbRespond, iNStop, iGoTargRT, fitParameters);
+        %         ssrt(iPropIndex) = SSRT_c;
+        ssrt(iPropIndex) = SSRT;
+
+
+        if plotFlag
+%             plot(ax(inhibition), timePoints, inhibitionFn{iPropIndex}, 'color', inhColor, 'linewidth', 2)
+            plot(ax(ssrtPRight), target1ProportionArray(iPropIndex), ssrt(iPropIndex), '.', 'markersize', 30, 'color', inhColor)
+            plot(ax(SSDvPCorrect), xVal, p(1) * xVal + p(2), 'color', inhColor, 'linewidth', 2)
+        end
+% 
+    end % iPropIndex
+
+    flipPropArray = target1ProportionArray;
+    flipPropArray(flipPropArray > .5) = fliplr(flipPropArray(flipPropArray < .5));
+    
+[p, s] = polyfit(flipPropArray, ssrt, 1);
+[y, delta] = polyval(p, flipPropArray, s);
+stats = regstats(flipPropArray, ssrt)
+fprintf('p-value for regression: %.4f\n', stats.tstat.pval(2))
+R = corrcoef(flipPropArray, ssrt);
+Rsqrd = R(1, 2)^2;
+cov(flipPropArray, ssrt);
+xVal = min(flipPropArray) : .001 : max(flipPropArray);
+yVal = p(1) * xVal + p(2);
+
+    
+    if plotFlag
+%         % inhibition function
+%         xlim(ax(inhibition), [ssdArray(1)-ssdMargin ssdArray(end)+ssdMargin])
+%         set(ax(inhibition), 'xtick', ssdArray)
+%         set(ax(inhibition), 'xtickLabel', ssdArray)
+%         ylim(ax(inhibition), [0 1]);
+%         set(get(ax(inhibition), 'ylabel'), 'String', 'p(Respond | stop)')
+        % p(correct) vs ssrt
+        xlim(ax(ssrtPRight), [target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin])
+        set(ax(ssrtPRight), 'xtick', target1ProportionArray)
+        set(ax(ssrtPRight), 'xtickLabel', target1ProportionArray*100)
+        set(get(ax(ssrtPRight), 'ylabel'), 'String', 'SSRT')
+        plot(ax(ssrtPRight), [.5 .5], ylim, '--k')
+        plot(ax(ssrtPRight), xVal, yVal, 'r')
+        % ssd vs p(correct)
+        xlim(ax(SSDvPCorrect), [ssdArray(1)-ssdMargin ssdArray(end)+ssdMargin])
+        set(ax(SSDvPCorrect), 'xtick', ssdArray)
+        set(ax(SSDvPCorrect), 'xtickLabel', ssdArray)
+        ylim(ax(SSDvPCorrect), [-.05 1.05]);
+        set(get(ax(SSDvPCorrect), 'ylabel'), 'String', 'p(Correct)')
+
+    end % if plotflag
+
+
+
+
+
+    % Also calculate a grand inhibition function and SSRT, across
+    % discriminability levels
+
+    % Grand Inhibition function
+    nStopIncorrectGrand = zeros(length(ssdArray), 1);
+    nStopCorrectGrand = zeros(length(ssdArray), 1);
+    stopRespondProbGrand = nan(length(ssdArray), 1);
+    nStopGrand = zeros(length(ssdArray), 1);
+    for iSSDIndex = 1 : length(ssdArray)
+        for jPropIndex = 1 : length(target1ProportionArray);
+            nStopIncorrectGrand(iSSDIndex) = nStopIncorrectGrand(iSSDIndex) + length(stopTotal{jPropIndex, iSSDIndex});
+            nStopCorrectGrand(iSSDIndex) = nStopCorrectGrand(iSSDIndex) + length(stopCorrectTotal{jPropIndex, iSSDIndex});
+        end
+        nStopGrand(iSSDIndex) = nStopIncorrectGrand(iSSDIndex) + nStopCorrectGrand(iSSDIndex);
+        % Inhibition function data points
+        stopRespondProbGrand(iSSDIndex) = nStopIncorrectGrand(iSSDIndex) / nStopGrand(iSSDIndex);
+    end
+    keepSSD = ~isnan(stopRespondProbGrand);
+    stopRespondProbGrand = stopRespondProbGrand(keepSSD);
+    nStopGrand = nStopGrand(keepSSD)
+    ssdArray = ssdArray(keepSSD);
+%     [fitParameters, lowestSSE] = Weibull(ssdArray, stopRespondProbGrand, nStopGrand);
+%     [fitParameters, lowestSSE] = Weibull(ssdArray, stopRespondProbGrand, nStopGrand);
+    [fitParameters, lowestSSE] = Weibull_fast(ssdArray, stopRespondProbGrand, nStopGrand);
+    timePoints = ssdArray(1) : ssdArray(end);
+    inhibitionFnGrand = weibull_curve(fitParameters, timePoints);
+
+    if plotFlag
+        plot(ax(inhibition), timePoints, inhibitionFnGrand, 'color', 'g', 'linewidth', 2)
+        plot(ax(inhibition), ssdArray, stopRespondProbGrand, '.k', 'markersize', 25)
+    end
+
+    % Grand SSRT
+    goGrandRT = [];
+    for iPropIndex = 1 : length(target1ProportionArray)
+        goGrandRT = [goGrandRT; goTotalRT{iPropIndex}];
+    end
+    [SSRT both_SSRTs SSRT_c SSRT_r meanSSD] = get_SSRT(ssdArray, stopRespondProbGrand, nStopGrand, goGrandRT, fitParameters);
+    ssrtGrand = SSRT;
+%     [ssdArray, nStopGrand, stopRespondProbGrand]
+
+end % if ~isempty(ssdArray)
+
+
+return
+
+
+
+% ***********************************************************************
+% Probability(Rightward response) vs Proportion(Correct Choice)
+% ***********************************************************************
+goTargTotal      = cell(length(target1ProportionArray), 1);
+goDistTotal      = cell(length(target1ProportionArray), 1);
+nGoTargTotal      = nan(length(target1ProportionArray), 1);
+nGoDistTotal      = nan(length(target1ProportionArray), 1);
+for iPropIndex = 1 : length(target1ProportionArray);
+    iPercent = target1ProportionArray(iPropIndex) * 100;
+
+    goDistOutcome =  {'goCorrectDistractor'};
+    goDist = ccm_trial_selection(subjectID, sessionID, goDistOutcome, iPercent, 'none', 'all');
+    iGoDistIndices = zeros(nTrial, 1);
+    iGoDistIndices(goDist) = 1;
+
+    oddData = find(isnan(trialData.saccadeToTargetIndex) & iGoDistIndices & ismember(trialData.target1CheckerProportion, target1ProportionArray));
+    if oddData
+        fprintf('%d trials are listed as %s but don''t have valid saccades to target:\n', length(oddData), goDistOutcome)
+        disp(oddData)
+    end
+    iGoDistIndices(oddData) = 0;
+
+    if sum(iGoDistIndices)
+        iGoDist = find(iGoDistIndices);
+        goDistTotal{iPropIndex} = iGoDist;  % Keep track of totals for grand inhibition fnct
+        nGoDistTotal(iPropIndex) = length(iGoDist);  % Keep track of totals for grand inhibition fnct
+    end
+
+
+    goTargtOutcome =  {'goCorrectTarget'};
+    goTarg = ccm_trial_selection(subjectID, sessionID, goTargtOutcome, iPercent, 'none', 'all');
+    iGoTargIndices = zeros(nTrial, 1);
+    iGoTargIndices(goTarg) = 1;
+
+    oddData = find(isnan(trialData.saccadeToTargetIndex) & iGoTargIndices & ismember(trialData.target1CheckerProportion, target1ProportionArray));
+    if oddData
+        fprintf('%d trials are listed as %s but don''t have valid saccades to target:\n', length(oddData), goTargtOutcome)
+        disp(oddData)
+    end
+    iGoTargIndices(oddData) = 0;
+
+    if sum(iGoTargIndices)
+        iGoTarg = find(iGoTargIndices);
+        goTargTotal{iPropIndex} = iGoTarg;  % Keep track of totals for grand inhibition fnct
+        nGoTargTotal(iPropIndex) = length(iGoTarg);  % Keep track of totals for grand inhibition fnct
+    end
+end
+
+goTargetProb = nGoTargTotal ./ (nGoTargTotal + nGoDistTotal);
+goTargetProb(isnan(goTargetProb)) = 1;
+
+if plotFlag
+    % p(rightward response) vs p(correct choice)
+    ax(pRightVsPCorrect) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 3) yAxesPosition(1, 3) axisWidth axisHeight]);
+    hold(ax(pRightVsPCorrect), 'on')
+    plot(ax(pRightVsPCorrect), target1ProportionArray, goTargetProb, 'color', 'k', 'linewidth', 2)
+
+    set(ax(pRightVsPCorrect), 'xtick', target1ProportionArray)
+    set(ax(pRightVsPCorrect), 'xtickLabel', target1ProportionArray*100)
+    set(get(ax(pRightVsPCorrect), 'ylabel'), 'String', 'p(Correct)')
+    set(ax(pRightVsPCorrect),'XLim',[target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin])
+    set(ax(pRightVsPCorrect),'YLim',[.45 1])
+    plot(ax(pRightVsPCorrect), [.5 .5], ylim, '--k')
+
+    minColorGun = .25;
+    maxColorGun = 1;
+    if ~isempty(ssdArray) && DO_STOPS
+        for jSSDIndex = 1 : length(ssdArray)
+            % Determine color to use for plot based on which checkerboard color
+            % proportion being used. Normalize the available color spectrum to do
+            % it
+            ssdFrac = ssdArray(jSSDIndex) / ssdArray(end);
+            colorGun = minColorGun + (maxColorGun - minColorGun) * ssdFrac;
+            ssdColor = [colorGun 0 0];
+
+            plot(ax(pRightVsPCorrect), target1ProportionArray, stopTargetProb(:, jSSDIndex), 'color', ssdColor, 'linewidth', 2)
+        end
+    end
+
+end % plotFlag
+
+
+
+
+
+
+
+%
+
+% ***********************************************************************
+% Psychometric Function: Proportion(Red Checker) vs Probability(go Right)
+% ***********************************************************************
+
+if plotFlag
+    ax(pRightvProbRight) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
+    hold(ax(pRightvProbRight), 'on')
+end
+
+
+% Get correct go probabilities rightward
+goRightProb = zeros(length(target1ProportionArray), 1);
+for iPropIndex = 1 : length(target1ProportionArray);
+    iPercent = target1ProportionArray(iPropIndex) * 100;
+
+    % All go Correct trials
+    goTarget = ccm_trial_selection(subjectID, sessionID, {'goCorrectTarget'}, iPercent, 'none', 'all');
+    goDistractor = ccm_trial_selection(subjectID, sessionID, {'goCorrectDistractor'}, iPercent, 'none', 'all');
+    go = union(goTarget, goDistractor);
+    nGo(iPropIndex) = length(go);
+
+    % Rightward go correct trials
+    goRightTarget = ccm_trial_selection(subjectID, sessionID, {'goCorrectTarget'}, iPercent, 'none', 'right');
+    goRightDistractor = ccm_trial_selection(subjectID, sessionID, {'goCorrectDistractor'}, iPercent, 'none', 'left');
+    goRight = union(goRightTarget, goRightDistractor);
+
+    goRightProb(iPropIndex) = length(goRight) / length(go) ;
+end
+
+
+
+
+% Get incorrect stop probabilities rightward
+if ~isempty(ssdArray) && DO_STOPS
+    stopRightProb = zeros(length(target1ProportionArray), 1);
+    for iPropIndex = 1 : length(target1ProportionArray);
+        iPercent = target1ProportionArray(iPropIndex) * 100;
+
+        % All stop incorrect trials
+        stopCorrectOutcome = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectDistractor', 'distractorHoldAbort'};
+        stopTrial = ccm_trial_selection(subjectID, sessionID,  stopCorrectOutcome, iPercent, 'all', 'all');
+        nStop(iPropIndex) = length(stopTrial);
+
+        % All stop incorrect rightward trials
+        stopTargetRight = ccm_trial_selection(subjectID, sessionID,  {'stopIncorrectTarget', 'targetHoldAbort'}, iPercent, 'all', 'right');
+        stopDistractorRight = ccm_trial_selection(subjectID, sessionID,  {'stopIncorrectDistractor', 'distractorHoldAbort'}, iPercent, 'all', 'left');
+        stopTrialRight = union(stopTargetRight, stopDistractorRight);
+
+        stopRightProb(iPropIndex) = length(stopTrialRight) / length(stopTrial) ;
+    end
+end
+
+
+% Need to change this to a psychometric function
+% [fitParameters, lowestSSE] = Weibull(target1ProportionArray*100, goRightProb, nGo);
+[fitParameters, lowestSSE] = Weibull_fast(target1ProportionArray*100, goRightProb);
+propPoints = target1ProportionArray(1)*100 : .1 : target1ProportionArray(end)*100;
+goPsychometricFn = weibull_curve(fitParameters, propPoints);
+
+if ~isempty(ssdArray) && DO_STOPS
+    % Need to change this to a psychometric function
+%     [fitParameters, lowestSSE] = Weibull(target1ProportionArray*100, stopRightProb, nStop);
+    [fitParameters, lowestSSE] = Weibull_fast(target1ProportionArray*100, stopRightProb);
+    stopPsychometricFn = weibull_curve(fitParameters, propPoints);
+end
+
+
+if plotFlag
+    plot(ax(pRightvProbRight), propPoints/100, goPsychometricFn, '-', 'color', goColor, 'linewidth', 2)
+    plot(ax(pRightvProbRight), target1ProportionArray, goRightProb, 'o', 'color', goColor, 'linewidth', 2, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
+    if ~isempty(ssdArray) && DO_STOPS
+        plot(ax(pRightvProbRight), propPoints/100, stopPsychometricFn, '-', 'color', stopColor, 'linewidth', 2)
+        plot(ax(pRightvProbRight), target1ProportionArray, stopRightProb, 'o', 'color', stopColor, 'linewidth', 2, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
+    end
+    set(ax(pRightvProbRight), 'xtick', target1ProportionArray)
+    set(ax(pRightvProbRight), 'xtickLabel', target1ProportionArray*100)
+    set(get(ax(pRightvProbRight), 'ylabel'), 'String', 'p(Right)')
+    set(ax(pRightvProbRight),'XLim',[target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin])
+    plot(ax(pRightvProbRight), [.5 .5], ylim, '--k')
+end
+
+% ANOVA calculations
+if ~isempty(ssdArray) && DO_STOPS
+    anovaData = [];
+    groupInh = {};
+    groupSig = [];
+    signalStrength = target1ProportionArray;
+    goTarg = goRightProb;
+    stopTarg = stopRightProb;
+    [h,p] = ttest2(goTarg, stopTarg);
+%     for i = 1 : length(signalStrength)
+%         anovaData = [anovaData; goTarg{i}; stopTarg{i}];
+%         groupInh = [groupInh; repmat({'go'}, length(goTarg{i}), 1); repmat({'stop'}, length(stopTarg{i}), 1)];
+%         groupSig = [groupSig; repmat(i, length(goTarg{i}) + length(stopTarg{i}), 1)];
+%     end
+%     [p,table,stats] = anovan(anovaData,{groupInh, groupSig}, 'display', 'off')
+%     fprintf('Psychometric ANOVA:\nStop vs. Go: \t\tp = %d\nSignal Strength: \tp = %d', p(1), p(2))
+    fprintf('Psychometric T-test:\nStop vs. Go: \tp = %.4f\n', p)
+    
+end
+
+
+
+
+
+
+
+[signalStrengthLeft, signalStrengthRight ...
+    goLeftToTarg, goRightToTarg, goLeftToDist, goRightToDist ...
+    stopLeftToTarg, stopRightToTarg, stopLeftToDist, stopRightToDist] ...
+    = ccm_chronometric(subjectID, sessionID, 1);
+
+% % ***********************************************************************
+% % Chronometric Function:     Proportion(Right) vs RT
+% % ***********************************************************************
+% 
+% if plotFlag
+%     ax(pRightvRT) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 2) yAxesPosition(2, 2) axisWidth axisHeight]);
+%     hold(ax(pRightvRT), 'on')
+%     % Target RTs - Distractor RTs for go and stop trials
+%     ax(targDistRT) = axes('units', 'centimeters', 'position', [xAxesPosition(3, 2) yAxesPosition(3, 2) axisWidth axisHeight]);
+%     hold(ax(targDistRT), 'on')
+%     
+% end
+% 
+% 
+% % Get correct go RTs
+% goOutcome =  {'goCorrectTarget'; 'targetHoldAbort'};
+% ssdRange = 'none';
+% targetHemifield = 'all';
+% 
+% goTargRT = cell(1, length(target1ProportionArray));
+% goDistRT = cell(1, length(target1ProportionArray));
+% for iPropIndex = 1 : length(target1ProportionArray);
+%     iPercent = target1ProportionArray(iPropIndex) * 100;
+%     
+%     if iPercent ~= 50
+%         goTarget = ccm_trial_selection(subjectID, sessionID, {'goCorrectTarget'; 'targetHoldAbort'}, iPercent, ssdRange, targetHemifield);
+%         goDistractor = ccm_trial_selection(subjectID, sessionID, {'goCorrectDistractor', 'distractorHoldAbort'}, iPercent, ssdRange, targetHemifield);
+%         iGoTargIndices = zeros(nTrial, 1);
+%         iGoDistIndices = zeros(nTrial, 1);
+%         iGoTargIndices(goTarget) = 1;
+%         iGoDistIndices(goDistractor) = 1;
+%         
+%         if sum(iGoTargIndices)
+%             iGoTarg = find(iGoTargIndices);
+%             responseOnset = trialData.responseOnset(iGoTarg);
+%             responseCueOnset = trialData.responseCueOnset(iGoTarg);
+%             iGoTargRT = responseOnset - responseCueOnset;
+%             goTargRT{iPropIndex} = iGoTargRT;
+%         end
+%         if sum(iGoDistIndices)
+%             iGoDist = find(iGoDistIndices);
+%             responseOnset = trialData.responseOnset(iGoDist);
+%             responseCueOnset = trialData.responseCueOnset(iGoDist);
+%             iGoDistRT = responseOnset - responseCueOnset;
+%             goDistRT{iPropIndex} = iGoDistRT;
+%         end
+%         
+%     elseif iPercent == 50
+%         go50Right = ccm_trial_selection(subjectID, sessionID, {'goCorrectTarget', 'targetHoldAbort', 'goCorrectDistractor', 'distractorHoldAbort'}, iPercent, ssdRange, 'right');
+%         go50Left = ccm_trial_selection(subjectID, sessionID, {'goCorrectTarget', 'targetHoldAbort', 'goCorrectDistractor', 'distractorHoldAbort'}, iPercent, ssdRange, 'left');
+%         iGo50RightIndices = zeros(nTrial, 1);
+%         iGo50LeftIndices = zeros(nTrial, 1);
+%         iGo50RightIndices(go50Right) = 1;
+%         iGo50LeftIndices(go50Left) = 1;
+%         
+%         if sum(iGo50RightIndices)
+%             iGo50Right = find(iGo50RightIndices);
+%             responseOnset = trialData.responseOnset(iGo50Right);
+%             responseCueOnset = trialData.responseCueOnset(iGo50Right);
+%             go50RightRT = responseOnset - responseCueOnset;
+%         else
+%             go50RightRT = [];
+%         end
+%         if sum(iGo50LeftIndices)
+%             iGo50Left = find(iGo50LeftIndices);
+%             responseOnset = trialData.responseOnset(iGo50Left);
+%             responseCueOnset = trialData.responseCueOnset(iGo50Left);
+%             go50LeftRT = responseOnset - responseCueOnset;
+%         else
+%             go50LeftRT = [];
+%         end
+%         
+%     end
+%     
+%     %     oddData = find(isnan(cell2mat(trialData.saccadeToTargetIndex)) & iGoTargIndices & ismember(cell2mat(trialData.target1CheckerProportion), target1ProportionArray));
+%     %     if oddData
+%     %         fprintf('%d trials to target %d are listed as %s but don''t have valid saccades to target:\n', length(oddData), iTarget, goOutcome)
+%     %         disp(oddData)
+%     %     end
+%     %     iGoTargIndices(oddData) = 0;
+%     
+%     
+% end
+% 
+% 
+% % Get stop Incorrect RTs
+% ssdRange = 'all';
+% targetHemifield = 'all';
+% if ~isempty(ssdArray) && DO_STOPS
+%     stopTargRT = cell(1, length(target1ProportionArray));
+%     stopDistRT = cell(1, length(target1ProportionArray));
+%     
+%     for iPropIndex = 1 : length(target1ProportionArray);
+%         iPercent = target1ProportionArray(iPropIndex) * 100;
+%         
+%         if iPercent ~= 50
+%             stopTargTrial = ccm_trial_selection(subjectID, sessionID,  {'stopIncorrectTarget', 'targetHoldAbort'}, iPercent, ssdRange, targetHemifield);
+%             stopDistTrial = ccm_trial_selection(subjectID, sessionID,  {'stopIncorrectDistractor', 'distractorHoldAbort'}, iPercent, ssdRange, targetHemifield);
+%             iStopTargIndices = zeros(nTrial, 1);
+%             iStopDistIndices = zeros(nTrial, 1);
+%             iStopTargIndices(stopTargTrial) = 1;
+%             iStopDistIndices(stopDistTrial) = 1;
+%             
+%             if sum(iStopTargIndices)
+%                 iStopTarg  = find(iStopTargIndices);
+%                 responseOnset = trialData.responseOnset(iStopTarg);
+%                 responseCueOnset    = trialData.responseCueOnset(iStopTarg);
+%                 iStopTargRT = responseOnset - responseCueOnset;
+%                 stopTargRT{iPropIndex} = iStopTargRT;
+%             end
+%             if sum(iStopDistIndices)
+%                 iStopDist  = find(iStopDistIndices);
+%                 responseOnset = trialData.responseOnset(iStopDist);
+%                 responseCueOnset    = trialData.responseCueOnset(iStopDist);
+%                 iStopDistRT = responseOnset - responseCueOnset;
+%                 stopDistRT{iPropIndex} = iStopDistRT;
+%             end
+%         elseif iPercent == 50
+%             stop50Right = ccm_trial_selection(subjectID, sessionID, {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectDistractor', 'distractorHoldAbort'}, iPercent, ssdRange, 'right');
+%             stop50Left = ccm_trial_selection(subjectID, sessionID, {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectDistractor', 'distractorHoldAbort'}, iPercent, ssdRange, 'left');
+%             iStop50RightIndices = zeros(nTrial, 1);
+%             iStop50LeftIndices = zeros(nTrial, 1);
+%             iStop50RightIndices(stop50Right) = 1;
+%             iStop50LeftIndices(stop50Left) = 1;
+%             
+%             if sum(iStop50RightIndices)
+%                 iStop50Right = find(iStop50RightIndices);
+%                 responseOnset = trialData.responseOnset(iStop50Right);
+%                 responseCueOnset = trialData.responseCueOnset(iStop50Right);
+%                 stop50RightRT = responseOnset - responseCueOnset;
+%             else
+%                 stop50RightRT = [];
+%             end
+%             if sum(iStop50LeftIndices)
+%                 iStop50Left = find(iStop50LeftIndices);
+%                 responseOnset = trialData.responseOnset(iStop50Left);
+%                 responseCueOnset = trialData.responseCueOnset(iStop50Left);
+%                 stop50LeftRT = responseOnset - responseCueOnset;
+%             else
+%                 stop50LeftRT = [];
+%             end
+%             
+%         end
+%         
+%         
+%         
+%         %         oddData = find(isnan(cell2mat(trialData.saccadeToTargetIndex)) & iStopTargIndices & ismember(cell2mat(trialData.target1CheckerProportion), target1ProportionArray));
+%         %         if oddData
+%         %             fprintf('%d trials to target %d are listed as Incorrect Stops but don''t have valid saccades to target:\n', length(oddData), iTarget)
+%         %             disp(oddData)
+%         %         end
+%         %         iStopTargIndices(oddData) = 0;
+%         
+%         
+%     end
+% end
+% 
+% 
+% targetLeft     = target1ProportionArray(target1ProportionArray < .5);
+% targetRight    = target1ProportionArray(target1ProportionArray > .5);
+% fiftyPercent    = target1ProportionArray(target1ProportionArray == .5);
+% 
+% goLeftToTarg          = goTargRT(target1ProportionArray < .5);
+% goRightToTarg         = goTargRT(target1ProportionArray > .5);
+% goLeftToDist          = goDistRT(target1ProportionArray > .5);
+% goRightToDist         = goDistRT(target1ProportionArray < .5);
+% goLeft50Percent  = go50LeftRT;
+% goRight50Percent  = go50RightRT;
+% 
+% goLeftToTargMean      = cellfun(@mean, goLeftToTarg);
+% goRightToTargMean     = cellfun(@mean, goRightToTarg);
+% goLeftToDistMean      = cellfun(@mean, goLeftToDist);
+% goRightToDistMean     = cellfun(@mean, goRightToDist);
+% goLeft50PercentMean = mean(goLeft50Percent);
+% goRight50PercentMean = mean(goRight50Percent);
+% 
+% goLeftToTargStd      = cellfun(@std, goLeftToTarg);
+% goRightToTargStd     = cellfun(@std, goRightToTarg);
+% goLeftToDistStd      = cellfun(@std, goLeftToDist);
+% goRightToDistStd     = cellfun(@std, goRightToDist);
+% goLeft50PercentStd = std(goLeft50Percent);
+% goRight50PercentStd = std(goRight50Percent);
+% 
+% if ~isempty(ssdArray) && DO_STOPS
+%     stopLeftToTarg            = stopTargRT(:, target1ProportionArray < .5);
+%     stopRightToTarg           = stopTargRT(:, target1ProportionArray > .5);
+%     stopLeftToDist            = stopDistRT(:, target1ProportionArray < .5);
+%     stopRightToDist           = stopDistRT(:, target1ProportionArray > .5);
+%     stopLeft50Percent  = stop50LeftRT;
+%     stopRight50Percent  = stop50RightRT;
+%     
+%     stopLeftToTargMean        = cellfun(@mean, stopLeftToTarg);
+%     stopRightToTargMean       = cellfun(@mean, stopRightToTarg);
+%     stopLeftToDistMean        = cellfun(@mean, stopLeftToDist);
+%     stopRightToDistMean       = cellfun(@mean, stopRightToDist);
+%     stopLeft50PercentMean = mean(stopLeft50Percent);
+%     stopRight50PercentMean = mean(stopRight50Percent);
+% 
+%     stopLeftToTargStd        = cellfun(@std, stopLeftToTarg);
+%     stopRightToTargStd       = cellfun(@std, stopRightToTarg);
+%     stopLeftToDistStd        = cellfun(@std, stopLeftToDist);
+%     stopRightToDistStd       = cellfun(@std, stopRightToDist);
+%     stopLeft50PercentStd = std(stopLeft50Percent);
+%     stopRight50PercentStd = std(stopRight50Percent);
+% end
+% 
+% if ~isempty(fiftyPercent)
+%     targetLeft = [targetLeft; fiftyPercent];
+%     targetRight = [fiftyPercent; targetRight];
+%     goLeftToTarg = [goLeftToTarg, goLeft50Percent];
+%     goRightToTarg = [goRight50Percent, goRightToTarg];
+%     goLeftToTargMean = [goLeftToTargMean, goLeft50PercentMean];
+%     goRightToTargMean = [goRight50PercentMean, goRightToTargMean];
+%     goLeftToTargStd = [goLeftToTargStd, goLeft50PercentStd];
+%     goRightToTargStd = [goRight50PercentStd, goRightToTargStd];
+%     if ~isempty(ssdArray) && DO_STOPS
+%         stopLeftToTarg = [stopLeftToTarg, stopLeft50Percent];
+%         stopRightToTarg = [stopRight50Percent, stopRightToTarg];
+%         stopLeftToTargMean = [stopLeftToTargMean, stopLeft50PercentMean];
+%         stopRightToTargMean = [stopRight50PercentMean, stopRightToTargMean];
+%         stopLeftToTargStd = [stopLeftToTargStd, stopLeft50PercentStd];
+%         stopRightToTargStd = [stopRight50PercentStd, stopRightToTargStd];
+%     end
+% end
+% 
+% % ANOVA calculations
+% if ~isempty(ssdArray) && DO_STOPS
+%     anovaData = [];
+%     groupInh = {};
+%     groupSig = [];
+%     signalStrength = [targetLeft; targetRight];
+%     goTarg = [goLeftToTarg, goRightToTarg];
+%     stopTarg = [stopLeftToTarg, stopRightToTarg];
+%     for i = 1 : length(signalStrength)
+%         anovaData = [anovaData; goTarg{i}; stopTarg{i}];
+%         groupInh = [groupInh; repmat({'go'}, length(goTarg{i}), 1); repmat({'stop'}, length(stopTarg{i}), 1)];
+%         groupSig = [groupSig; repmat(i, length(goTarg{i}) + length(stopTarg{i}), 1)];
+%     end
+%     [p,table,stats] = anovan(anovaData,{groupInh, groupSig}, 'display', 'off');
+%     fprintf('RT ANOVA:\nStop vs. Go: \t\tp = %d\nSignal Strength: \tp = %d\n', p(1), p(2))
+%     
+% end
+% 
+% if plotFlag
+%     plot(ax(pRightvRT), targetLeft, goLeftToTargMean, '-o', 'color', goColor, 'linewidth', 1, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
+%     plot(ax(pRightvRT), targetRight, goRightToTargMean, '-o', 'color', goColor, 'linewidth', 1, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
+%     plot(ax(pRightvRT), target1ProportionArray(target1ProportionArray < .5), goLeftToDistMean, 'o', 'color', goColor, 'markeredgecolor', goColor)
+%     plot(ax(pRightvRT), target1ProportionArray(target1ProportionArray > .5), goRightToDistMean, 'o', 'color', goColor, 'markeredgecolor', goColor)
+% % errorbar(ax(pRightvRT), targetLeft ,goLeftToTargMean, goLeftToTargStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+% % errorbar(ax(pRightvRT), targetRight ,goRightToTargMean, goRightToTargStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+% % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray < .5), goLeftToDistMean, goLeftToDistStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+% % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray > .5), goRightToDistMean, goRightToDistStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+%     %     plot(ax(pRightvRT), target1ProportionArray, goDistRT, 'o', 'color', goColor, 'markeredgecolor', goColor)
+%     %     plot(ax(targDistRT), target1ProportionArray, goTargRT - goDistRT, 'o', 'color', goColor, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
+%     if ~isempty(ssdArray) && DO_STOPS
+%         plot(ax(pRightvRT), targetLeft, stopLeftToTargMean, '-o', 'color', stopColor, 'linewidth', 1, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
+%         plot(ax(pRightvRT), targetRight, stopRightToTargMean, '-o', 'color', stopColor, 'linewidth', 1, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
+%         plot(ax(pRightvRT), target1ProportionArray(target1ProportionArray < .5), stopLeftToDistMean, 'o', 'color', stopColor, 'markeredgecolor', stopColor)
+%         plot(ax(pRightvRT), target1ProportionArray(target1ProportionArray > .5), stopRightToDistMean, 'o', 'color', stopColor, 'markeredgecolor', stopColor)
+% % errorbar(ax(pRightvRT), targetLeft ,stopLeftToTargMean, stopLeftToTargStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+% % errorbar(ax(pRightvRT), targetRight ,stopRightToTargMean, stopRightToTargStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+% % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray < .5), stopLeftToDistMean, stopLeftToDistStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+% % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray > .5), stopRightToDistMean, stopRightToDistStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+%         %         plot(ax(pRightvRT), target1ProportionArray, stopDistRT, 'o', 'color', stopColor, 'markeredgecolor', stopColor)
+%         %         plot(ax(targDistRT), target1ProportionArray, stopTargRT - stopDistRT, 'o', 'color', stopColor, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
+% % legend(ax(pRightvRT), {'Go Target', 'Stop Target', 'Go Distractor', 'Stop Distractor'}, 'location', 'southeast');
+%     end
+%     
+%     set(ax(pRightvRT), 'xtick', target1ProportionArray)
+%     set(ax(pRightvRT), 'xtickLabel', target1ProportionArray*100)
+%     set(get(ax(pRightvRT), 'ylabel'), 'String', 'RT')
+%     set(ax(pRightvRT),'XLim',[target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin])
+%     set(ax(pRightvRT),'YLim',[min([goLeftToTargMean, goRightToTargMean, goLeftToDistMean, goRightToDistMean]) - 50, max([goLeftToTargMean, goRightToTargMean, goLeftToDistMean, goRightToDistMean]) + 50])
+%     plot(ax(pRightvRT), [.5 .5], ylim, '--k')
+%     
+%     set(ax(targDistRT), 'xtick', target1ProportionArray)
+%     set(ax(targDistRT), 'xtickLabel', target1ProportionArray*100)
+%     set(get(ax(targDistRT), 'ylabel'), 'String', 'dRT (Correct - Error)')
+%     set(ax(targDistRT),'XLim',[target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin])
+%     plot(ax(targDistRT), [.5 .5], ylim, '--k')
+%     plot(ax(targDistRT), [target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin], [0 0], '--k')
+% end
+% ANOVA calculations
+% if ~isempty(ssdArray) && DO_STOPS
+%     anovaData = [];
+%     groupInh = {};
+%     groupSig = [];
+%     signalStrength = [signalStrengthLeft; signalStrengthRight];
+%     goTarg = [goLeftToTarg, goRightToTarg];
+%     stopTarg = [stopLeftToTarg, stopRightToTarg];
+%     for i = 1 : length(goTarg)
+%         anovaData = [anovaData; goTarg{i}];
+%         groupInh = [groupInh; repmat({'go'}, length(goTarg{i}), 1)];
+%         groupSig = [groupSig; repmat(i, length(goTarg{i}), 1)];
+%     end
+%     for i = 1 : length(stopTarg)
+%         anovaData = [anovaData; stopTarg{i}];
+%         groupInh = [groupInh; repmat({'stop'}, length(stopTarg{i}), 1)];
+%         groupSig = [groupSig; repmat(i, length(stopTarg{i}), 1)];
+%     end
+%     [p,table,stats] = anovan(anovaData,{groupInh, groupSig}, 'display', 'off');
+%     fprintf('RT ANOVA:\nStop vs. Go: \t\tp = %d\nSignal Strength: \tp = %d\n', p(1), p(2))
+%     
+% end
+% goLeftToTargMean      = cellfun(@mean, goLeftToTarg);
+% goRightToTargMean     = cellfun(@mean, goRightToTarg);
+% goLeftToDistMean      = cellfun(@mean, goLeftToDist)
+% goRightToDistMean     = cellfun(@mean, goRightToDist);
+%     stopLeftToTargMean        = cellfun(@mean, stopLeftToTarg);
+%     stopRightToTargMean       = cellfun(@mean, stopRightToTarg);
+%     stopLeftToDistMean        = cellfun(@mean, stopLeftToDist);
+%     stopRightToDistMean       = cellfun(@mean, stopRightToDist);
+% 
+% if plotFlag
+%     plot(ax(pRightvRT), signalStrengthLeft, goLeftToTargMean, '-o', 'color', goColor, 'linewidth', 1, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
+%     plot(ax(pRightvRT), signalStrengthRight, goRightToTargMean, '-o', 'color', goColor, 'linewidth', 1, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
+%     plot(ax(pRightvRT), signalStrengthRight, goLeftToDistMean, 'o', 'color', goColor, 'markeredgecolor', goColor)
+%     plot(ax(pRightvRT), signalStrengthLeft, goRightToDistMean, 'o', 'color', goColor, 'markeredgecolor', goColor)
+%     % errorbar(ax(pRightvRT), signalStrengthLeft ,goLeftToTargMean, goLeftToTargStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+%     % errorbar(ax(pRightvRT), signalStrengthRight ,goRightToTargMean, goRightToTargStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+%     % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray < .5), goLeftToDistMean, goLeftToDistStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+%     % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray > .5), goRightToDistMean, goRightToDistStd, '.' , 'linestyle' , 'none', 'color', goColor, 'linewidth' , 1)
+%     %     plot(ax(pRightvRT), target1ProportionArray, goDistRT, 'o', 'color', goColor, 'markeredgecolor', goColor)
+%     %     plot(ax(targDistRT), target1ProportionArray, goTargRT - goDistRT, 'o', 'color', goColor, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
+%     if ~isempty(ssdArray) && DO_STOPS
+%         plot(ax(pRightvRT), signalStrengthLeft(1:length(stopLeftToTargMean)), stopLeftToTargMean, '-o', 'color', stopColor, 'linewidth', 1, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
+%         plot(ax(pRightvRT), signalStrengthRight(end+1-length(stopRightToTargMean) : end), stopRightToTargMean, '-o', 'color', stopColor, 'linewidth', 1, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
+%         plot(ax(pRightvRT), signalStrengthRight(end+1-length(stopLeftToDistMean) : end), stopLeftToDistMean, 'o', 'color', stopColor, 'markeredgecolor', stopColor)
+%         plot(ax(pRightvRT), signalStrengthLeft(1:length(stopRightToDistMean)), stopRightToDistMean, 'o', 'color', stopColor, 'markeredgecolor', stopColor)
+%         % errorbar(ax(pRightvRT), signalStrengthLeft ,stopLeftToTargMean, stopLeftToTargStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+%         % errorbar(ax(pRightvRT), signalStrengthRight ,stopRightToTargMean, stopRightToTargStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+%         % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray < .5), stopLeftToDistMean, stopLeftToDistStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+%         % errorbar(ax(pRightvRT), target1ProportionArray(target1ProportionArray > .5), stopRightToDistMean, stopRightToDistStd, '.' , 'linestyle' , 'none', 'color', stopColor, 'linewidth' , 1)
+%         %         plot(ax(pRightvRT), target1ProportionArray, stopDistRT, 'o', 'color', stopColor, 'markeredgecolor', stopColor)
+%         %         plot(ax(targDistRT), target1ProportionArray, stopTargRT - stopDistRT, 'o', 'color', stopColor, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
+%         % legend(ax(pRightvRT), {'Go Target', 'Stop Target', 'Go Distractor', 'Stop Distractor'}, 'location', 'southeast');
+%     end
+%     
+%     set(ax(pRightvRT), 'xtick', target1ProportionArray)
+%     set(ax(pRightvRT), 'xtickLabel', target1ProportionArray*100)
+%     set(get(ax(pRightvRT), 'ylabel'), 'String', 'RT')
+%     set(ax(pRightvRT),'XLim',[target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin])
+%     set(ax(pRightvRT),'YLim',[min([goLeftToTargMean, goRightToTargMean, goLeftToDistMean, goRightToDistMean]) - 50, max([goLeftToTargMean, goRightToTargMean, goLeftToDistMean, goRightToDistMean]) + 50])
+%     plot(ax(pRightvRT), [.5 .5], ylim, '--k')
+%     
+%     %     set(ax(targDistRT), 'xtick', target1ProportionArray)
+%     %     set(ax(targDistRT), 'xtickLabel', target1ProportionArray*100)
+%     %     set(get(ax(targDistRT), 'ylabel'), 'String', 'dRT (Correct - Error)')
+%     %     set(ax(targDistRT),'XLim',[target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin])
+%     %     plot(ax(targDistRT), [.5 .5], ylim, '--k')
+%     %     plot(ax(targDistRT), [target1ProportionArray(1) - choicePlotXMargin target1ProportionArray(end) + choicePlotXMargin], [0 0], '--k')
+% end
+
+
+print(gcf, ['~/matlab/tempfigures/',sessionID, '_Behavior'], '-dpdf')
+delete(localDataFile);
+
+

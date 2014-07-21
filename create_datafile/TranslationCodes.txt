@@ -1,0 +1,7 @@
+plexon_translate_datafile: Uses Dave's old translation codes (see Process_plx.m) to translate from plexon to a -mat file
+	-plexon_events_translation: (plx2mat_events.m): gets Events (based on event codes) from plexon.
+	-plexon_ADchannels_translation: (plx2mat_ADchannels): gets AD signals from plexon.
+	
+Need to alter Behavior.m to get saccade information.
+
+Will get SSRT and inhibition function when needed- don't save those in the data file

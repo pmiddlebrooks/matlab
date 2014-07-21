@@ -1,0 +1,501 @@
+function [trialData, sessionData] = convert_translated_plexon_data(monkey, sessionID, brainArea)
+
+% adapted from convert_translated_datafile.m
+
+if nargin < 3
+    brainArea = nan;
+end
+
+if regexp('broca', monkey, 'ignorecase')
+        monkeyDataPath = 'Broca/';
+elseif regexp('xena', monkey, 'ignorecase')
+        monkeyDataPath = 'Xena/Plexon/';
+else
+    disp('Wrong monkey name?')
+        return
+end
+localDataPath = 'Z:\paulmiddlebrooks On My Mac\matlab\local_data\';
+tebaDataPath = ['t:/data/',monkeyDataPath];
+legacyFile = [sessionID, '_legacy.mat'];
+dataPath = [tebaDataPath, legacyFile];
+
+load(dataPath, '-mat')
+taskID = get_taskID(Header_.Task)
+
+
+
+% Define constants
+maxResponsePerTrial = 400;  % The most saccades allowed per trial to be included
+
+
+
+
+% ********************************************************************
+%                    Trial Data
+% ********************************************************************
+
+% Getting the variables common to all protocols (hopefully?) here. After
+% the trialData dataset is collected and the sessionData structure is
+% filled with the common variables, we call a function to gather and append
+% any task-specific variables
+
+
+nTrial = size(Infos_.Allowed_fix_time, 1);
+
+% Event Timing
+% ------------
+trialOnset                = num2cell(TrialStart_(:, 1) - TrialStart_(1, 1), 2);
+trialDuration             = num2cell(Eot_(:, 1), 2);
+
+fixationSpotOnset         = num2cell(FixSpotOn_(:, 1), 2);
+fixationSpotDuration      = num2cell(FixSpotOff_(:, 1) - FixSpotOn_(:, 1), 2);
+fixationWindowEntered     = num2cell(Fixate_(:, 1), 2);
+
+
+targetOnset               = num2cell(Target_(:, 1), 2);
+targetDuration            = num2cell(nan(nTrial, 1), 2);
+targetWindowEntered       = num2cell(Decide_(:, 1), 2);
+
+
+% Response data
+listedSaccades = size(SaccBegin, 2);
+if listedSaccades < maxResponsePerTrial
+    maxResponsePerTrial = listedSaccades;
+end
+saccadeOnset             = num2cell(SaccBegin(:, 1:maxResponsePerTrial), 2);
+saccadeToTargetIndex     = Sacc_of_interest(:,2);
+saccadeToTargetIndex(saccadeToTargetIndex == 0) = nan;
+trialWithResponse       = ~isnan(saccadeToTargetIndex);
+saccadeToTargetIndex     = num2cell(saccadeToTargetIndex, 2);
+saccadeDuration          = num2cell((SaccEnd(:, 1:maxResponsePerTrial) - SaccBegin(:, 1:maxResponsePerTrial)), 2);
+saccadeAmplitude         = num2cell(SaccAmplitude(:, 1:maxResponsePerTrial), 2);
+saccadeDirection         = num2cell(SaccDirection(:, 1:maxResponsePerTrial), 2);
+
+responseOnset = nan(nTrial, 1);
+responseOnset(trialWithResponse) = cellfun(@(x, y) x(y), saccadeOnset(trialWithResponse), saccadeToTargetIndex(trialWithResponse));
+responseOnset = num2cell(responseOnset, 2);
+% Change zeros to nans
+% responseOnset(SaccBegin == 0)       = nan;
+% responseDuration(SaccBegin == 0)	= nan;
+% responseAmplitude(SaccAmplitude == 0)     = nan;
+% responseDirection(SaccDirection == 0)     = nan;
+
+rewardOnset               = num2cell(Reward_, 2);  % The odd columns are the reward times
+rewardDuration            = num2cell(Infos_.Reward_duration, 2);  % The even columns are the solenoid durations
+timeoutDuration           = num2cell(Infos_.Punish_time, 2);
+
+abortOnset                = num2cell(Abort_(:, 1), 2);
+
+
+% Trial Outcomes
+trialOutcome    = Infos_.Trial_outcome;
+
+
+
+
+% Location of Stimuli
+% ---------------------------------------------------------------
+fixationAmplitude       = num2cell(zeros(nTrial, 1), 2);
+fixationAngle           = num2cell(zeros(nTrial, 1), 2);
+fixationSize            = num2cell(Infos_.Fixation_size, 2);
+fixationWindow          = num2cell(Infos_.Fix_win_size, 2);
+targetSize              = num2cell(Infos_.Target_size, 2);
+targetWindow            = num2cell(Infos_.Targ_win_size, 2);
+
+
+
+% Eye position
+% ---------------------------------------------------------------
+eyePositionX = cell(nTrial, 1);
+eyePositionY = cell(nTrial, 1);
+for iTrial = 1 : nTrial
+    if iTrial < nTrial
+        eyePositionX{iTrial, :}            = EyeX_(TrialStart_(iTrial) : TrialStart_(iTrial+1));
+        eyePositionY{iTrial, :}            = EyeY_(TrialStart_(iTrial) : TrialStart_(iTrial+1));
+    elseif iTrial == nTrial
+        eyePositionX{iTrial, :}            = EyeX_(TrialStart_(iTrial) : Eot_(iTrial));
+        eyePositionY{iTrial, :}            = EyeY_(TrialStart_(iTrial) : Eot_(iTrial));
+    end
+end
+
+
+
+
+% ---------------------------------------------------------------
+%       Remove NaNs and irrelevant zeros from variables that have them
+% ---------------------------------------------------------------
+
+responseOnset       = cellfun(@(x) x(x ~= 0), responseOnset, 'uniformoutput', false);
+saccadeOnset       = cellfun(@(x) x(x ~= 0), saccadeOnset, 'uniformoutput', false);
+saccadeDuration    = cellfun(@(x) x(x ~= 0), saccadeDuration, 'uniformoutput', false);
+saccadeDirection   = cellfun(@(x) x(x ~= 0), saccadeDirection, 'uniformoutput', false);
+saccadeAmplitude   = cellfun(@(x) x(x ~= 0), saccadeAmplitude, 'uniformoutput', false);
+
+responseOnset       = cellfun(@(x) x(~isnan(x)), responseOnset, 'uniformoutput', false);
+saccadeOnset       = cellfun(@(x) x(~isnan(x)), saccadeOnset, 'uniformoutput', false);
+saccadeDuration    = cellfun(@(x) x(~isnan(x)), saccadeDuration, 'uniformoutput', false);
+saccadeDirection   = cellfun(@(x) x(~isnan(x)), saccadeDirection, 'uniformoutput', false);
+saccadeAmplitude   = cellfun(@(x) x(~isnan(x)), saccadeAmplitude, 'uniformoutput', false);
+
+% rewardOnset         = cellfun(@(x) x(~isnan(x)), rewardOnset, 'uniformoutput', false);
+% rewardDuration      = cellfun(@(x) x(~isnan(x)), rewardDuration, 'uniformoutput', false);
+eyePositionX        = cellfun(@(x) x(~isnan(x)), eyePositionX, 'uniformoutput', false);
+eyePositionY        = cellfun(@(x) x(~isnan(x)), eyePositionY, 'uniformoutput', false);
+% spikeUnit       = cellfun(@(x) x(~isnan(x)), spikeUnitPDP, 'uniformoutput', false);
+
+
+
+
+% % ---------------------------------------------------------------
+% %           Fill the trialData dataset
+% % ---------------------------------------------------------------
+% trialData = dataset(...
+%     {trialOnset,            'trialOnset'},...
+%     {trialDuration,         'trialDuration'},...
+%     {fixationSpotOnset,     'fixationSpotOnset'},...
+%     {fixationSpotDuration,  'fixationSpotDuration'},...
+%     {fixationWindowEntered, 'fixationWindowEntered'},...
+% %     {preTargetFixDuration,  'preTargetFixDuration'},...
+% %     {postTargetFixDuration, 'postTargetFixDuration'},...
+%     {targetOnset,           'targetOnset'},...
+% %     {distractorOnset,       'distractorOnset'},...
+% %     {choiceStimulusOnset,   'choiceStimulusOnset'},...
+% %     {responseCueOnset,      'responseCueOnset'},...
+%     {targetDuration,        'targetDuration'},...
+% %     {distractorDuration,    'distractorDuration'},...
+% %     {choiceStimulusDuration, 'choiceStimulusDuration'},...
+%     {targetWindowEntered,   'targetWindowEntered'},...
+%     {responseOnset,         'responseOnset'},...
+%     {responseToTargetIndex,	'responseToTargetIndex'},...
+%     {responseDuration,      'responseDuration'},...
+%     {responseAmplitude,     'responseAmplitude'},...
+%     {responseDirection,     'responseDirection'},...
+% %     {stopOnset,             'stopOnset'},...
+% %     {stopDuration,          'stopDuration'},...
+%     {rewardOnset,           'rewardOnset'},...
+%     {rewardDuration,        'rewardDuration'},...
+%     {timeoutDuration,        'timeoutDuration'},...
+%     {abortOnset,            'abortOnset'},...
+%     {trialOutcome,          'trialOutcome'},...
+% %     {stopTrialProportion, 	'stopTrialProportion'},...
+%     {fixationAmplitude, 	'fixationAmplitude'},...
+%     {fixationAngle,         'fixationAngle'},...
+%     {fixationSize,          'fixationSize'},...
+%     {fixationWindow,        'fixationWindow'},...
+%     {targetAmplitude,       'targetAmplitude'},...
+%     {targetAngle,           'targetAngle'},...
+%     {targetSize,            'targetSize'},...
+%     {targetWindow,          'targetWindow'},...
+% %     {distractorAmplitude, 	'distractorAmplitude'},...
+% %     {distractorAngle,       'distractorAngle'},...
+% %     {distractorSize,        'distractorSize'},...
+% %     {distractorWindow,      'distractorWindow'},...
+% %     {checkerboardAmplitude, 'checkerboardAmplitude'},...
+% %     {checkerboardAngle,     'checkerboardAngle'},...
+% %     {checkerboardSize,      'checkerboardSize'},...
+% %     {checkerboardWindow,    'checkerboardWindow'},...
+%     {eyePositionX,          'eyePositionX'},...
+%     {eyePositionY,          'eyePositionY'});
+
+
+% ---------------------------------------------------------------
+%           Fill the trialData dataset
+% ---------------------------------------------------------------
+trialData = dataset(...
+    {trialOnset,            'trialOnset'},...
+    {trialDuration,         'trialDuration'},...
+    {fixationSpotOnset,     'fixationSpotOnset'},...
+    {fixationSpotDuration,  'fixationSpotDuration'},...
+    {fixationWindowEntered, 'fixationWindowEntered'},...
+    {targetOnset,           'targetOnset'},...
+    {targetDuration,        'targetDuration'},...
+    {targetWindowEntered,   'targetWindowEntered'},...
+    {responseOnset,         'responseOnset'},...
+    {saccadeOnset,         'saccadeOnset'},...
+    {saccadeToTargetIndex,	'saccadeToTargetIndex'},...
+    {saccadeDuration,      'saccadeDuration'},...
+    {saccadeAmplitude,     'saccadeAmplitude'},...
+    {saccadeDirection,     'saccadeDirection'},...
+    {rewardOnset,           'rewardOnset'},...
+    {rewardDuration,        'rewardDuration'},...
+    {timeoutDuration,        'timeoutDuration'},...
+    {abortOnset,            'abortOnset'},...
+    {trialOutcome,          'trialOutcome'},...
+    {fixationAmplitude, 	'fixationAmplitude'},...
+    {fixationAngle,         'fixationAngle'},...
+    {fixationSize,          'fixationSize'},...
+    {fixationWindow,        'fixationWindow'},...
+    {targetSize,            'targetSize'},...
+    {targetWindow,          'targetWindow'},...
+    {eyePositionX,          'eyePositionX'},...
+    {eyePositionY,          'eyePositionY'});
+
+
+
+
+
+
+
+% Physiology
+% ---------------------------------------------------------------
+
+% spike data
+% -------------
+% Figure out how many single units were recorded and loop through them
+unitNameArray = who('DSP*');
+nUnitSpike = size(unitNameArray, 1);
+% If there are spike units recorded, collect them and append them to the
+% dataset
+if nUnitSpike
+    spikeUnit = [];
+    for iUnit = 1 : nUnitSpike
+        eval(['iUnitData = num2cell(',unitNameArray{iUnit},', 2);'])
+        iUnitData = cellfun(@(x) x(x ~= 0), iUnitData, 'uniformoutput', false);
+        iUnitData = cellfun(@round, iUnitData, 'uniformoutput', false);
+        if size(iUnitData, 1) > nTrial
+            iUnitData = iUnitData(1:nTrial);
+        end
+        spikeUnit     	= [spikeUnit, iUnitData];
+        
+    end
+    trialData.spikeUnit = spikeUnit;
+end
+
+
+
+% Figure whether LFP data was recorded and append it to the dataset if so
+% -------------------
+if exist('LFP_1', 'var')
+    LFP             = num2cell(LFP_1, 2);
+    trialData.LFP   = cellfun(@(x) x(x ~= 0), LFP, 'uniformoutput', false);
+end
+
+
+
+
+% Figure whether EEG data was recorded and append it to the dataset if so
+% -------------------
+% Figure out how eeg channels were recorded and loop through them
+channelNameArray = who('AD*')
+nUnitEEG = size(channelNameArray, 1);
+% If there were eegs recorded, collect them and append them to the dataset
+if nUnitEEG
+    eegData = cell(nTrial, nUnitEEG);
+    for iChannel = 1 : nUnitEEG
+        for iTrial = 1 : nTrial
+            if iTrial < nTrial
+                eegData{iTrial, iChannel}            = eval([channelNameArray{iChannel},'(TrialStart_(iTrial) : TrialStart_(iTrial+1))']);
+            elseif iTrial == nTrial
+                eegData{iTrial, iChannel}            = eval([channelNameArray{iChannel},'(TrialStart_(iTrial) : Eot_(iTrial))']);
+            end
+        end
+    end
+end
+trialData.eegData = eegData;
+%     for iChannel = 1 : nUnitEEG
+%         eval(['iChannelData = num2cell(',channelNameArray{iChannel},');'])
+% %         iChannelData = cellfun(@(x) x(x ~= 0), iChannelData, 'uniformoutput', false);
+% %         iChannelData = cellfun(@round, iChannelData, 'uniformoutput', false);
+%         if size(iChannelData, 1) > nTrial
+%             iChannelData = iChannelData(1:nTrial);
+%         end
+%         eegData     	= [eegData, iChannelData]
+%
+%     end
+%     trialData.eegData = eegData
+% end
+
+
+
+
+
+
+
+
+% Replace cells with absolutely no data with a single NaN;
+for iTrial = 1 : nTrial
+    if isempty(trialData.responseOnset{iTrial})
+        trialData.responseOnset{iTrial} = nan;
+        trialData.saccadeOnset{iTrial} = nan;
+        trialData.saccadeDuration{iTrial} = nan;
+        trialData.saccadeDirection{iTrial} = nan;
+        trialData.saccadeAmplitude{iTrial} = nan;
+    end
+    if nUnitSpike
+        for iUnit = 1 : nUnitSpike
+            if isempty(trialData.spikeUnit{iTrial, iUnit})
+                trialData.spikeUnit{iTrial, iUnit} = nan;
+            end
+        end
+    end
+    if exist('trialData.LFP', 'var')
+        if isempty(trialData.LFP{iTrial})
+            trialData.LFP{iTrial} = nan;
+        end
+    end
+end
+
+
+
+
+
+
+
+
+% ********************************************************************
+%                       Session Data
+% ********************************************************************
+
+sessionData.stimuli.fixationRGB         = [Infos_.Fixation_color_r(1,:), Infos_.Fixation_color_g(1,:), Infos_.Fixation_color_b(1,:)];
+sessionData.stimuli.targetRGB           = [Infos_.Target_color_r(1,:), Infos_.Target_color_g(1,:), Infos_.Target_color_b(1,:)];
+
+sessionData.collectedData.behavior.eyePosition.samplingHz       = 1000;
+sessionData.collectedData.neurophysiology.spikeUnit.samplingHz  = 1000;
+if exist('LFP_1', 'var')
+    sessionData.collectedData.neurophysiology.LFP.samplingHz    = 1000;
+end
+
+% single unit channel names
+sessionData.collectedData.neurophysiology.spikeUnit.names = unitNameArray;
+
+sessionData.task.taskID = taskID;
+sessionData.task.effector = 'eye';
+
+sessionData.timing.totalDuration = (TrialStart_(end, 1) + Eot_(end) - TrialStart_(1, 1)); % seconds
+
+
+sessionData.subjectID = monkey;
+sessionData.sessionID = sessionID;
+
+
+
+
+
+
+
+
+
+
+% ********************************************************************
+%             ADD ON TASK-SPECIFIC TRIAL AND SESSION DATA
+% ********************************************************************
+
+[trialData, sessionData] = task_specific_variables(dataPath, taskID, trialData, sessionData);
+
+
+if isempty(trialData.eyePositionX{end, :})
+    nTrial = nTrial - 1;
+end
+trialData = trialData(1:nTrial, :);
+
+
+% Save a copy on teba
+saveFileName = [tebaDataPath, sessionID];
+save(saveFileName, 'trialData', 'sessionData')
+% Make a local copy too
+saveLocalName = [localDataPath, sessionID];
+save(saveLocalName, 'trialData', 'sessionData')
+
+
+
+
+
+
+
+% *************************************************************************
+% *************************************************************************
+function taskID = get_taskID(headerTask)
+switch headerTask
+    case 'ChoiceCountermanding';
+        taskID = 'ccm';
+    case 'Countermanding';
+        taskID = 'cmd';
+    case 'GoNoGo'
+        taskID = 'gng';
+    case 'Memory'
+        taskID = 'mem';
+    case 'Delay'
+        taskID = 'del';
+    case 'Visual'
+        taskID = 'vis';
+    case 'Amplitude'
+        taskID = 'amp';
+    otherwise
+        fprintf('%s does not have an associated taskID yet', Header_.Task)
+        return
+end
+
+% Get task-specific variables as a structure to be read out and added to
+% the rest of the dataset
+function [trialData, sessionData] = task_specific_variables(dataPath, taskID, trialData, sessionData)
+load(dataPath, 'Header_', 'Infos_', 'Target_', 'Fixate_', 'Choice_', 'StopSignal_', 'Cue_')
+nTrial = size(Target_, 1);
+
+switch taskID
+    case 'ccm'
+        trialData.target1CheckerProportion  = num2cell(Infos_.Targ1Proportion, 2);
+        trialData.preTargetFixDuration      = num2cell(Target_(:, 1) - Fixate_(:, 1), 2);
+        trialData.postTargetFixDuration   	= num2cell(Choice_(:, 1) - Target_(:, 1), 2);
+        trialData.distractorOnset          	= num2cell(Target_(:, 1), 2); %  For now, distractor and target appear simultaneously
+        trialData.distractorDuration        = num2cell(nan(nTrial, 1), 2);  %
+        trialData.choiceStimulusOnset       = num2cell(Choice_(:, 1), 2);
+        trialData.choiceStimulusDuration  	= num2cell(nan(nTrial, 1), 2);
+        trialData.responseCueOnset          = num2cell(Choice_(:, 1), 2);  % For now this the choice stimulus onset is the cue to responed, but could possibly change that
+        trialData.stopOnset                 = num2cell(StopSignal_(:, 1), 2);
+        trialData.stopDuration              = num2cell(nan(nTrial, 1), 2);  % Doesn't seem to be any StopSingalOff event code
+        trialData.stopTrialProportion    	= num2cell(Infos_.Stop_weight ./ 100, 2);
+        trialData.targetAmplitude         = num2cell(Infos_.targetEccentricity, 2);
+        trialData.targetAngle             = num2cell(Infos_.targetAngle, 2);
+        trialData.distractorAmplitude     = num2cell(Infos_.distractorEccentricity, 2);
+        trialData.distractorAngle         = num2cell(Infos_.distractorAngle, 2);
+        trialData.distractorSize          = num2cell(Infos_.Target_size, 2);
+        trialData.distractorWindow        = num2cell(Infos_.Targ_win_size, 2);
+        trialData.choiceStimulusAmplitude   = num2cell(Infos_.CheckerEccentricity, 2);
+        trialData.choiceStimulusAngle       = num2cell(Infos_.CheckerAngle, 2);
+        trialData.choiceStimulusSize        = num2cell(Infos_.CheckerWidthDegrees, 2);
+        trialData.choiceStimulusWindow      = num2cell(Infos_.chkr_win_size, 2);
+        if isfield(Infos_, 'checkerboardArray')  % Before session 50 for Broca, was not sending the checker stimuli pattern
+            trialData.checkerBoardArray  = num2cell(Infos_.checkerboardArray, 2);
+        end
+        
+        sessionData.stimuli.stopSignalRGB       = [Infos_.Stop_color_r(1,:), Infos_.Stop_color_g(1,:), Infos_.Stop_color_b(1,:)];
+        sessionData.stimuli.target1CheckerRGB   = [Infos_.targ1_checker_color_r(1,:), Infos_.targ1_checker_color_g(1,:), Infos_.targ1_checker_color_b(1,:)];
+        sessionData.stimuli.target2CheckerRGB   = [Infos_.targ2_checker_color_r(1,:), Infos_.targ2_checker_color_g(1,:), Infos_.targ2_checker_color_b(1,:)];
+        sessionData.stimuli.nChoiceStimulusColumn = Infos_.nCheckerColumn(1,:);
+        sessionData.stimuli.nChoiceStimulusRow    = Infos_.nCheckerRow(1,:);
+        sessionData.stimuli.iCheckerPixel       = Infos_.iSquareSizePixels(1,:);       
+                
+        
+    case 'cmd'
+        trialData.stopOnset                 = num2cell(StopSignal_(:, 1), 2);
+        trialData.stopDuration              = num2cell(nan(nTrial, 1), 2);  % Doesn't seem to be any StopSingalOff event code
+        trialData.stopTrialProportion          = num2cell(Infos_.Stop_weight ./ 100, 2);
+        trialData.targetAmplitude         = num2cell(Infos_.Target_eccentricity, 2);
+        trialData.targetAngle             = num2cell(Infos_.Target_angle, 2);
+        
+        sessionData.stimuli.stopSignalRGB       = [Infos_.Stop_color_r(1,:), Infos_.Stop_color_g(1,:), Infos_.Stop_color_b(1,:)];
+        
+    case 'gng'
+        trialData.goCheckerProportion  = num2cell(Infos_.goProportion, 2);
+        trialData.preTargetFixDuration      = num2cell(Target_(:, 1) - Fixate_(:, 1), 2);
+        trialData.targetAmplitude         = num2cell(Infos_.Target_eccentricity, 2);
+        trialData.targetAngle             = num2cell(Infos_.Target_angle, 2);
+        trialData.choiceStimulusOnset       = num2cell(Cue_(:, 1), 2);
+        trialData.choiceStimulusDuration      = num2cell(nan(nTrial, 1), 2);
+        trialData.responseCueOnset          = num2cell(Cue_(:, 1), 2);  % For now this the choice stimulus onset is the cue to responed, but could possibly change that
+        
+        sessionData.stimuli.goCheckerRGB        = [Infos_.go_checker_color_r(1,:), Infos_.go_checker_color_g(1,:), Infos_.go_checker_color_b(1,:)];
+        sessionData.stimuli.noGoCheckerRGB      = [Infos_.noGo_checker_color_r(1,:), Infos_.noGo_checker_color_g(1,:), Infos_.noGo_checker_color_b(1,:)];
+        sessionData.stimuli.nChoiceStimulusColumn = Infos_.nCheckerColumn(1,:);
+        sessionData.stimuli.nChoiceStimulusRow    = Infos_.nCheckerRow(1,:);
+        sessionData.stimuli.iCheckerPixel       = Infos_.iSquareSizePixels(1,:);
+        
+    case 'mem'
+    case 'del'
+    case 'vis'
+    case 'amp'
+    otherwise
+        fprintf('%s is not a valid task ID', taskID)
+        return
+end
+

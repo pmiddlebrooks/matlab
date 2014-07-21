@@ -1,0 +1,467 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats
+END
+teg_ftest.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_ftest.m
+END
+teg_std_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_std_plot.m
+END
+demean.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/demean.m
+END
+vv.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/vv.m
+END
+teg_tpdf.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_tpdf.m
+END
+parse2nested.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/parse2nested.m
+END
+teg_ttest.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_ttest.m
+END
+teg_fill_empty.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_fill_empty.m
+END
+teg_test_corr.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_test_corr.m
+END
+teg_trendy.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_trendy.m
+END
+rec_combo_median.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/rec_combo_median.m
+END
+teg_repeated_measures_ANOVA_bu.m
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_ANOVA_bu.m
+END
+teg_mediation.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_mediation.m
+END
+teg_std_bar.asv
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_std_bar.asv
+END
+teg_std_bar.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_std_bar.m
+END
+teg_make_betw_cont.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_make_betw_cont.m
+END
+teg_load_text.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_load_text.m
+END
+teg_make_table.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_make_table.m
+END
+teg_get_var_col.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_get_var_col.m
+END
+teg_plot_table.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_plot_table.m
+END
+teg_T2.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_T2.m
+END
+teg_ttest2.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_ttest2.m
+END
+teg_repeated_measures_ANOVA_bu2.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_ANOVA_bu2.m
+END
+teg_contvar_subfunction.m
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_contvar_subfunction.m
+END
+teg_std_plot_sep.asv
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_std_plot_sep.asv
+END
+tc_ploef.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/tc_ploef.m
+END
+bsse.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/bsse.m
+END
+teg_do_fdr.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_do_fdr.m
+END
+test_diff_corr.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/test_diff_corr.m
+END
+teg_repeated_measures_MANOVA.m
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_MANOVA.m
+END
+teg_repeated_measures_ANOVA_bu8.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_ANOVA_bu8.m
+END
+rec_combo_acc.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/rec_combo_acc.m
+END
+teg_plot_rm_scatter.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_plot_rm_scatter.m
+END
+teg_RMF_ANOVA.asv
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_RMF_ANOVA.asv
+END
+teg_RMF_ANOVA.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_RMF_ANOVA.m
+END
+teg_nanmean.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_nanmean.m
+END
+teg_test_T2.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_test_T2.m
+END
+teg_plot_rm_scatter3.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_plot_rm_scatter3.m
+END
+teg_RMF.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_RMF.m
+END
+teg_nanvar.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_nanvar.m
+END
+get_regline.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/get_regline.m
+END
+teg_RMF_MANOVA.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_RMF_MANOVA.m
+END
+teg_test_Wilks.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_test_Wilks.m
+END
+test_rec_combo.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/test_rec_combo.m
+END
+teg_inner_recode.asv
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_inner_recode.asv
+END
+teg_repeated_measures_ANOVA_buCont.m
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_ANOVA_buCont.m
+END
+teg_inner_recode.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_inner_recode.m
+END
+zscore_bu.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/zscore_bu.m
+END
+teg_in.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_in.m
+END
+teg_regression.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_regression.m
+END
+SS.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/SS.m
+END
+teg_get_eps.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_get_eps.m
+END
+teg_create_ANOVA_dummy_bu.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_create_ANOVA_dummy_bu.m
+END
+teg_fsig.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_fsig.m
+END
+rec_combo.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/rec_combo.m
+END
+teg_repeated_measures_ANOVA_bu3.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_ANOVA_bu3.m
+END
+make_B_dummy.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/make_B_dummy.m
+END
+do_fdr.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/do_fdr.m
+END
+teg_RMF_ANOVA_bu.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_RMF_ANOVA_bu.m
+END
+teg_std_plot_sep.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_std_plot_sep.m
+END
+teg_chi2_cdf.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_chi2_cdf.m
+END
+teg_create_ANOVA_dummy.m
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_create_ANOVA_dummy.m
+END
+teg_test_ANOVA.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_test_ANOVA.m
+END
+teg_inner_recode_raw.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_inner_recode_raw.m
+END
+teg_repeated_measures_ANOVA_MixedEffects.m
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_ANOVA_MixedEffects.m
+END
+tester.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/tester.m
+END
+test_functions.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/test_functions.m
+END
+test_teg_mediation.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/test_teg_mediation.m
+END
+rec_comb.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/rec_comb.m
+END
+teg_RMF_bu.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_RMF_bu.m
+END
+teg_report.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_report.m
+END
+teg_RM_plot.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_RM_plot.m
+END
+teg_inner_recode_2.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_inner_recode_2.m
+END
+teg_mean.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_mean.m
+END
+teg_repeated_measures_ANOVA.m
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_repeated_measures_ANOVA.m
+END
+fdr_bky.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/fdr_bky.m
+END
+teg_plot_rm_scatter2.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/jschall/!svn/ver/5765/middlebrooks/matlab/toolboxes/teg_stats/teg_plot_rm_scatter2.m
+END

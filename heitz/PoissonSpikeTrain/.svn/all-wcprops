@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/5559/heitz/PoissonSpikeTrain
+END
+spearman.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/1797/heitz/PoissonSpikeTrain/spearman.m
+END
+mov_onset_p.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/260/heitz/PoissonSpikeTrain/mov_onset_p.m
+END
+P_BURST.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/5559/heitz/PoissonSpikeTrain/P_BURST.m
+END
+getBurst.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/5559/heitz/PoissonSpikeTrain/getBurst.m
+END
+test.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/2629/heitz/PoissonSpikeTrain/test.m
+END
+P_BURST_testparams.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/jschall/!svn/ver/260/heitz/PoissonSpikeTrain/P_BURST_testparams.m
+END
+getBurst_testparams.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/260/heitz/PoissonSpikeTrain/getBurst_testparams.m
+END
+mov_onset_RPH.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/1793/heitz/PoissonSpikeTrain/mov_onset_RPH.m
+END

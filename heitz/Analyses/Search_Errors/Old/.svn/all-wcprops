@@ -1,0 +1,197 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old
+END
+analyze_errors_search_nearby.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/jschall/!svn/ver/2000/heitz/Analyses/Search_Errors/Old/analyze_errors_search_nearby.m
+END
+Errors_temp.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/Errors_temp.txt
+END
+compile_Search_Errors_classification_on_error_SDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/compile_Search_Errors_classification_on_error_SDF.m
+END
+Q_Jeremiah.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/Q_Jeremiah.txt
+END
+S_Jeremiah.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/S_Jeremiah.txt
+END
+Search_Errors_classification_on_error_SDF_n2pc_left_v_right.m
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_classification_on_error_SDF_n2pc_left_v_right.m
+END
+Search_Errors_n2pc_subsample.m
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_n2pc_subsample.m
+END
+QS_selection_on_all_subsampled_signals.txt
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/QS_selection_on_all_subsampled_signals.txt
+END
+Search_Errors_classification_on_error_SDF_n2pc_left_v_right_truncate.m
+K 25
+svn:wc:ra_dav:version-url
+V 130
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_classification_on_error_SDF_n2pc_left_v_right_truncate.m
+END
+Search_Errors.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/2046/heitz/Analyses/Search_Errors/Old/Search_Errors.m
+END
+Search_Errors_Uber_vampire.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_Uber_vampire.m
+END
+Errors_reverseBootstrap.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/2000/heitz/Analyses/Search_Errors/Old/Errors_reverseBootstrap.m
+END
+Errors_reg.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/jschall/!svn/ver/2000/heitz/Analyses/Search_Errors/Old/Errors_reg.m
+END
+QS_Jeremiah.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/QS_Jeremiah.txt
+END
+QS_selection_on_error_SDF.txt
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/QS_selection_on_error_SDF.txt
+END
+saccade_direction_errors.m
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/jschall/!svn/ver/2000/heitz/Analyses/Search_Errors/Old/saccade_direction_errors.m
+END
+Errors_vis.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/Errors_vis.txt
+END
+Search_Errors_Uber_vampire_history_only.m
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_Uber_vampire_history_only.m
+END
+analyze_errors_search.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/jschall/!svn/ver/2000/heitz/Analyses/Search_Errors/Old/analyze_errors_search.m
+END
+compile.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/jschall/!svn/ver/2046/heitz/Analyses/Search_Errors/Old/compile.m
+END
+Search_Errors_classification_on_error_SDF_n2pc_left_v_right_notruncate.m
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_classification_on_error_SDF_n2pc_left_v_right_notruncate.m
+END
+Errors_reg_fast_vs_slow.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/2000/heitz/Analyses/Search_Errors/Old/Errors_reg_fast_vs_slow.m
+END
+Search_Errors_classification_on_error_SDF_check_truncTime.m
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_classification_on_error_SDF_check_truncTime.m
+END
+Errors_vismove.txt
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/Errors_vismove.txt
+END
+Search_Errors_classification_on_error_SDF_p2pc_vs_LFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_classification_on_error_SDF_p2pc_vs_LFP.m
+END
+Search_Errors_Uber_difference_vampire.m
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_Uber_difference_vampire.m
+END
+Search_Errors_Uber_vampire_trunc.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_Uber_vampire_trunc.m
+END
+Wilcoxon_vs_ROC_vs_diff.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/jschall/!svn/ver/2000/heitz/Analyses/Search_Errors/Old/Wilcoxon_vs_ROC_vs_diff.m
+END
+Search_Errors_classification_on_error_SDF.m
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_classification_on_error_SDF.m
+END
+Search_Errors_Uber.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_Uber.m
+END
+Search_Errors_JYC_classification.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/jschall/!svn/ver/3027/heitz/Analyses/Search_Errors/Old/Search_Errors_JYC_classification.m
+END
+catch_trials.txt
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/2492/heitz/Analyses/Search_Errors/Old/catch_trials.txt
+END

@@ -1,0 +1,293 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/jschall/!svn/ver/5989/heitz/Coherence
+END
+MultiDimSelect.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/2114/heitz/Coherence/MultiDimSelect.m
+END
+CompPhShift.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/2823/heitz/Coherence/CompPhShift.m
+END
+GenSecDimVarInds.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/1404/heitz/Coherence/GenSecDimVarInds.m
+END
+MTShuffCondsTest_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/5802/heitz/Coherence/MTShuffCondsTest_S.m
+END
+Spk_LFPCoh.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/5802/heitz/Coherence/Spk_LFPCoh.m
+END
+dmtSFCoh_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/2087/heitz/Coherence/dmtSFCoh_S.m
+END
+iseven.m
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/jschall/!svn/ver/959/heitz/Coherence/iseven.m
+END
+CalcClusSig.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/2836/heitz/Coherence/CalcClusSig.m
+END
+How_to_use_coherence_tutorial.txt
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/jschall/!svn/ver/5802/heitz/Coherence/How_to_use_coherence_tutorial.txt
+END
+LFPSpec.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5045/heitz/Coherence/LFPSpec.m
+END
+PostHocCohMagPlot.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/2803/heitz/Coherence/PostHocCohMagPlot.m
+END
+MTShuffTest_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/jschall/!svn/ver/5802/heitz/Coherence/MTShuffTest_S.m
+END
+dmtSpkspec_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/2082/heitz/Coherence/dmtSpkspec_S.m
+END
+PreGenTapers.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/3331/heitz/Coherence/PreGenTapers.m
+END
+TestMTCodeScript.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/jschall/!svn/ver/5434/heitz/Coherence/TestMTCodeScript.m
+END
+tfFFCoh_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/2089/heitz/Coherence/tfFFCoh_S.m
+END
+MTClusShuffOptsDefaults.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/jschall/!svn/ver/2815/heitz/Coherence/MTClusShuffOptsDefaults.m
+END
+ApplyPhLims.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/2536/heitz/Coherence/ApplyPhLims.m
+END
+FindStatClus.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/2112/heitz/Coherence/FindStatClus.m
+END
+MTZTrans_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/2987/heitz/Coherence/MTZTrans_S.m
+END
+Spk_SpkCoh.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/3511/heitz/Coherence/Spk_SpkCoh.m
+END
+SpkSpec.m
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/jschall/!svn/ver/5045/heitz/Coherence/SpkSpec.m
+END
+CalcCohZPF.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/2112/heitz/Coherence/CalcCohZPF.m
+END
+AcrossSessTFShuffTest.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/jschall/!svn/ver/5800/heitz/Coherence/AcrossSessTFShuffTest.m
+END
+simulate_SFC.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/jschall/!svn/ver/5448/heitz/Coherence/simulate_SFC.m
+END
+fixCoh.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/5032/heitz/Coherence/fixCoh.m
+END
+my_signrank.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/2766/heitz/Coherence/my_signrank.m
+END
+AcrossSessWInSessCondsTFShuffTest.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/jschall/!svn/ver/5800/heitz/Coherence/AcrossSessWInSessCondsTFShuffTest.m
+END
+test_LFPLFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/jschall/!svn/ver/2546/heitz/Coherence/test_LFPLFP.m
+END
+MTShuffTestInit_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/2803/heitz/Coherence/MTShuffTestInit_S.m
+END
+isbetween.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/2113/heitz/Coherence/isbetween.m
+END
+isint.m
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/jschall/!svn/ver/959/heitz/Coherence/isint.m
+END
+dmtUbiq_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5802/heitz/Coherence/dmtUbiq_S.m
+END
+MTPostHocTrans.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/jschall/!svn/ver/2987/heitz/Coherence/MTPostHocTrans.m
+END
+PostHocSpecPlot.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/jschall/!svn/ver/2803/heitz/Coherence/PostHocSpecPlot.m
+END
+PostHocCohAngPlot.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/jschall/!svn/ver/2803/heitz/Coherence/PostHocCohAngPlot.m
+END
+dpsschk.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/jschall/!svn/ver/955/heitz/Coherence/dpsschk.m
+END
+fix_align.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/5989/heitz/Coherence/fix_align.m
+END
+simulate_gamma_burst.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/jschall/!svn/ver/2611/heitz/Coherence/simulate_gamma_burst.m
+END
+AcrossSessCondsTFShuffTest.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/jschall/!svn/ver/2803/heitz/Coherence/AcrossSessCondsTFShuffTest.m
+END
+dmtSSCoh_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/2087/heitz/Coherence/dmtSSCoh_S.m
+END
+isdivisible.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/959/heitz/Coherence/isdivisible.m
+END
+tfspec_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/jschall/!svn/ver/3511/heitz/Coherence/tfspec_S.m
+END
+RemSpkAndInterpLFP.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/jschall/!svn/ver/3855/heitz/Coherence/RemSpkAndInterpLFP.m
+END
+mySpk2Cont.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/1404/heitz/Coherence/mySpk2Cont.m
+END
+dmtFFCoh_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/2082/heitz/Coherence/dmtFFCoh_S.m
+END
+LFP_LFPCoh.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/jschall/!svn/ver/3511/heitz/Coherence/LFP_LFPCoh.m
+END
+dmtspec_S.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/jschall/!svn/ver/2082/heitz/Coherence/dmtspec_S.m
+END
