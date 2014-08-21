@@ -163,9 +163,9 @@ trialLogical = trialLogical & targTrial;
 
 if isfield(selectOpt, 'responseDir')
    nanResp = isnan(trialData.saccToTargIndex);  % Need to account for trials without responses
-   trialData.saccToTargIndex(nanResp) = 1;
-   trialData.saccAngle = cellfun(@(x) [x 0], trialData.saccAngle, 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
-   saccAngle = cellfun(@(x,y) x(y), trialData.saccAngle, num2cell(trialData.saccToTargIndex));
+%    trialData.saccToTargIndex(nanResp) = 1;
+   trialData.saccAngle(nanResp) = cellfun(@(x) [x 0], trialData.saccAngle(nanResp), 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
+   saccAngle(~nanResp) = cellfun(@(x,y) x(y), trialData.saccAngle(~nanResp), num2cell(trialData.saccToTargIndex(~nanResp)));
    %     switch selectOpt.responseDir
    if strcmp(selectOpt.responseDir, 'collapse')
       % Do nothing

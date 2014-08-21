@@ -94,7 +94,7 @@ dataType        = options.dataType;
 
 task = 'ccm';
 [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
-
+sessionArray([1:2, 5:end]) = [];
 
 switch lower(subjectID)
     case 'human'
@@ -166,30 +166,41 @@ nSession = length(sessionArray);
 
 
 
-
+options.unitArray = {'cz','fz'};
 exData = ccm_session_data(subjectIDArray{1}, sessionArray{1}, options);
 nSSD = length(exData(1).ssdArray);
 
-clear exData;
 
 % For now, assume there was only one target per hemisphere or we're
 % collapsing across targets
 jTarg = 1;
 epochArrayStop = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
 epochArrayGo = {'fixWindowEntered', 'targOn', 'checkerOn', 'responseOnset', 'rewardOn'};
-for k = 1 : nSignal
-    for m = 1 : length(epochArrayGo)
-        Data.signalStrength(k).goTarg.(epochArrayGo{m}).(dataType) = [];
-    end
+switch dataType
+    case {'neruon', 'lfp'}
+        nUnit = 1;
+    case 'erp'
+        nUnit = size(exData, 1);
 end
-for k = 1 : nSignal
-    for m = 1 : length(epochArrayStop)
-        for n = 1 : nSSD
-        Data.signalStrength(k).stopTarg.ssd(n).(epochArrayStop{m}).(dataType) = [];
+clear exData;
+
+% Intialize Data structure for go trials
+    nUnit = 2; %length(iData(1).unitArray);
+for i = 1 : nUnit
+    for k = 1 : nSignal
+        for m = 1 : length(epochArrayGo)
+            Data(i).signalStrength(k).goTarg.(epochArrayGo{m}).(dataType) = [];
+        end
+    end
+    % Intialize Data structure for stop trials
+    for k = 1 : nSignal
+        for m = 1 : length(epochArrayStop)
+            for n = 1 : nSSD
+                Data(i).signalStrength(k).stopTarg.ssd(n).(epochArrayStop{m}).(dataType) = [];
+            end
         end
     end
 end
-
 
 
 for iSession = 1 : nSession
@@ -198,10 +209,10 @@ for iSession = 1 : nSession
     iData = ccm_session_data(subjectIDArray{iSession}, sessionArray{iSession}, options);
     
     
-    nUnit = 1; %length(iData(1).unitArray);
-    
-    
+                        ssd(iSession).array = iData(1).ssdArray
 
+    
+    
     switch dataType
         case 'neuron'
             
@@ -220,25 +231,29 @@ for iSession = 1 : nSession
                     % Loop through go trials
                     for m = 1 : length(epochArrayGo)
                         mEpochName = epochArrayGo{m};
+                        Data(j).signalStrength(k).goTarg.(mEpochName).alignTime = ...
+                            iData(j, jTarg).signalStrength(k).goTarg.(mEpochName).alignTime;
                         
                         % Go to Target Trials
-                        Data.signalStrength(k).goTarg.(mEpochName).erp = ...
-                            [Data.signalStrength(k).goTarg.(mEpochName).erp;...
+                        Data(j).signalStrength(k).goTarg.(mEpochName).erp = ...
+                            [Data(j).signalStrength(k).goTarg.(mEpochName).erp;...
                             iData(j, jTarg).signalStrength(k).goTarg.(mEpochName).erp];
                         
                     end %for m = 1 ; length(epochArray)
                     
-                    % Loop through stop trials
-                    for m = 1 : length(epochArrayStop)
-                        for n = 1 : nSSD
-                        mEpochName = epochArrayStop{m};
-                        
-                        % Go to Target Trials
-                        Data.signalStrength(k).stopTarg.ssd(n).(mEpochName).erp = ...
-                            [Data.signalStrength(k).stopTarg.ssd(n).(mEpochName).erp;...
-                            iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp];
-                        end % for n = 1 : nSSD
-                    end %for m = 1 ; length(epochArray)
+%                     % Loop through stop trials
+%                     for m = 1 : length(epochArrayStop)
+%                         for n = 1 : nSSD
+%                             mEpochName = epochArrayStop{m};
+%                              Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime = ...
+%                                  iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime;
+%                           
+%                             % Go to Target Trials
+%                             Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp = ...
+%                                 [Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp;...
+%                                 iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp];
+%                         end % for n = 1 : nSSD
+%                     end %for m = 1 ; length(epochArray)
                     
                 end % for k = 1 : nSignal
             end %  for j = 1 : nUnit
@@ -250,7 +265,7 @@ for iSession = 1 : nSession
 end
 
 
-
+Data(1).ssd = ssd;
 
 
 return
