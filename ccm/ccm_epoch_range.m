@@ -27,6 +27,8 @@ switch plotOrAnalyze
                 shiftRange = 0;
             case 'responseOffset'
                 shiftRange = -50;
+            case 'toneOn'
+                shiftRange = 100;
             case 'rewardOn'
                 shiftRange = 100;
         end

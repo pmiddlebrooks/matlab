@@ -161,6 +161,7 @@ end
 
 % epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
 epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
+epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn', 'rewardOn'};
 nEpoch = length(epochArray);
 nOutcome = 5; % Used to find the maximum signal levels for normalization if desired
 
@@ -464,7 +465,7 @@ for kDataIndex = 1 : nUnit
          % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
          
          
-         
+         if doStops
          for jSSDIndex = 1 : nSSD
             jSSD = ssdArray(jSSDIndex);
             selectOpt.ssd       = jSSD;
@@ -671,7 +672,7 @@ for kDataIndex = 1 : nUnit
             end % mEpoch
             
          end % jSSD
-         
+         end % if doStops
          
       end %iPropIndex
       
@@ -771,7 +772,7 @@ if normalize
             % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Stop trials
             % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
+            if doStops
             for jSSDIndex = 1 : nSSD
                
                switch dataType
@@ -850,6 +851,7 @@ if normalize
                      
                end % switch dataType
             end % jSSD
+            end % if doStops
          end % mEpoch
       end % for mEpoch = 1 : length(epochArray)
       Data(kDataIndex, jTarg).yMax = 1.1;

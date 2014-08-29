@@ -16,11 +16,12 @@ filterData  = options.filterData;
 stopHz      = options.stopHz;
 figureHandle = options.figureHandle;
 collapseSignal  = options.collapseSignal;
+doStops     = options.doStops;
 
-
-PLOT_ERROR  = true;
+PLOT_ERROR  = false;
 
 epochArray = {'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
+epochArray = {'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn'};
 
 [nUnit, nTargPair] = size(Data);
 
@@ -90,6 +91,7 @@ for kDataIndex = 1 : nUnit
          title(epochArray{mEpoch})
          %             set(ax(axRight, mEpoch), 'Xtick', [0 : 100 : epochRange(end) - epochRange(1)], 'XtickLabel', [epochRange(1) : 100: epochRange(end)])
          
+         if doStops
          % Left target Stop Incorrect trials
          ax(axStopGo, mEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axStopGo, mEpoch) yAxesPosition(axStopGo, mEpoch) axisWidth axisHeight]);
          set(ax(axStopGo, mEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
@@ -118,20 +120,25 @@ for kDataIndex = 1 : nUnit
          hold(ax(axStopStop, mEpoch+nEpoch), 'on')
          plot(ax(axStopStop, mEpoch+nEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
          
+         end % if doStops
+         
+         
          if mEpoch > 1
             set(ax(axGo, mEpoch), 'yticklabel', [])
             set(ax(axGo, mEpoch+nEpoch), 'yticklabel', [])
+            set(ax(axGo, mEpoch), 'ycolor', [1 1 1])
+            set(ax(axGo, mEpoch+nEpoch), 'ycolor', [1 1 1])
+            
+            if doStops
             set(ax(axStopGo, mEpoch), 'yticklabel', [])
             set(ax(axStopGo, mEpoch+nEpoch), 'yticklabel', [])
             set(ax(axStopStop, mEpoch), 'yticklabel', [])
             set(ax(axStopStop, mEpoch+nEpoch), 'yticklabel', [])
-            
-            set(ax(axGo, mEpoch), 'ycolor', [1 1 1])
-            set(ax(axGo, mEpoch+nEpoch), 'ycolor', [1 1 1])
             set(ax(axStopGo, mEpoch), 'ycolor', [1 1 1])
             set(ax(axStopGo, mEpoch+nEpoch), 'ycolor', [1 1 1])
             set(ax(axStopStop, mEpoch), 'ycolor', [1 1 1])
             set(ax(axStopStop, mEpoch+nEpoch), 'ycolor', [1 1 1])
+            end % if doStops
          end
          
          
@@ -182,7 +189,8 @@ for kDataIndex = 1 : nUnit
             
             
             % Stop signal trials
-            switch dataType
+             if doStops
+           switch dataType
                case 'neuron'
                   dataSignal = 'sdf';
                case 'lfp'
@@ -258,7 +266,7 @@ for kDataIndex = 1 : nUnit
                   plot(ax(axStopStop, mEpoch), epochRange, sigStopCorrect(alignStopCorrect + epochRange), 'color', cMap(iPropIndexL,:), 'linewidth', targLineW)
                end
             end
-            
+             end % if doStops
             
             
             
@@ -298,7 +306,8 @@ for kDataIndex = 1 : nUnit
             
             
             % Stop signal trials
-            switch dataType
+            if doStops
+                switch dataType
                case 'neuron'
                   dataSignal = 'sdf';
                case 'lfp'
@@ -376,6 +385,8 @@ for kDataIndex = 1 : nUnit
                   plot(ax(axStopStop, mEpoch + nEpoch), epochRange, sigStopCorrect(alignStopCorrect + epochRange), 'color', cMap(iPropIndexR,:), 'linewidth', targLineW)
                end
             end
+            
+            end % if doStops
          end % iPropIndex
          
       end % mEpoch

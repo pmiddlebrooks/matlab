@@ -64,9 +64,10 @@ function Data = ccm_population_data(subjectID, options)%dataType, varargin)
 % subjectID = 'broca';
 % nargin = 2;
 
-if nargin < 3
+if nargin < 2
     options.dataType = 'neuron';
     options.sessionSet       = 'behavior2';
+    options.sessionSet       = 'behavior';
     
     options.figureHandle     = 4950;
     options.printPlot        = false;
@@ -91,10 +92,8 @@ dataType        = options.dataType;
 
 
 
-
 task = 'ccm';
 [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
-sessionArray([1:2, 5:end]) = [];
 
 switch lower(subjectID)
     case 'human'
@@ -166,7 +165,7 @@ nSession = length(sessionArray);
 
 
 
-options.unitArray = {'cz','fz'};
+unitArray = {'fcz','o1','o2'};
 exData = ccm_session_data(subjectIDArray{1}, sessionArray{1}, options);
 nSSD = length(exData(1).ssdArray);
 
@@ -180,16 +179,17 @@ switch dataType
     case {'neruon', 'lfp'}
         nUnit = 1;
     case 'erp'
-        nUnit = size(exData, 1);
+        nUnit = length(unitArray);
 end
 clear exData;
 
 % Intialize Data structure for go trials
-    nUnit = 2; %length(iData(1).unitArray);
+
 for i = 1 : nUnit
     for k = 1 : nSignal
         for m = 1 : length(epochArrayGo)
             Data(i).signalStrength(k).goTarg.(epochArrayGo{m}).(dataType) = [];
+            Data(i).signalStrength(k).goDist.(epochArrayGo{m}).(dataType) = [];
         end
     end
     % Intialize Data structure for stop trials
@@ -209,8 +209,8 @@ for iSession = 1 : nSession
     iData = ccm_session_data(subjectIDArray{iSession}, sessionArray{iSession}, options);
     
     
-                        ssd(iSession).array = iData(1).ssdArray
-
+                        ssd(iSession).array = iData(1).ssdArray;
+nSSD
     
     
     switch dataType
@@ -225,36 +225,47 @@ for iSession = 1 : nSession
             % loop through the eeg electrodes and collect
             % accordingly
             for j = 1 : nUnit
-                
+                Data(j).name = unitArray{j};
                 for k = 1 : nSignal
                     
                     % Loop through go trials
                     for m = 1 : length(epochArrayGo)
                         mEpochName = epochArrayGo{m};
+                        
                         Data(j).signalStrength(k).goTarg.(mEpochName).alignTime = ...
                             iData(j, jTarg).signalStrength(k).goTarg.(mEpochName).alignTime;
+                        Data(j).signalStrength(k).goDist.(mEpochName).alignTime = ...
+                            iData(j, jTarg).signalStrength(k).goDist.(mEpochName).alignTime;
                         
                         % Go to Target Trials
                         Data(j).signalStrength(k).goTarg.(mEpochName).erp = ...
                             [Data(j).signalStrength(k).goTarg.(mEpochName).erp;...
                             iData(j, jTarg).signalStrength(k).goTarg.(mEpochName).erp];
                         
+                        % Go to Distractor Trials
+                        Data(j).signalStrength(k).goDist.(mEpochName).erp = ...
+                            [Data(j).signalStrength(k).goDist.(mEpochName).erp;...
+                            iData(j, jTarg).signalStrength(k).goDist.(mEpochName).erp];
+                        
                     end %for m = 1 ; length(epochArray)
                     
-%                     % Loop through stop trials
-%                     for m = 1 : length(epochArrayStop)
-%                         for n = 1 : nSSD
-%                             mEpochName = epochArrayStop{m};
-%                              Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime = ...
-%                                  iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime;
-%                           
-%                             % Go to Target Trials
-%                             Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp = ...
-%                                 [Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp;...
-%                                 iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp];
-%                         end % for n = 1 : nSSD
-%                     end %for m = 1 ; length(epochArray)
                     
+                    if options.doStops
+                    % Loop through stop trials
+                    for m = 1 : length(epochArrayStop)
+                        for n = 1 : nSSD
+                            Data(j).ssd(
+                            mEpochName = epochArrayStop{m};
+                             Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime = ...
+                                 iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime;
+                          
+                            % Stop to Target Trials
+                            Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp = ...
+                                [Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp;...
+                                iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp];
+                        end % for n = 1 : nSSD
+                    end %for m = 1 ; length(epochArray)
+                    end % if options.doStoips
                 end % for k = 1 : nSignal
             end %  for j = 1 : nUnit
     end
@@ -264,9 +275,18 @@ for iSession = 1 : nSession
     
 end
 
-
 Data(1).ssd = ssd;
+Data(1).ssdArray       = iData(j, jTarg).ssdArray;
+Data(1).dataArray       = iData(j, jTarg).dataArray;
+Data(1).pSignalArray    = iData(j, jTarg).pSignalArray;
+% Data(1).targAngleArray = iData(j, jTarg).targAngleArray;
+% Data(1).ssdArray    	= iData(j, jTarg).ssdArray;
+Data(1).subjectID       = iData(j, jTarg).subjectID;
+Data(1).sessionID       = 'Population';
 
+if options.plotFlag
+ccm_population_data_plot(Data, options)
+end
 
 return
 

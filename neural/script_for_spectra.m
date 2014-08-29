@@ -67,7 +67,8 @@ for i = 1 : length(goCorrTrialL)
 %     [S,F,T,P]= spectrogram(td.eedData{iTrial,4}(td.targOn(iTrial) : td.targOn(iTrial) + epochDuration-1),window,nOverlap,NFFT,Fs);
     spec(i,:,:) = P(1:hzMax, :);
     
-    
+    plotTrials = 0;
+    if plotTrials
     % Pllot
      figure(4); hold on;
      cla
@@ -80,7 +81,8 @@ for i = 1 : length(goCorrTrialL)
     plot3(rt,y,z, '--k', 'linewidth', 3);
     axis tight, view(0,90)
     xlabel 'Time (s)', ylabel 'Frequency (Hz)', title 'TargOn'
-    pause
+%     pause
+    end
     
 end
 
