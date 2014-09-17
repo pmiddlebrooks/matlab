@@ -209,8 +209,8 @@ for iSession = 1 : nSession
     iData = ccm_session_data(subjectIDArray{iSession}, sessionArray{iSession}, options);
     
     
-                        ssd(iSession).array = iData(1).ssdArray;
-nSSD
+    ssd(iSession).array = iData(1).ssdArray;
+    totalSSD = unique([totalSSD; iData(1).ssdArray]);
     
     
     switch dataType
@@ -251,29 +251,35 @@ nSSD
                     
                     
                     if options.doStops
-                    % Loop through stop trials
-                    for m = 1 : length(epochArrayStop)
-                        for n = 1 : nSSD
-                            Data(j).ssd(
-                            mEpochName = epochArrayStop{m};
-                             Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime = ...
-                                 iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime;
-                          
-                            % Stop to Target Trials
-                            Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp = ...
-                                [Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp;...
-                                iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp];
-                        end % for n = 1 : nSSD
-                    end %for m = 1 ; length(epochArray)
+                        % Loop through stop trials
+                        for m = 1 : length(epochArrayStop)
+                            for n = 1 : nSSD
+                                Data(j).ssd(
+                                mEpochName = epochArrayStop{m};
+                                Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime = ...
+                                    iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime;
+                                
+                                % Stop to Target Trials
+                                Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp = ...
+                                    [Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp;...
+                                    iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp];
+                            end % for n = 1 : nSSD
+                        end %for m = 1 ; length(epochArray)
                     end % if options.doStoips
                 end % for k = 1 : nSignal
             end %  for j = 1 : nUnit
-    end
+    end % swtich dataType
     
     
     
     
-end
+end % for iSession = 1 : nSession
+
+
+% Loop back through all the stop trial SSDs to collect and average signals
+% across sessions within each SSD. This is necessary because the ssdArray
+% (the SSDs) across sessions may vary.
+
 
 Data(1).ssd = ssd;
 Data(1).ssdArray       = iData(j, jTarg).ssdArray;
@@ -285,7 +291,7 @@ Data(1).subjectID       = iData(j, jTarg).subjectID;
 Data(1).sessionID       = 'Population';
 
 if options.plotFlag
-ccm_population_data_plot(Data, options)
+    ccm_population_data_plot(Data, options)
 end
 
 return

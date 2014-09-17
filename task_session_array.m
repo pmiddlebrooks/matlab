@@ -189,7 +189,7 @@ switch subject
             switch stopFlag
                case stop
                   switch sessionSet
-                     case 'behavior'
+                     case 'behavior1'
                         % Behavioral sessions used in Middlebrooks & Schall
                         % 2013
                   sessionArray = ...

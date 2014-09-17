@@ -15,7 +15,7 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 %           {'collapse',
 %           'valid'
 %           'goCorrectTarget', 'goCorrectDistractor',
-%           'goIncorrectTarget', 'goIncorrectDistractor'
+%           'goIncorrect',
 %           'stopCorrect',
 %           'stopIncorrectTarget', 'stopIncorrectDistractor',
 %           'targetHoldAbort', 'distractorHoldAbort',
@@ -63,7 +63,7 @@ trialData = cell_to_mat(trialData);
 if strcmp(selectOpt.outcome, 'valid')
    selectOpt.outcome = {...
       'goCorrectTarget', 'goCorrectDistractor', ...
-      'goIncorrectTarget', 'goIncorrectDistractor', ...
+      'goIncorrect', ...
       'stopCorrect', ...
       'stopIncorrectTarget', 'stopIncorrectDistractor'};
 end
@@ -162,10 +162,12 @@ trialLogical = trialLogical & targTrial;
 
 
 if isfield(selectOpt, 'responseDir')
-   nanResp = isnan(trialData.saccToTargIndex);  % Need to account for trials without responses
-%    trialData.saccToTargIndex(nanResp) = 1;
-   trialData.saccAngle(nanResp) = cellfun(@(x) [x 0], trialData.saccAngle(nanResp), 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
-   saccAngle(~nanResp) = cellfun(@(x,y) x(y), trialData.saccAngle(~nanResp), num2cell(trialData.saccToTargIndex(~nanResp)));
+    saccAngle = nan(nTrial, 1);
+   responseTrial = ~isnan(trialData.saccToTargIndex);
+
+%    trialData.saccAngle(nanResp) = cellfun(@(x) [x 0], trialData.saccAngle(nanResp), 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
+   saccAngle(responseTrial) = cellfun(@(x,y) x(y), trialData.saccAngle(responseTrial), num2cell(trialData.saccToTargIndex(responseTrial)));
+%    saccAngle = cell2num(trialData.saccAngle);
    %     switch selectOpt.responseDir
    if strcmp(selectOpt.responseDir, 'collapse')
       % Do nothing
@@ -194,7 +196,7 @@ if isfield(selectOpt, 'responseDir')
    % responses (for canceled stop trials all of them should be trials
    % without responses, so leave them in)
    if strcmp(selectOpt.ssd, 'none')
-      trialLogical = trialLogical & ~nanResp;
+      trialLogical = trialLogical & responseTrial;
    end
 end
 
