@@ -176,6 +176,7 @@ for iUnit = 1 : length(spikeUnit)
       % SET UP PLOT
       lineW = 2;
       plotEpochRange = [-200 : 300];
+      plotEpochRange = [-49 : 250];
       cMap = ccm_colormap(pSignalArray);
       leftColor = cMap(1,:) .* .8;
       rightColor = cMap(end,:) .* .8;
@@ -217,9 +218,9 @@ for iUnit = 1 : length(spikeUnit)
       hold(ax(axCohR), 'on')
       title('Coherence dependence')
       
-      ax(axCoh) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 2) yAxesPosition(2, 2) axisWidth axisHeight]);
+      ax(axCoh) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 2)*1.1 yAxesPosition(2, 2)*.9 axisWidth/2 axisHeight]);
       cla
-      hold(ax(axCoh), 'on')
+      hold(ax(axCoh), 'all')
       switch coherenceDependent(iUnit)
          case true
             cohStr = 'YES';
@@ -245,7 +246,7 @@ for iUnit = 1 : length(spikeUnit)
       plot(ax(axChoice), plotEpochRange, sdfLeft(alignmentIndex + plotEpochRange), 'color', leftColor, 'linewidth', lineW)
       plot(ax(axChoice), plotEpochRange, sdfRight(alignmentIndex + plotEpochRange), 'color', rightColor, 'linewidth', lineW)
       plot(ax(axChoice), [1 1], [0 yMax], '-k', 'linewidth', 2);
-      set(ax(axChoice), 'ylim', [0 yMax])
+      set(ax(axChoice), 'xlim', [plotEpochRange(1) plotEpochRange(end)], 'ylim', [0 yMax])
       
       
       
@@ -281,9 +282,11 @@ for iUnit = 1 : length(spikeUnit)
          sdfLeft = nanmean(spike_density_function(alignedRasters, Kernel), 1);
          
          plot(ax(axCohL), plotEpochRange, sdfLeft(alignmentIndex + plotEpochRange), 'color', inhColor, 'linewidth', lineW)
-         set(ax(axCohL), 'ylim', [0 yMax])
+         set(ax(axCohL), 'xlim', [plotEpochRange(1) plotEpochRange(end)], 'ylim', [0 yMax])
          
-         scatter(ax(axCoh), trialData.targ1CheckerProp(signalTrial), spikeRate(signalTrial), 'o', 'markeredgecolor', inhColor, 'markerfacecolor', inhColor, 'sizedata', 20)
+%          scatter(ax(axCoh), trialData.targ1CheckerProp(signalTrial), spikeRate(signalTrial), 'o', 'markeredgecolor', inhColor, 'markerfacecolor', inhColor, 'sizedata', 20)
+%          boxplot(ax(axCoh), trialData.targ1CheckerProp(signalTrial), spikeRate(signalTrial))
+%          boxplot(ax(axCoh), spikeRate(signalTrial), trialData.targ1CheckerProp(signalTrial))
       end % for i = 1 : length(signalLeftP)
       
       
@@ -311,12 +314,15 @@ for iUnit = 1 : length(spikeUnit)
             sdfRight = nanmean(spike_density_function(alignedRasters, Kernel), 1);
             
             plot(ax(axCohR), plotEpochRange, sdfRight(alignmentIndex + plotEpochRange), 'color', inhColor, 'linewidth', lineW)
-            set(ax(axCohR), 'ylim', [0 yMax])
+            set(ax(axCohR), 'xlim', [plotEpochRange(1) plotEpochRange(end)], 'ylim', [0 yMax])
             
-            scatter(ax(axCoh), trialData.targ1CheckerProp(signalTrial), spikeRate(signalTrial), 'o', 'markeredgecolor', inhColor, 'markerfacecolor', inhColor, 'sizedata', 30)
+%             scatter(ax(axCoh), trialData.targ1CheckerProp(signalTrial), spikeRate(signalTrial), 'o', 'markeredgecolor', inhColor, 'markerfacecolor', inhColor, 'sizedata', 30)
          end
       end % for i = 1 : length(signalRightP)
       
+      
+         boxplot(ax(axCoh), spikeRate, trialData.targ1CheckerProp, 'position', pSignalArray, 'colors', cMap, 'plotstyle', 'compact')
+%          set(ax(axCoh), 'ylim', [0 yMax])
       
       % regressions on trial-by-trial spike rates in the epoch
       xLeft = (signalLeftP(1) : .01 : signalLeftP(end));
@@ -331,7 +337,7 @@ for iUnit = 1 : length(spikeUnit)
       end
       plot(ax(axCoh), xLeft, yLeft, '-k', 'lineWidth', lineW)
       plot(ax(axCoh), xRight, yRight, '-k', 'lineWidth', lineW)
-      set(ax(axCoh), 'Xlim', [.9 * signalLeftP(1) 1.1 * signalRightP(end)])
+      set(ax(axCoh), 'Xlim', [signalLeftP(1)-.02 signalRightP(end)+.02])
       set(ax(axCoh), 'xtick', pSignalArray)
       set(ax(axCoh), 'xtickLabel', pSignalArray*100)
       

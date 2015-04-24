@@ -204,8 +204,8 @@ end
 
 
 
-
-
+% EYELINK
+% +++++++++++++++++++++++++++++++++
 try
     setupEyelink;
 eyeRecorded = 0;
@@ -214,6 +214,7 @@ catch err
     disp('setupEyelink Error')
     rethrow(err)
 end
+% +++++++++++++++++++++++++++++++++
 
 
 

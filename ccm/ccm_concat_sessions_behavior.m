@@ -2,7 +2,7 @@ function ccm_concat_sessions_behavior(subjectID, sessionArray)
 %%
 % subjectID = 'human';
 % subjectID = 'xena'
-subjectID = 'broca'
+subjectID = 'broca';
 
 % sessionSet = 'neural1';
 sessionSet = 'behavior2';
@@ -26,7 +26,7 @@ responseCueOn   = [];
 stopSignalOn    = [];
 trialOutcome    = [];
 targAngle       = [];
-targAmp         = [];`
+targAmp         = [];
 distAngle       = [];
 ssd             = [];
 saccAmp        	= [];

@@ -84,7 +84,7 @@ ssdArray        = ExtraVar.ssdArray;
 nSSD            = length(ssdArray);
 
 if ~strcmp(SessionData.taskID, 'ccm')
-   fprintf('Not a memory guided saccade session, try again\n')
+   fprintf('Not a chioce countermanding saccade session, try again\n')
    return
 end
 
@@ -471,8 +471,10 @@ for kDataIndex = 1 : nUnit
             selectOpt.ssd       = jSSD;
             
             selectOpt.outcome       = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectPreSSDTarget'};
+%             selectOpt.outcome       = {'stopIncorrectTarget', 'targetHoldAbort'};
             jStopTargTrial = ccm_trial_selection(trialData, selectOpt);
             selectOpt.outcome       =  {'stopIncorrectDistractor', 'distractorHoldAbort', 'stopIncorrectPreSSDDistractor'};
+%             selectOpt.outcome       =  {'stopIncorrectDistractor', 'distractorHoldAbort'};
             jStopDistTrial = ccm_trial_selection(trialData, selectOpt);
             selectOpt.outcome       = {'stopCorrect'};
             jStopCorrectTrial = ccm_trial_selection(trialData, selectOpt);

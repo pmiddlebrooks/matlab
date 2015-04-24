@@ -16,7 +16,7 @@ else
 end
 
 
-interSpaceX = .75;
+interSpaceX = 1;
 interSpaceY = interSpaceX;
 leftRightMargin = 2;
 topMargin = 2;

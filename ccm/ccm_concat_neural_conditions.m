@@ -17,7 +17,7 @@ end
 nUnit = length(Unit);
 
 % Kernel.method = 'gaussian';
-% Kernel.sigma = 20;
+% Kernel.sigma = 10;
 Kernel.method = 'postsynaptic potential';
 Kernel.growth = 1;
 Kernel.decay = 20;

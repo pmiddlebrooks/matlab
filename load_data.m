@@ -5,7 +5,7 @@ function [trialData, SessionData, ExtraVariable] = load_data(subjectID, sessionI
 % analyses
 ExtraVariable = struct();
 
-if ismember(lower(subjectID), {'broca', 'xena', 'chase', 'hoagie', 'norm', 'andy'})
+if ismember(lower(subjectID), {'broca', 'xena', 'chase', 'hoagie', 'norm', 'andy', 'nebby', 'shuffles'})
    monkeyOrHuman = 'monkey';
 else
       monkeyOrHuman = 'human';

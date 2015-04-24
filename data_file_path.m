@@ -1,7 +1,7 @@
 function [tebDataFile, localDataPath, localDataFile] = data_file_path(subjectID, sessionID, monkeyOrHuman)
 
 if nargin < 3
-if ismember(lower(subjectID), {'broca', 'xena', 'chase', 'hoagie', 'norm', 'andy'})
+if ismember(lower(subjectID), {'broca', 'xena', 'chase', 'hoagie', 'norm', 'andy','shuffles','nebby'})
    monkeyOrHuman = 'monkey';
 else
       monkeyOrHuman = 'human';
@@ -40,6 +40,12 @@ switch monkeyOrHuman
                case 'chase'
                   fileName = [sessionID, '.mat'];
                   tebDataFile = [tebaDataPath, 'chase/chafef/pdp', fileName];
+               case 'nebby'
+                  fileName = [sessionID, '.mat'];
+                  tebDataFile = [];
+               case 'shuffles'
+                  fileName = [sessionID, '.mat'];
+                  tebDataFile = [];
                otherwise
                   fprintf('%s is not a valid subject ID, try again?/n', subjectID)
                   return
