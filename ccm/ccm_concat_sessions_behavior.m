@@ -1,11 +1,11 @@
 function ccm_concat_sessions_behavior(subjectID, sessionArray)
 %%
 % subjectID = 'human';
-% subjectID = 'xena'
+% subjectID = 'xena';
 subjectID = 'broca';
 
-% sessionSet = 'neural1';
-sessionSet = 'behavior2';
+sessionSet = 'neural2';
+% sessionSet = 'behavior1';
 
 task = 'ccm';
 if nargin < 2

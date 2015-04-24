@@ -1,9 +1,15 @@
-function ccm_plot_epoch(Unit, epochName, eventMarkName, signalStrengthArray, ssdArray)
+function ccm_plot_epoch(Unit, epochName, eventMarkName, colorCohArray, ssdArray)
 
 % If singal strength or ssd index vectors are not input, assume user wants to
 % collapse across all of them
+if nargin < 2
+    epochName = 'checkerOn';
+end
+if nargin < 3
+    eventMarkName = 'responseOnset';
+end
 if nargin < 4
-    signalStrengthArray = Unit(1).signalPArray;
+    colorCohArray = Unit(1).pSignalArray;
 end
 if nargin < 5
     ssdArray = Unit(1).ssdArray;
@@ -11,8 +17,8 @@ end
 
 nUnit = length(Unit);
 
-
-epochRange = ccm_epoch_range(epochName, 'plot');
+rangeFactor = 2;
+epochRange = ccm_epoch_range(epochName, 'plot', rangeFactor);
 % sdfMax = 80;
 
 
@@ -30,13 +36,13 @@ if plotFlag
     figureHandle = 674;
     targLineW = 2;
     distLineW = 1;
-    tickWidth = 10;
+    tickWidth = 6;
     
-    GoTarg      = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'goTarg'}, signalStrengthArray, ssdArray);
-    GoDist      = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'goDist'}, signalStrengthArray, ssdArray);
-    StopTarg    = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopTarg'}, signalStrengthArray, ssdArray);
-    StopDist    = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopDist'}, signalStrengthArray, ssdArray);
-    StopCorrect = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopCorrect'}, signalStrengthArray, ssdArray);
+    GoTarg      = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'goTarg'}, colorCohArray, ssdArray);
+    GoDist      = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'goDist'}, colorCohArray, ssdArray);
+    StopTarg    = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopTarg'}, colorCohArray, ssdArray);
+    StopDist    = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopDist'}, colorCohArray, ssdArray);
+    StopCorrect = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopCorrect'}, colorCohArray, ssdArray);
     
     
     for k = 1 : nUnit

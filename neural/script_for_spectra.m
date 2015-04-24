@@ -21,32 +21,32 @@ alignTime = td.trialOnset + td.targOn;
 
 
 % Select trials
-opt = ccm_trial_selection;
-opt.outcome = {'goCorrect', 'targetHoldAbort'};
+opt                 = ccm_trial_selection;
+opt.outcome         = {'goCorrect', 'targetHoldAbort'};
 opt.rightCheckerPct = 100 * pSignalArray(pSignalArray < .5);
-goCorrTrialL = ccm_trial_selection(td, opt);
+goCorrTrialL        = ccm_trial_selection(td, opt);
 
 
 opt.rightCheckerPct = 100 * pSignalArray(pSignalArray > .5);
-goCorrTrialR = ccm_trial_selection(td, opt);
+goCorrTrialR        = ccm_trial_selection(td, opt);
 
 
 
-Fs = 1000; %sampling frequency
-T = 1/Fs; %sample time
-L = 250;
-sigT = 500;
-% L_s = Step_Offset_time_of_interest_s-Step_Onset_time_of_interest+1; %length of signal
-% L_l = Step_Offset_time_of_interest_l-Step_Onset_time_of_interest+1; %length of signal
+Fs      = 1000; % sampling frequency
+T       = 1/Fs; % sample time
+L       = 250;
+sigT    = 500;
+% L_s   = Step_Offset_time_of_interest_s-Step_Onset_time_of_interest+1; % length of signal
+% L_l   = Step_Offset_time_of_interest_l-Step_Onset_time_of_interest+1; % length of signal
 
-t_sig = (0 : sigT - 1) * T; %Time Vector
-% t_s = (0:L_s-1)*T; %Time Vector
-% t_l = (0:L_l-1)*T; %Time Vector
+t_sig   = (0 : sigT - 1) * T; % Time Vector
+% t_s   = (0:L_s-1)*T; % Time Vector
+% t_l   = (0:L_l-1)*T; % Time Vector
 
 
 
-NFFT = 2^nextpow2(L); %Next power of 2 from length of
-f = Fs/2*linspace(0,1,NFFT/2+1);
+NFFT    = 2^nextpow2(L); %Next power of 2 from length of
+f       = Fs/2*linspace(0,1,NFFT/2+1);
 
 hzMax           = 120; %
 epochDuration   = 2000; % how many ms to analyze after event of inerest?
@@ -63,11 +63,11 @@ for i = 1 : length(goCorrTrialL)
     
     clear S F T p;
     
-    [S,F,T,P]= spectrogram(td.lfpData{iTrial}(td.targOn(iTrial) : td.targOn(iTrial) + epochDuration-1),window,nOverlap,NFFT,Fs);
-%     [S,F,T,P]= spectrogram(td.eedData{iTrial,4}(td.targOn(iTrial) : td.targOn(iTrial) + epochDuration-1),window,nOverlap,NFFT,Fs);
+    [S,F,T,P]= spectrogram(td.lfpData{iTrial}(td.targOn(iTrial) : td.targOn(iTrial) + epochDuration-1), window, nOverlap, NFFT, Fs);
+%     [S,F,T,P]= spectrogram(td.eegData{iTrial,4}(td.targOn(iTrial) : td.targOn(iTrial) + epochDuration-1),window,nOverlap,NFFT,Fs);
     spec(i,:,:) = P(1:hzMax, :);
     
-    plotTrials = 0;
+    plotTrials = 1;
     if plotTrials
     % Pllot
      figure(4); hold on;
@@ -81,7 +81,7 @@ for i = 1 : length(goCorrTrialL)
     plot3(rt,y,z, '--k', 'linewidth', 3);
     axis tight, view(0,90)
     xlabel 'Time (s)', ylabel 'Frequency (Hz)', title 'TargOn'
-%     pause
+    pause
     end
     
 end

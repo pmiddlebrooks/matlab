@@ -1,17 +1,23 @@
-function [trialList] = ccm_trial_sequence(trialData, selectOpt)
+function [trialList] = ccm_trial_sequence(trialData, seqOpt)
 
-%% TESTING
-
-[trialData, S, E] = load_data('broca','bp174n02');
-
-%%
-
-% Get default options structure:
-selectOpt = ccm_trial_selection;
-
-selectOpt(1).outcome = {'goCorrectTarget'};
-selectOpt(2).outcome = {'stopCorrect'};
-selectOpt(3).outcome = {'goCorrectTarget'};
+% %% TESTING
+% 
+% [trialData, S, E] = load_data('broca','bp174n02');
+% 
+% %%
+% % Get default options structure:
+% selectOpt = ccm_trial_selection;
+% 
+% seqOpt = selectOpt;
+% seqOpt(1).outcome = {'goCorrectTarget'};
+% seqOpt(1).ssd = 'none';
+% 
+% seqOpt(2) = selectOpt;
+% seqOpt(2).outcome = {'stopCorrect'};
+% 
+% seqOpt(3) = selectOpt;
+% seqOpt(3).outcome = {'goCorrectTarget'};
+% seqOpt(3).ssd = 'none';
 
 
 % % Required selectOpt structure fields:
@@ -21,13 +27,14 @@ selectOpt(3).outcome = {'goCorrectTarget'};
 %    selectOpt.targDir           = 'collapse';
 %    selectOpt.responseDir       = 'collapse';
 
-nTrial = length(selectOpt);
+nSequence = length(seqOpt);
+nTrial = size(trialData, 1);
 trialList = 1:nTrial;
 
 
-for i = 1 : nTrial
+for i = 1 : nSequence
     
-    iTrialList = ccm_trial_selection(trialData, selectOpt(i));
+    iTrialList = ccm_trial_selection(trialData, seqOpt(i));
     
     trialList = intersect(trialList, iTrialList-i+1);
 end

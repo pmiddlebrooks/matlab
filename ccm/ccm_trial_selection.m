@@ -10,6 +10,8 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 % structure. If called without any arguments, returns a default options structure.
 % If options are input but one is not specified, it assumes default.
 %
+% Requires the following dataset VarNames: {'trialOutcome', 'targ1CheckerProp', 'ssd', 'targAngle', 'saccToTargIndex', 'saccAngle'};
+%
 % Possible conditions are (default listed first):
 %     selectOpt.outcome  = array of strings indicating the outcomes to include:
 %           {'collapse',
@@ -20,6 +22,10 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 %           'stopIncorrectTarget', 'stopIncorrectDistractor',
 %           'targetHoldAbort', 'distractorHoldAbort',
 %           'fixationAbort', 'saccadeAbort', 'checkerStimulusAbort'}
+%     selectOpt.choiceAccuracy  = default is collapse across all choices. Segments
+%           with respect to weather a choice was correct or error (does not count
+%           if no choice was made.
+%           options: 'collapse' (default), 'correct', 'error'.
 %     selectOpt.rightCheckerPct  = range of checkerboard percentage of right target checkers:
 %           {'collapse', 'right', 'left'
 %           a double array containing the values, e.g. [40 50 60]
@@ -37,9 +43,10 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 
 % If not input, return the default options structure
 if nargin < 2
-   selectOpt.outcome      = 'valid';
+   selectOpt.outcome            = 'valid';
+   selectOpt.choiceAccuracy             = 'collapse';
    selectOpt.rightCheckerPct   = 'collapse';
-   selectOpt.ssd               = 'collapse';
+   selectOpt.ssd               = 'any';
    selectOpt.targDir           = 'collapse';
    selectOpt.responseDir       = 'collapse';
    if nargin < 1
@@ -60,6 +67,36 @@ trialLogical = ones(nTrial, 1);
 
 trialData = cell_to_mat(trialData);
 
+
+if isfield(selectOpt, 'choice')
+    choiceLogical = zeros(nTrial, 1);
+    switch selectOpt.choice
+        case 'collapse'
+% do nothing
+        case 'correct'
+            choiceArray = {...
+                'goCorrectTarget',...
+                'stopIncorrectTarget',...
+                'targetHoldAbort'};
+        case 'error'
+            choiceArray = {...
+                'goCorrectDistractor',...
+                'stopIncorrectDistractor',...
+                'distractorHoldAbort'};
+    end
+   for iChoiceIndex = 1 : length(choiceArray)
+      iChoice = choiceArray{iChoiceIndex};
+      
+      choiceLogical = choiceLogical + strcmp(trialData.trialOutcome, iChoice);
+   end
+trialLogical = trialLogical & choiceLogical;
+end
+
+
+
+
+
+% Trials w.r.t. the outcome
 if strcmp(selectOpt.outcome, 'valid')
    selectOpt.outcome = {...
       'goCorrectTarget', 'goCorrectDistractor', ...
@@ -68,10 +105,6 @@ if strcmp(selectOpt.outcome, 'valid')
       'stopIncorrectTarget', 'stopIncorrectDistractor'};
 end
 
-
-
-
-% Trials w.r.t. the outcome
 if strcmp(selectOpt.outcome, 'collapse')
    outcomeLogical = ones(nTrial, 1);
 else

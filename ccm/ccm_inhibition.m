@@ -65,7 +65,7 @@ printPlot       = options.printPlot;
 figureHandle    = options.figureHandle;
 
 usePreSSD = true;
-useCorrectOrAll = 'all';
+useCorrectOrAll = 'correct';
 % ***********************************************************************
 % Inhibition Function:
 %       &
@@ -166,14 +166,26 @@ for kTarg = 1 : nTargPair
     ssd                 = cell(nSignal, 1);
     stopStopTrial       = cell(nSignal, length(ssdArray));
     stopRespondTrial       = cell(nSignal, length(ssdArray));
+    stopRespondTrialTarg       = cell(nSignal, length(ssdArray));
+    stopRespondTrialDist       = cell(nSignal, length(ssdArray));
     goTrialTotal        = cell(nSignal, 1);
+    goTrialTarg        = cell(nSignal, 1);
+    goTrialDist        = cell(nSignal, 1);
     goTotalRT           = cell(nSignal, 1);
+    goTargRT           = cell(nSignal, 1);
+    goDistRT           = cell(nSignal, 1);
+    goRTMean            = nan(nSignal, 1);
+    goTargRTMean            = nan(nSignal, 1);
+    goDistRTMean            = nan(nSignal, 1);
+    stopTargRT          = cell(nSignal, length(ssdArray));
+    stopDistRT          = cell(nSignal, length(ssdArray));
+    stopRespondRT       = nan(nSignal, length(ssdArray));
+    stopRespondRTPredict = nan(nSignal, length(ssdArray));
     stopRespondProb     = nan(nSignal, length(ssdArray));
     stopTargetProb      = nan(nSignal, length(ssdArray));
     inhibitionFn        = cell(nSignal, 1);
     inhFnGoMinusSSD     = cell(nSignal, 1);
     goRTMinusSSD        = cell(nSignal, 1);
-    goRTMean            = nan(nSignal, 1);
     nStop               = nan(nSignal, length(ssdArray));
     nStopStop           = nan(nSignal, length(ssdArray));
     nStopTarg           = nan(nSignal, length(ssdArray));
@@ -183,10 +195,6 @@ for kTarg = 1 : nTargPair
     ssrtIntegration     = cell(nSignal, 1);
     ssrtIntegrationWeighted = nan(nSignal, 1);
     ssrtIntegrationSimple = nan(nSignal, 1);
-    stopTargRT          = cell(nSignal, length(ssdArray));
-    stopDistRT          = cell(nSignal, length(ssdArray));
-    stopRespondRT       = nan(nSignal, length(ssdArray));
-    stopRespondRTPredict = nan(nSignal, length(ssdArray));
     
     conditionSSD        = cell(nSignal, 1);
     
@@ -289,7 +297,7 @@ for kTarg = 1 : nTargPair
                 kAngle = rightTargArray(kTarg);
             elseif iPct(1) < 50
                 leftTargArray = targAngleArray(leftTargInd);
-                kAngle = leftTargArray(kTarg);
+                kAngle = leftTargArray(kTarg)
             end
         end
         optSelect.targDir = kAngle;
@@ -300,27 +308,48 @@ for kTarg = 1 : nTargPair
         % predicting stop Incorrect RTs (to compare with observed, as per the
         % race model).
         optSelect.ssd = 'none';
-        optSelect.outcome     = {'goCorrectTarget', 'goCorrectDistractor'};
-        switch useCorrectOrAll
-            case 'all'
-                optSelect.outcome     = {'goCorrectTarget', 'goCorrectDistractor','targetHoldAbort', 'distractorHoldAbort'};
-            case 'correct'
-                optSelect.outcome     = {'goCorrectTarget','targetHoldAbort'};
-        end
-        goTargetTrial = ccm_trial_selection(trialData, optSelect);
-        iGoIndices = zeros(nTrial, 1);
-        iGoIndices(goTargetTrial) = 1;
         
+        % Go trial correct target
+        optSelect.outcome           = {'goCorrectTarget', 'targetHoldAbort'};
+        goTargTrial                 = ccm_trial_selection(trialData, optSelect);
+        iGoTargIndices              = zeros(nTrial, 1);
+        iGoTargIndices(goTargTrial) = 1;
         
-        
-        if sum(iGoIndices)
-            iGoTrial = find(iGoIndices);
-            goTrialTotal{iPropIndex} = iGoTrial;  % Keep track of totals for grand inhibition fnct
+        if sum(iGoTargIndices)
+            iGoTrialTarg            = find(iGoTargIndices);
+            goTrialTarg{iPropIndex} = iGoTrialTarg;  % Keep track of totals for grand inhibition fnct
             
-            iGoTrialRT = allRT(iGoTrial);
-            goTotalRT{iPropIndex} = iGoTrialRT;
-            goRTMean(iPropIndex) = nanmean(iGoTrialRT);
+            iGoTrialRTTarg          = allRT(iGoTrialTarg);
+            goTargRT{iPropIndex}    = iGoTrialRTTarg;
+            goTargRTMean(iPropIndex) = nanmean(iGoTrialRTTarg);
         end
+        %         iRTCumTarg = 1/length(iGoTrialTarg):1/length(iGoTrialTarg):1; %y-axis of a cumulative prob dist
+        %         iRTSortTarg = sort(iGoTrialRTTarg);
+        
+        
+        % Go trial errors
+        optSelect.outcome           = {'goCorrectDistractor', 'distractorHoldAbort'};
+        goDistTrial                 = ccm_trial_selection(trialData, optSelect);
+        iGoDistIndices              = zeros(nTrial, 1);
+        iGoDistIndices(goDistTrial) = 1;
+        
+        if sum(iGoDistIndices)
+            iGoTrialDist = find(iGoDistIndices);
+            goTrialDist{iPropIndex} = iGoTrialDist;  % Keep track of totals for grand inhibition fnct
+            
+            iGoTrialRTDist = allRT(iGoTrialDist);
+            goDistRT{iPropIndex} = iGoTrialRTDist;
+            goDistRTMean(iPropIndex) = nanmean(iGoTrialRTDist);
+        end
+        %         iRTCumDist = 1/length(iGoTrial):1/length(iGoTrialDist):1; %y-axis of a cumulative prob dist
+        %         iRTSortDist = sort(iGoTrialRTDist);
+        
+        iGoTrial = sort([iGoTrialDist; iGoTrialTarg]);
+        goTrialTotal{iPropIndex} = iGoTrial;  % Keep track of totals for grand inhibition fnct
+        
+        iGoTrialRT = allRT(iGoTrial);
+        goTotalRT{iPropIndex} = iGoTrialRT;
+        goRTMean(iPropIndex) = nanmean(iGoTrialRT);
         iRTCum = 1/length(iGoTrial):1/length(iGoTrial):1; %y-axis of a cumulative prob dist
         iRTSort = sort(iGoTrialRT);
         
@@ -359,21 +388,27 @@ for kTarg = 1 : nTargPair
             nStopDist(iPropIndex, jSSDIndex) = length(stopDistTrial);
             
             
-            stopTargRT{iPropIndex, jSSDIndex} = trialData.responseOnset(stopTargTrial) - trialData.responseCueOn(stopTargTrial);
-            stopDistRT{iPropIndex, jSSDIndex} = trialData.responseOnset(stopDistTrial) - trialData.responseCueOn(stopDistTrial);
+            stopTargRT{iPropIndex, jSSDIndex} = trialData.rt(stopTargTrial);
+            stopDistRT{iPropIndex, jSSDIndex} = trialData.rt(stopDistTrial);
             
             % stop incorrect trials for inhibition: do we want stop incorrect to the target or to
             % target/distractor?
-            switch useCorrectOrAll
-                case 'all'
-                    stopIncorrectTrial = union(stopTargTrial, stopDistTrial);
-                case 'correct'
-                    stopIncorrectTrial = stopTargTrial;
+            stopIncorrectTrial = union(stopTargTrial, stopDistTrial);
+            stopIncorrectTrial = stopIncorrectTrial(:);
+            stopRespondTrial{iPropIndex, jSSDIndex} = stopIncorrectTrial;
+            
+            stopIncorrectTrialTarg = stopTargTrial;
+            if size(stopIncorrectTrialTarg, 2) > 1
+                stopIncorrectTrialTarg = stopIncorrectTrialTarg';
             end
-            if size(stopIncorrectTrial, 2) > 1
-                stopIncorrectTrial = stopIncorrectTrial';
+            stopRespondTrialTarg{iPropIndex, jSSDIndex} = stopIncorrectTrialTarg;  % Keep track of totals for grand inhibition fnct
+            
+            stopIncorrectTrialDist = stopDistTrial;
+            if size(stopIncorrectTrialDist, 2) > 1
+                stopIncorrectTrialDist = stopIncorrectTrialDist';
             end
-            stopRespondTrial{iPropIndex, jSSDIndex} = stopIncorrectTrial;  % Keep track of totals for grand inhibition fnct
+            stopRespondTrialDist{iPropIndex, jSSDIndex} = stopIncorrectTrialDist;  % Keep track of totals for grand inhibition fnct
+            
             
             % Inhibition function data points:
             stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopCorrectTrial) + length(stopIncorrectTrial));
@@ -383,6 +418,8 @@ for kTarg = 1 : nTargPair
             stopTargetProb(iPropIndex, jSSDIndex) = length(stopTargTrial) / (length(stopTargTrial) + length(stopDistTrial));
             
             
+            % Predict noncanceled stop RTs:
+            % ----------------------------------------------------------
             % Predicted mean stopIncorrectRT (based on goRTs and p(noncanceled):
             jRTIndex = find(iRTCum >= stopRespondProb(iPropIndex, jSSDIndex), 1);   %match estimated p(noncan|SSD) to p(RT)
             stopRespondRTPredict(iPropIndex, jSSDIndex) = nanmean(iRTSort(1 : jRTIndex-1));
@@ -390,6 +427,7 @@ for kTarg = 1 : nTargPair
             if length(allRT(stopIncorrectTrial)) > 1
                 stopRespondRT(iPropIndex, jSSDIndex) = nanmean(allRT(stopIncorrectTrial));
             end
+            
         end % iSSDIndex
         
         
@@ -468,7 +506,7 @@ for kTarg = 1 : nTargPair
             inhColor = cMap(iPropIndex,:);
             
             
-%             plot(ax(axInhEach), ssdTimePoints, inhibitionFn{iPropIndex}, 'color', inhColor, 'linewidth', 2)
+            %             plot(ax(axInhEach), ssdTimePoints, inhibitionFn{iPropIndex}, 'color', inhColor, 'linewidth', 2)
             plot(ax(axInhEach), ssd{iPropIndex}, iStopProbRespond, 'color', inhColor, 'linewidth', 2)
             %         if iPropIndex > 1 && iPropIndex < 4
             plot(ax(axInhRTSSD), (goSSDTimepoints - offsetVal), inhFnGoMinusSSD{iPropIndex}, '-', 'color', inhColor, 'linewidth', 2);%'linewidth', 2)
@@ -658,16 +696,25 @@ for kTarg = 1 : nTargPair
     
     
     
-    Data(kTarg).ssrtGrand               = ssrtGrand;
-    Data(kTarg).ssrtMean               = ssrtMean;
-    Data(kTarg).ssrtIntegration               = ssrtIntegration;
-    Data(kTarg).ssrtIntegrationWeighted               = ssrtIntegrationWeighted;
-    Data(kTarg).ssrtIntegrationSimple               = ssrtIntegrationSimple;
-    Data(kTarg).ssrtCollapseGrand     	= ssrtCollapseGrand;
-    Data(kTarg).ssrtCollapseIntegrationWeighted     	= ssrtCollapseIntegrationWeighted;
-    Data(kTarg).ssrtCollapseIntegration     	= ssrtCollapseIntegration;
-    Data(kTarg).ssrtCollapseMean     	= ssrtCollapseMean;
+    Data(kTarg).ssrtGrand                   = ssrtGrand;
+    Data(kTarg).ssrtMean                    = ssrtMean;
+    Data(kTarg).ssrtIntegration             = ssrtIntegration;
+    Data(kTarg).ssrtIntegrationWeighted  	= ssrtIntegrationWeighted;
+    Data(kTarg).ssrtIntegrationSimple     	= ssrtIntegrationSimple;
+    Data(kTarg).ssrtCollapseGrand           = ssrtCollapseGrand;
+    Data(kTarg).ssrtCollapseIntegrationWeighted 	= ssrtCollapseIntegrationWeighted;
+    Data(kTarg).ssrtCollapseIntegration             = ssrtCollapseIntegration;
+    Data(kTarg).ssrtCollapseMean            = ssrtCollapseMean;
     Data(kTarg).ssd                = ssd;
+    
+    Data(kTarg).goTargRT       = goTargRT;
+    Data(kTarg).goDistRT       = goDistRT;
+    Data(kTarg).stopTargRT       = stopTargRT;
+    Data(kTarg).stopDistRT       = stopDistRT;
+    
+    
+    
+    
     Data(kTarg).pSignalArray       = pSignalArray;
     Data(kTarg).goRTMinusSSD       = goRTMinusSSD;
     Data(kTarg).ssdArray           = ssdArray;

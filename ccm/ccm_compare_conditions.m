@@ -47,10 +47,10 @@ function Data = ccm_compare_conditions(subjectID, sessionID, options)
 
 
 sessionID = 'bp093n02-pm';
-sessionID = 'bp163n02-01';
-sessionID = 'bp167n04';
-sessionID = 'bp158n02-pm';
-subjectID = 'broca';
+% sessionID = 'bp163n02-01';
+% sessionID = 'bp167n04';
+% sessionID = 'bp158n02-pm';
+% subjectID = 'broca';
 
 optInh = ccm_inhibition;
 optInh.plotFlag = 0;

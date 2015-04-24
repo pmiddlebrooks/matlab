@@ -61,8 +61,8 @@ for kDataIndex = 1 : nUnit
               yLimMin = -.1;
       end
       
-      %    yLimMin = 0;
-      %    yLimMax = 65;
+%          yLimMin = 0;
+%          yLimMax = 65;
       for mEpoch = 1 : nEpoch
          mEpochName = epochArray{mEpoch};
          epochRange = ccm_epoch_range(mEpochName, 'plot');

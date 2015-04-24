@@ -170,7 +170,8 @@ nOutcome = 5; % Used to find the maximum signal levels for normalization if desi
 
 
 % How many units were recorded?
-nUnit = size(unitArray, 2);
+% nUnit = size(unitArray, 2);
+nUnit = length(unitArray);
 
 
 

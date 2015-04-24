@@ -3,7 +3,7 @@ function Data = ccm_nelson_etal_2010_fig8(subjectID, sessionID, options)
 
 
 %%
-[trialData, S, E] = load_data('broca','bp174n02');
+% [trialData, S, E] = load_data('broca','bp174n02');
 
 %%
 selectionVar = {'trialOutcome', 'targ1CheckerProp', 'ssd', 'targAngle', 'saccToTargIndex', 'saccAngle', 'rt'};

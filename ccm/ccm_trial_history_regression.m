@@ -1,45 +1,69 @@
 function Data = ccm_trial_history_regression(subjectID, sessionID, options)
 
-%
-% function data = ccm_inhibition(subjectID, sessionID, plotFlag, figureHandle)
-%
-% Response inhibition analyses for choice countermanding task.
-%
-%
-% If called without any arguments, returns a default options structure.
-% If options are input but one is not specified, it assumes default.
-%
-% input:
-%   subjectID: e.g. 'Broca', 'Xena', 'pm', etc
-%   sessionID: e.g. 'bp111n01', 'Allsaccade'
-%
-% Possible options are (default listed first):
-%     options.collapseSignal    = Collapse across signal strength (difficulty conditions)?
-%            false, true
-%     options.collapseTarg 	= collapse angle/directions of the CORRECT
-%     TARGET WITHIN a signal strength (so for signal strengths with correct
-%     targets on the left, all left targets will be treated as one if set
-%     to true
-%           false, true
-%     options.include50 	= if there is a 50% signal condition, do you
-%           want to include it in analyses?
-%           false, true
-%
-%     options.plotFlag       = true, false;
-%     options.printPlot       = false, true;
-%     options.figureHandle  = optional way to assign the figure to a handle
-%
-%
-% Returns data structure with fields:
-%
-%   nGo
-%   nGoRight
-%   nStopIncorrect
-%   nStopIncorrectRight
-%   goRightLogical
-%   goRightSignalStrength
-%   stopRightLogical
-%   stopRightSignalStrength
+%%
+[trialData, S, E] = load_data('broca','bp174n02');
+
+%%
+
+% **************************************************************************
+% Build the regression matrix
+% **************************************************************************
+selectionVar = {'trialOutcome', 'targ1CheckerProp', 'ssd', 'targAngle', 'saccToTargIndex', 'saccAngle', 'rt'};
+trialData = trialData(:, selectionVar);
+
+nTrial = size(trialData, 1);
+
+
+% Chioce accuracy as an indpendent variable
+chioceAccuracy              = nan(nTrial, 1);
+optChoice                   = ccm_trial_selection;
+% Correct
+optChoice.choiceAccuracy    = 'correct';
+correctTrial                = ccm_trial_selection(trialData, optChoice);
+chioceAccuracy(correctTrial) = 1;
+% Error
+optChoice.choiceAccuracy    = 'error';
+errorTrial                  = ccm_trial_selection(trialData, optChoice);
+chioceAccuracy(errorTrial)  = 0;
+
+
+% Saccade angle as an independent variable
+saccAngle = nan(nTrial, 1);
+responseTrial = ~isnan(trialData.saccToTargIndex);
+saccAngle(responseTrial) = cellfun(@(x,y) x(y), trialData.saccAngle(responseTrial), num2cell(trialData.saccToTargIndex(responseTrial)));
+
+
+% Stop and No-Stop trials
+goTrial = isnan(trialData.ssd);
+
+
+% Time of go cue from last reward (intertrial + time till go cue)
+
+% Define the independent variables
+% -----------------------------------
+% Current trial variables
+indVar = {...
+    'targ1CheckerProp',...
+    'targAngle',...
+    'saccAngle',...
+    'chioceAccuracy',...
+    'ssd',...
+    'goTrial',...
+    'timeFromLastReward',...
+    'xxxxx',...
+    'xxxxx',...
+    'xxxxx',...
+
+% Add previous trial variables
+indVar = [indVar, {...
+    'trialOutcome'
+
+
+
+
+
+
+
 
 
 % Set default options or return a default options structure
