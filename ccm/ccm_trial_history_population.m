@@ -1,26 +1,28 @@
 function data = ccm_trial_history_population(subjectID, plotFlag, figureHandle)
 
 %%
-subjectID = 'Human'
-subjectID = 'Xena'
-subjectID = 'Broca'
-if nargin < 2
+subjectID = 'human'
+subjectID = 'xena'
+subjectID = 'broca'
+sessionSet = 'behavior1';
+% if nargin < 2
     plotFlag = 1;
-end
+% end
 if nargin < 3
     figureHandle = 4445;
 end
 
 task = 'ccm';
+
 switch subjectID
-    case 'Human'
+    case 'human'
         signalStrength = [.35 .42 .46 .5 .54 .58 .65];
-    case 'Broca'
+    case 'broca'
         signalStrength = [.41 .45 .48 .5 .52 .55 .59];
-    case 'Xena'
+    case 'xena'
         signalStrength = [.35 .42 .47 .5 .53 .58 .65];
 end
-[sessionArray, subjectIDArray] = task_session_array(subjectID, task);
+[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
 % signalStrength = unique([populationData.signalStrengthLeft{1}, populationData.signalStrengthRight{1}])';
 
 

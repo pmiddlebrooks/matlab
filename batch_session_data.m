@@ -8,8 +8,10 @@ nSession = length(sessionArray);
 
 
 
+trial       = [];
 rt          = [];
 colorCoh    = [];
+ssd         = [];
 saccDir   	= [];
 accuracy  	= [];
 session    	= [];
@@ -18,7 +20,7 @@ session    	= [];
 for i = 1 : nSession
     
     [td, S, E] = load_data(subjectID,sessionArray{i});
-    
+    td.trial = 1 : size(td, 1);
     
     % Truncate RTs
     MIN_RT = 120;
@@ -26,7 +28,7 @@ for i = 1 : nSession
     nSTD   = 3;
     [allRT, outlierTrial]   = truncate_rt(td.rt, MIN_RT, MAX_RT, nSTD);
     td(outlierTrial, :) = [];
-    
+
     % Exclude 50% color coherence trials
     td.targ1CheckerProp(td.targ1CheckerProp == .58) = .59;
 %     td(td.targ1CheckerProp == .5, :) = [];
@@ -55,13 +57,13 @@ for i = 1 : nSession
     
 end
 
-monkeyB.rt = rt;
-monkeyB.colorCoh = colorCoh;
-monkeyB.saccDir = saccDir;
-monkeyB.accuracy = accuracy;
-monkeyB.session = session;
+monkeyB.rt          = rt;
+monkeyB.colorCoh    = colorCoh;
+monkeyB.saccDir     = saccDir;
+monkeyB.accuracy    = accuracy;
+monkeyB.session     = session;
 
-save('~/matlab/local_data/monkeyB.mat', 'monkeyB')
+save('~/matlab/local_data/broca/brocaRT.mat', 'monkeyB')
 disp('done')
 %%
 subjectID = 'xena';
@@ -182,6 +184,85 @@ for i = 1 : nSession
  save(['~/matlab/local_data/',iSubject,'.mat'], 'data')
    
 end
+
+
+
+%%
+% Build a behavioral data table for broca across sessions (for trial
+% history RT anlyses)
+
+subjectID = 'broca';
+task = 'ccm';
+sessionSet = 'behavior1';
+
+[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
+nSession = length(sessionArray);
+
+monkeyB = cell2table({});
+
+for i = 1 : nSession
+    
+    [td, S, E] = load_data(subjectID,sessionArray{i});
+%     td.trial = 1 : size(td, 1);
+    
+    % Truncate RTs
+    MIN_RT = 120;
+    MAX_RT = 1200;
+    nSTD   = 3;
+    [allRT, outlierTrial]   = truncate_rt(td.rt, MIN_RT, MAX_RT, nSTD);
+    td(outlierTrial, :) = [];
+
+    % Exclude 50% color coherence trials
+    td.targ1CheckerProp(td.targ1CheckerProp == .58) = .59;
+%     td(td.targ1CheckerProp == .5, :) = [];
+    
+    
+ iTable = table(...
+     td.trialOutcome, ...
+     td.targOn, ...
+     td.checkerOn, ...
+     td.responseCueOn, ...
+     td.ssd, ...
+     td.targAmp, ...
+     td.targAngle, ...
+     td.targ1CheckerProp, ...
+     td.preTargFixDuration, ...
+     td.postTargFixDuration, ...
+     td.checkerAngle, ...
+     td.iTrial, ...
+     td.trialOnset, ...
+     td.rt, ...
+     'VariableNames', {...
+     'trialOutcome', ...
+     'targon',...
+     'checkerOn', ...  
+     'responseCueOn',...
+     'ssd',...
+     'targAmp',...
+     'targAngle',...
+     'targ1CheckerProp',...
+     'preTargFixDuration',...
+     'postTargFixDuration',...
+     'checkerAngle',...
+     'iTrial',...
+     'trialOnset',...
+     'rt'}) ;  
+
+    
+    monkeyB = [monkeyB; iTable];
+end
+
+% monkeyB.rt          = rt;
+% monkeyB.colorCoh    = colorCoh;
+% monkeyB.saccDir     = saccDir;
+% monkeyB.accuracy    = accuracy;
+% monkeyB.session     = session;
+
+save('~/matlab/local_data/broca/brocaRT.mat', 'monkeyB')
+disp('done')
+
+
+
 
 
 
