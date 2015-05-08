@@ -24,6 +24,7 @@ SessionData.taskID = 'ccm';
 concatData = dataset(...
     {trialData.trialOutcome, 'trialOutcome'}, ...
     {trialData.responseOnset, 'responseOnset'},...
+    {trialData.targOn, 'targOn'},...
     {trialData.targ1CheckerProp, 'targ1CheckerProp'},...
     {trialData.stopSignalOn, 'stopSignalOn'},...
     {trialData.targAngle, 'targAngle'},...
@@ -63,3 +64,39 @@ end
 
 
 copyfile(concatDataFile, localDataPath)
+
+return
+
+%% MANUALLY CONCATENATE SESSIONS
+
+% Saccade
+
+sArray = {'bz0907saccade','bz0924saccade','bb0924saccade'};
+nSession = length(sArray);
+
+humanDataPath = '/Volumes/middlepg/HumanData/ChoiceStopTask/';
+
+trialData = cell2table({});
+
+for i = 1 : nSession
+    iSession = sArray{i}
+    iTD = load([humanDataPath,iSession]);
+    td = iTD.trialData;
+    td.rt = td.responseOnset - td.responseCueOn;
+    
+    MIN_RT = 120;
+    MAX_RT = 1200;
+    nSTD   = 3;
+    [allRT, outlierTrial]   = truncate_rt(td.rt, MIN_RT, MAX_RT, nSTD);
+    td(outlierTrial, :) = [];
+
+    td = dataset2table(td);
+trialData = [trialData; td];
+
+end
+
+save(['~/matlab/local_data/human/', sArray{1}(1:2), 'Allsaccade'])
+
+
+
+

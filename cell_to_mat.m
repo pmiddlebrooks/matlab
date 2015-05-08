@@ -2,7 +2,13 @@ function trialData = cell_to_mat(trialData)
 
 
 % Convert cell arrays to double for those that need it
+switch class(trialData)
+    case 'dataset'
 vn = trialData.Properties.VarNames;
+    case 'table'
+vn = trialData.Properties.VariableNames;
+end
+
 if ismember('fixWindowEntered', vn)
     if iscell(trialData.fixWindowEntered)
         trialData.fixWindowEntered = cell2mat(trialData.fixWindowEntered);

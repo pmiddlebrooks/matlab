@@ -8,9 +8,9 @@ sessionSet = 'behavior1';
 % if nargin < 2
     plotFlag = 1;
 % end
-if nargin < 3
+% if nargin < 3
     figureHandle = 4445;
-end
+% end
 
 task = 'ccm';
 

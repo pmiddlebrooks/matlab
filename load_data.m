@@ -27,6 +27,10 @@ if exist(localDataFile, 'file') ~= 2
    disp(sessionID)
 end
 load(localDataFile);
+if isa(trialData, 'dataset')
+    trialData = dataset2table(trialData);
+end
+
 
 if isfield(SessionData, 'taskID')
    task = SessionData.taskID;
@@ -49,7 +53,7 @@ end
 
 
 if strcmp(task, 'ccm')
-   %    trialData.Properties.VarNames';
+   %    trialData.Properties.VariableNames';
    pSignalArray = unique(trialData.targ1CheckerProp);
    pSignalArray(isnan(pSignalArray)) = [];
    ExtraVariable.pSignalArray = pSignalArray;
@@ -95,6 +99,9 @@ if ~strcmp(task, 'maskbet')
    trialData.rt = trialData.responseOnset - trialData.responseCueOn;
    
    if strcmp(task, 'ccm')
+       if ~ismember('distAngle', trialData.Properties.VariableNames)
+           trialData.distAngle = trialData.targAngle + 180;
+       end
    angleMat = unique([trialData.targAngle trialData.distAngle], 'rows');
    ExtraVariable.targAngleArray = angleMat(:,1);
    ExtraVariable.distAngleArray = angleMat(:,2);

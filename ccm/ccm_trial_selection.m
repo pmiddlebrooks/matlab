@@ -194,7 +194,7 @@ trialLogical = trialLogical & targTrial;
 
 
 
-if isfield(selectOpt, 'responseDir')
+if isfield(selectOpt, 'responseDir') && ~strcmp(selectOpt.responseDir, 'collapse')
     saccAngle = nan(nTrial, 1);
    responseTrial = ~isnan(trialData.saccToTargIndex);
 

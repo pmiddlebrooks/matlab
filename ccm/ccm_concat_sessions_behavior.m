@@ -1,11 +1,11 @@
 function ccm_concat_sessions_behavior(subjectID, sessionArray)
 %%
-% subjectID = 'human';
+subjectID = 'human';
 % subjectID = 'xena';
-subjectID = 'broca';
+% subjectID = 'broca';
 
-sessionSet = 'neural2';
-% sessionSet = 'behavior1';
+% sessionSet = 'neural2';
+sessionSet = 'behavior1';
 
 task = 'ccm';
 if nargin < 2
@@ -25,6 +25,7 @@ targ1CheckerProp = [];
 responseCueOn   = [];
 stopSignalOn    = [];
 trialOutcome    = [];
+targOn          = [];
 targAngle       = [];
 targAmp         = [];
 distAngle       = [];
@@ -38,9 +39,13 @@ saccToTargIndex = [];
 for iSession = 1 : nSession
     
     % Load the data
-    iSessionID = sessionArray{iSession}
+    iSessionID = sessionArray{iSession};
     iSubjectID = subjectIDArray{iSession};
-    [trialData, SessionData, ExtraVar] = load_data(iSubjectID, iSessionID);
+%     if strcmp('human',subjectID)
+%         iSessionID = ['hu',iSessionID];
+%     end
+    
+    [trialData, SessionData, ExtraVar] = load_data(iSubjectID, strcat(iSubjectID,iSessionID));
     
     %     if ~strcmp(SessionData.taskID, 'ccm')
     %         error('Not a choice countermanding session, try again\n')
@@ -54,6 +59,7 @@ for iSession = 1 : nSession
     responseCueOn       = [responseCueOn; trialData.responseCueOn];
     stopSignalOn        = [stopSignalOn; trialData.stopSignalOn];
     ssd                 = [ssd; trialData.ssd];
+    targOn        = [targOn; trialData.targOn];
     trialOutcome        = [trialOutcome; trialData.trialOutcome];
     targAngle           = [targAngle; trialData.targAngle];
     targAmp             = [targAmp; trialData.targAmp];
@@ -84,6 +90,8 @@ trialData.saccBegin         = saccBegin;
 trialData.checkerOn         = checkerOn;
 trialData.saccToTargIndex  	= saccToTargIndex;
 
+SessionData.taskID = 'ccm';
+
 switch lower(subjectID)
     case 'human'
         pSignalArray = [.35 .42 .46 .54 .58 .65];
@@ -108,9 +116,10 @@ end
 
 
 
-SessionData.taskID = 'ccm';
-
+if strcmp(subjectID, 'human')
+save(['~/matlab/local_data/human/human_', iSessionID, '.mat'], 'SessionData', 'trialData', '-mat')
+else
 save(['~/matlab/local_data/', subjectID, '/', subjectID, '_', sessionSet, '.mat'], 'SessionData', 'trialData', '-mat')
-
+end
 
 

@@ -6,6 +6,7 @@ plotFlag    = 1;
 printPlot   = 0;
 figureHandle = 6124;
 alignEvent = 'checkerOn';
+sessionSet = 'behavior1';
 stopSession = true;
 filterData = false;
 for i = 1 : 2 : length(varargin)
@@ -26,6 +27,7 @@ for i = 1 : 2 : length(varargin)
    end
 end
 
+subjectID = lower(subjectID);
 
 %%%%%%%%%%%      Constants    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -35,14 +37,14 @@ stopHz      = 50;
 
 
 switch subjectID
-   case 'Human'
+   case 'human'
       pSignalArray = [.35 .42 .46 .5 .54 .58 .65];
-   case 'Broca'
+   case 'broca'
       pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
-   case 'Xena'
+   case 'xena'
       pSignalArray = [.35 .42 .47 .5 .53 .58 .65];
 end
-[sessionArray, subjectIDArray] = task_session_array(subjectID, task, stopSession);
+[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet, stopSession);
 % pSignalArray = unique([populationData.signalStrengthLeft{1}, populationData.signalStrengthRight{1}])';
 
 
