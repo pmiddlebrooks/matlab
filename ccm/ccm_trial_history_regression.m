@@ -1,66 +1,113 @@
 function Data = ccm_trial_history_regression(subjectID, sessionID, options)
 
 %%
-[trialData, S, E] = load_data('broca','bp174n02');
+% [trialData, S, E] = load_data('broca','bp174n02');
+subjectArray = {'broca'};
+% subjectArray = {'xena'};
+% subjectArray = {'human'};
+deleteAborts = false;
+acrossSession = true;
 
 %%
-
-% **************************************************************************
-% Build the regression matrix
-% **************************************************************************
-selectionVar = {'trialOutcome', 'targ1CheckerProp', 'ssd', 'targAngle', 'saccToTargIndex', 'saccAngle', 'rt'};
-trialData = trialData(:, selectionVar);
-
-nTrial = size(trialData, 1);
-
-
-% Chioce accuracy as an indpendent variable
-chioceAccuracy              = nan(nTrial, 1);
-optChoice                   = ccm_trial_selection;
-% Correct
-optChoice.choiceAccuracy    = 'correct';
-correctTrial                = ccm_trial_selection(trialData, optChoice);
-chioceAccuracy(correctTrial) = 1;
-% Error
-optChoice.choiceAccuracy    = 'error';
-errorTrial                  = ccm_trial_selection(trialData, optChoice);
-chioceAccuracy(errorTrial)  = 0;
-
-
-% Saccade angle as an independent variable
-saccAngle = nan(nTrial, 1);
-responseTrial = ~isnan(trialData.saccToTargIndex);
-saccAngle(responseTrial) = cellfun(@(x,y) x(y), trialData.saccAngle(responseTrial), num2cell(trialData.saccToTargIndex(responseTrial)));
-
-
-% Stop and No-Stop trials
-goTrial = isnan(trialData.ssd);
-
-
-% Time of go cue from last reward (intertrial + time till go cue)
-
-% Define the independent variables
-% -----------------------------------
-% Current trial variables
-indVar = {...
-    'targ1CheckerProp',...
-    'targAngle',...
-    'saccAngle',...
-    'chioceAccuracy',...
-    'ssd',...
-    'goTrial',...
-    'timeFromLastReward',...
-    'xxxxx',...
-    'xxxxx',...
-    'xxxxx',...
-
-% Add previous trial variables
-indVar = [indVar, {...
-    'trialOutcome'
-
-
-
-
+for i = 1 : length(subjectArray)
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % LOAD DATA AND SET VARIABLES
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    iSubject = subjectArray{i};
+    
+    iFile = fullfile('local_data',iSubject,strcat(iSubject,'RT.mat'));
+    load(iFile)  % Loads trialData into workspace (and SessionData)
+    
+    if deleteAborts
+        selectOpt = ccm_trial_selection;
+        selectOpt.outcome = {...
+            'goCorrectTarget', 'goCorrectDistractor', ...
+            'stopCorrect', ...
+            'targetHoldAbort', 'distractorHoldAbort', ...
+            'stopIncorrectTarget', 'stopIncorrectDistractor'};
+        validTrial = ccm_trial_selection(trialData, selectOpt);
+        trialData = trialData(validTrial,:);
+    end
+    
+    % **************************************************************************
+    % Build the regression matrix
+    % **************************************************************************
+    selectionVar = {'trialOutcome', 'targ1CheckerProp', 'ssd', 'targAngle', 'saccToTargIndex', 'saccAngle', 'rt'};
+    td = trialData(:, selectionVar);
+    
+    nTrial = size(td, 1);
+    
+    
+    % Chioce accuracy as an indpendent variable
+    choiceAccuracy              = nan(nTrial, 1);
+    optChoice                   = ccm_trial_selection;
+    % Correct
+    optChoice.choiceAccuracy    = 'correct';
+    correctTrial                = ccm_trial_selection(td, optChoice);
+    choiceAccuracy(correctTrial) = 1;
+    % Error
+    optChoice.choiceAccuracy    = 'error';
+    errorTrial                  = ccm_trial_selection(td, optChoice);
+    choiceAccuracy(errorTrial)  = 0;
+    
+    
+    % Saccade angle as an independent variable
+    saccAngle = nan(nTrial, 1);
+    responseTrial = ~isnan(td.saccToTargIndex);
+    saccAngle(responseTrial) = cellfun(@(x,y) x(y), td.saccAngle(responseTrial), num2cell(td.saccToTargIndex(responseTrial)));
+    
+    
+    % Stop and No-Stop trials
+    goTrial = isnan(td.ssd);
+    
+    
+    % Time of go cue from last reward (intertrial + time till go cue)
+    
+    % Define the independent variables
+    % -----------------------------------
+    % Current trial variables
+    indVar = {...
+        'targ1CheckerProp',...
+        'targAngle',...
+        'saccAngle',...
+        'chioceAccuracy',...
+        'ssd',...
+        'goTrial',...
+        'timeFromLastReward',...
+        'xxxxx',...
+        'xxxxx',...
+        'xxxxx'};
+    
+    
+    regressData = table(...
+        td.targ1CheckerProp,...
+        choiceAccuracy,...
+        td.trialOutcome,...
+        td.targAngle,...
+        saccAngle,...
+        td.ssd,...
+        td.rt,...
+        'VariableNames',{...
+        'ColorCoherence'...
+        'Accuracy'...
+        'Outcome'...
+        'TargAngle'...
+        'SaccAngle'...
+        'SSD'...
+        'RT'...
+        });
+    
+    regressData(isnan(regressData.RT), :) = [];
+    % regressData.Accuracy = nominal(regressData.Accuracy);
+    % regressData.Outcome = nominal(regressData.Outcome);
+    lm = fitlm(regressData, 'Categorical',{'Accuracy','Outcome'})
+    % lm = fitlm(regressData)
+    % regress(td.rt, [td.trialOutcome td.ssd, td.targ1CheckerProp])
+    
+    
+end % for i = 1 : length(subjectArray)
+return
 
 
 

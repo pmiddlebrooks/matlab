@@ -20,6 +20,8 @@ plx = readPLXFileC(fileName,'events');
 % eTrialstart		= 1666;
 % eTrialEnd 			= 1667;
 eFixate          = 2660;
+eTone            = 2001;
+
 
 eventTrack = eFixate;
 
@@ -27,7 +29,8 @@ strobedEventChannel = 17;
 
 
 nTrial = sum(plx.EventChannels(strobedEventChannel).Values == eFixate);
+nTone = sum(plx.EventChannels(strobedEventChannel).Values == eTone);
+Comp = 100 * nTone / nTrial;
 
-fprintf('Trials: %d\n', nTrial)
-
-
+fprintf('Trials Started: %d\n', nTrial)
+fprintf('Trials Completed: %d\t(%.1f %%)\n', nTone, Comp)
