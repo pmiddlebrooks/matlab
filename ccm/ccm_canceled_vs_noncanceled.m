@@ -268,9 +268,17 @@ for kUnitIndex = 1 : nUnit
             
             % Get the go trial data: these need to be split to latency-match with
             % the stop trial data
-            %             iGoTargSsd      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEvent, markEvent, {'goTarg'}, iSignalP);
-            iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'checkerOn', 'responseOnset', {'goTarg'}, iSignalP);
-            iGoTargSacc      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, iSignalP);
+            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            
+            opt.epochName       = alignEvent;
+            opt.eventMarkName   = markEvent;
+            opt.conditionArray  = {'goTarg'};
+            opt.colorCohArray   = iSignalP;
+            iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+            
+            opt.epochName       = 'responseOnset';
+            opt.eventMarkName   = 'checkerOn';
+            iGoTargSacc         = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
             
             
             for mSSDInd = 1 : nSSD
@@ -284,11 +292,27 @@ for kUnitIndex = 1 : nUnit
                 
                 
                 % Get the stop trial data
-                iStopTargSsd    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'stopSignalOn', 'responseOnset', {'stopTarg'}, iSignalP, mSSD);
-                iStopTargChecker   = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'checkerOn', 'responseOnset', {'stopTarg'}, iSignalP, mSSD);
-                iStopTargSacc       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'stopTarg'}, iSignalP, mSSD);
-                iStopStopSsd       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'stopSignalOn',  'checkerOn', {'stopCorrect'}, iSignalP, mSSD);
-                iStopStopChecker       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'checkerOn', 'responseOnset', {'stopCorrect'}, iSignalP, mSSD);
+                opt.epochName       = 'stopSignalOn';
+                opt.eventMarkName   = 'responseOnset';
+                opt.conditionArray  = {'stopTarg'};
+                opt.ssdArray        = mSSD;
+                iStopTargSsd    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                opt.epochName       = 'checkerOn';
+                iStopTargChecker   = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                opt.epochName       = 'responseOnset';
+                opt.eventMarkName   = 'checkerOn';
+                iStopTargSacc       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                opt.epochName       = 'stopSignalOn';
+                opt.eventMarkName   = 'checkerOn';
+                opt.conditionArray  = {'stopCorrect'};
+                iStopStopSsd       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                opt.epochName       = 'checkerOn';
+                opt.eventMarkName   = 'responseOnset';
+                iStopStopChecker       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
                 
                 % Use a subsample of the noncanceled stop RTs that are
                 % later than the SSD plus some time to encode the stimulus
@@ -500,10 +524,19 @@ for kUnitIndex = 1 : nUnit
             % Figure out y-axis limits (to be consistent across graphs)
             leftSigInd = pSignalArray < .5;
             rightSigInd = pSignalArray > .5;
+            
+            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            
+            opt.epochName       = 'responseOnset';
+            opt.eventMarkName   = 'checkerOn';
+            opt.conditionArray  = {'goTarg'};
+            opt.colorCohArray   = pSignalArray(leftSigInd);
+            opt.ssdArray        = [];
             %             dataL           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, pSignalArray(leftSigInd), []);
             %             dataR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, pSignalArray(rightSigInd), []);
-            dataLR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, pSignalArray, []);
+            dataLR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
             %             sigMax          = 1.15 * max([dataL.signalFn(dataL.align + epochRangeSacc), dataR.signalFn(dataR.align + epochRangeSacc)]);
+            
             sigMax          = 1.15 * max(dataLR.signalFn(dataLR.align + epochRangeSacc));
             switch dataType
                 case 'neuron'

@@ -45,7 +45,7 @@ function Data = ccm_compare_conditions(subjectID, sessionID, options)
 
 %%
 
-
+subjectID = 'broca';
 sessionID = 'bp093n02-pm';
 % sessionID = 'bp163n02-01';
 % sessionID = 'bp167n04';

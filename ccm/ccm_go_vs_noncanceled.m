@@ -211,8 +211,17 @@ for kUnitIndex = 1 : nUnit
             
             % Get the go trial data: these need to be split to latency-match with
             % the stop trial data
-            iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEvent, markEvent, {'goTarg'}, iSignalP);
-            iGoTargSacc      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, iSignalP);
+            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            
+            opt.epochName       = alignEvent;
+            opt.eventMarkName   = markEvent;
+            opt.conditionArray  = {'goTarg'};
+            opt.colorCohArray   = iSignalP;
+            iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+            
+            opt.epochName       = 'responseOnset';
+            opt.eventMarkName   = 'checkerOn';
+            iGoTargSacc         = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
             
             
             for mSSDInd = 1 : nSSD
@@ -220,9 +229,21 @@ for kUnitIndex = 1 : nUnit
                 
                 
                 % Get the stop trial data
-                iStopTargChecker    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEvent, markEvent, {'stopTarg'}, iSignalP, mSSD);
-                iStopTargSacc       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'stopTarg'}, iSignalP, mSSD);
-                iStopStopChecker       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEvent, markEvent, {'stopCorrect'}, iSignalP, mSSD);
+                opt.epochName       = alignEvent;
+                opt.eventMarkName   = markEvent;
+                opt.conditionArray  = {'stopTarg'};
+                opt.ssdArray        = mSSD;
+                iStopTargChecker    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                opt.conditionArray  = {'stopCorrect'};
+                iStopStopChecker       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                opt.epochName       = 'responseOnset';
+                opt.eventMarkName   = 'checkerOn';
+                opt.conditionArray  = {'stopTarg'};
+                iStopTargSacc       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                
                 
                 % Use a subsample of the noncanceled stop RTs that are
                 % later than the SSD plus some time to encode the stimulus
@@ -379,8 +400,18 @@ for kUnitIndex = 1 : nUnit
             % Figure out y-axis limits (to be consistent across graphs)
             leftSigInd = pSignalArray < .5;
             rightSigInd = pSignalArray > .5;
-            dataL           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, pSignalArray(leftSigInd), ssdArray);
-            dataR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, pSignalArray(rightSigInd), ssdArray);
+            
+            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            
+            opt.epochName       = 'responseOnset';
+            opt.eventMarkName   = 'checkerOn';
+            opt.conditionArray  = {'goTarg'};
+            opt.colorCohArray   = pSignalArray(leftSigInd);
+            opt.ssdArray        = ssdArray;
+            dataL           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+            
+            opt.colorCohArray   = pSignalArray(rightSigInd);
+            dataR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
             sigMax          = max([dataL.signalFn(dataL.align + epochRangeSacc), dataR.signalFn(dataL.align + epochRangeSacc)]);
             switch dataType
                 case 'neuron'
@@ -391,8 +422,8 @@ for kUnitIndex = 1 : nUnit
             
             % Title for the figure
             h=axes('Position', [0 0 1 1], 'Visible', 'Off');
-              set(gcf, 'Name','Go v Nonanceled','NumberTitle','off')
-          titleString = sprintf('%s \t %s', sessionID, Unit(kUnitIndex, jTarg).name);
+            set(gcf, 'Name','Go v Nonanceled','NumberTitle','off')
+            titleString = sprintf('%s \t %s', sessionID, Unit(kUnitIndex, jTarg).name);
             text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top')
             
             
@@ -436,12 +467,12 @@ for kUnitIndex = 1 : nUnit
                 
                 plot(ax(iRow, colChkr), [iSSD, iSSD], [sigMin sigMax], 'color', [.2 .2 .2], 'linewidth', 1)
                 plot(ax(iRow, colChkr), [iSSD + ssrt, iSSD + ssrt], [sigMin sigMax], '--', 'color', [0 0 0], 'linewidth', 1)
-
+                
                 iGoTargFastCheckerFn = goTargFastCheckerFn{iSigInd,iSsdInd}(goTargFastCheckerAlign{iSigInd,iSsdInd} + epochRangeChecker);
                 plot(ax(iRow, colChkr), epochRangeChecker, iGoTargFastCheckerFn, 'color', cMap(iSigInd,:), 'linewidth', goLineW)
                 iGoTargRTMean = round(mean(goTargFastCheckerEventLat{iSigInd, iSsdInd}));
                 plot(ax(iRow, colChkr), iGoTargRTMean, iGoTargFastCheckerFn(iGoTargRTMean), '.k','markersize', markSize)
-
+                
                 iStopTargCheckerFn = stopTargCheckerFn{iSigInd,iSsdInd}(stopTargCheckerAlign{iSigInd,iSsdInd} + epochRangeChecker);
                 plot(ax(iRow, colChkr), epochRangeChecker, iStopTargCheckerFn, 'color', stopColor, 'linewidth', stopLineW)
                 iStopTargRTMean = round(mean(stopTargCheckerEventLat{iSigInd, iSsdInd}));
@@ -450,10 +481,10 @@ for kUnitIndex = 1 : nUnit
                 
                 iGoTargFastSaccFn = goTargFastSaccFn{iSigInd,iSsdInd}(goTargFastSaccAlign{iSigInd,iSsdInd} + epochRangeSacc);
                 plot(ax(iRow, colSacc), epochRangeSacc, iGoTargFastSaccFn, 'color', cMap(iSigInd,:), 'linewidth', goLineW)
-
+                
                 iStopTargSaccFn = stopTargSaccFn{iSigInd,iSsdInd}(stopTargSaccAlign{iSigInd,iSsdInd} + epochRangeSacc);
                 plot(ax(iRow, colSacc), epochRangeSacc, iStopTargSaccFn, 'color', stopColor, 'linewidth', stopLineW)
-
+                
                 %                 iGoTargCheckerMean = round(mean(goTargFastSaccEventLat{iSigInd, iSsdInd}));
                 %                 plot(ax(iRow, colSacc), iGoTargCheckerMean, iStopTargSaccFn(iGoTargCheckerMean), 'ok','markersize', 10)
                 %                 iGoTargCheckerMean = round(mean(stopTargSaccEventLat{iSigInd, iSsdInd}));

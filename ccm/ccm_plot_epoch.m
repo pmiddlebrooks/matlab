@@ -1,25 +1,39 @@
-function ccm_plot_epoch(Unit, epochName, eventMarkName, colorCohArray, ssdArray)
+function Data = ccm_plot_epoch(Unit, options)
 
-% If singal strength or ssd index vectors are not input, assume user wants to
-% collapse across all of them
-if nargin < 2
-    epochName = 'checkerOn';
+% If called without options structure, returns default options structure to tailor.
+% If called with only Unit input, assign default option structure.
+%
+
+if nargin == 0
+    options.epochName       	= 'checkerOn';
+    options.eventMarkName   	= 'responseOnset';
+    options.epochRange   	= [];
+    Data = options;
+    return
 end
-if nargin < 3
-    eventMarkName = 'responseOnset';
+if nargin == 1
+    options.epochName       	= 'checkerOn';
+    options.eventMarkName   	= 'responseOnset';
+    options.epochRange   	= [];    
 end
-if nargin < 4
-    colorCohArray = Unit(1).pSignalArray;
-end
-if nargin < 5
-    ssdArray = Unit(1).ssdArray;
-end
+
+epochName       = options.epochName;
+eventMarkName   = options.eventMarkName;
+printPlot       = false;
+figureHandle    = 674;
+ssdArray        = Unit(1).ssdArray;
+colorCohArray   = Unit(1).pSignalArray;
+dataType        = Unit(1).options.dataType;
+epochRange      = options.epochRange;
+
 
 nUnit = length(Unit);
 
+if isempty(epochRange)
 rangeFactor = 2;
 epochRange = ccm_epoch_range(epochName, 'plot', rangeFactor);
-% sdfMax = 80;
+end
+% yMax = 80;
 
 
 
@@ -33,16 +47,27 @@ markerSize        = 40;
 if plotFlag
     
     
-    figureHandle = 674;
     targLineW = 2;
     distLineW = 1;
     tickWidth = 6;
     
-    GoTarg      = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'goTarg'}, colorCohArray, ssdArray);
-    GoDist      = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'goDist'}, colorCohArray, ssdArray);
-    StopTarg    = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopTarg'}, colorCohArray, ssdArray);
-    StopDist    = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopDist'}, colorCohArray, ssdArray);
-    StopCorrect = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, {'stopCorrect'}, colorCohArray, ssdArray);
+    opt = ccm_concat_neural_conditions(Unit); % Get default options structure
+    
+    opt.epochName = epochName;
+    opt.eventMarkName = eventMarkName;
+    opt.conditionArray = {'goTarg'};
+    opt.colorCohArray = colorCohArray;
+    opt.ssdArray = ssdArray;
+    opt.dataType = dataType;
+    GoTarg      = ccm_concat_neural_conditions(Unit, opt);
+    opt.conditionArray = {'goDist'};
+    GoDist      = ccm_concat_neural_conditions(Unit, opt);
+    opt.conditionArray = {'stopTarg'};
+    StopTarg    = ccm_concat_neural_conditions(Unit, opt);
+    opt.conditionArray = {'stopDist'};
+    StopDist    = ccm_concat_neural_conditions(Unit, opt);
+    opt.conditionArray = {'stopCorrect'};
+    StopCorrect = ccm_concat_neural_conditions(Unit, opt);
     
     
     for k = 1 : nUnit
@@ -57,7 +82,12 @@ if plotFlag
         
         
         %  % Figure out a good y-axis limit to use
-        sdfMax = max([1; GoTarg(k).signalFn'; StopTarg(k).signalFn'; StopCorrect(k).signalFn']);
+        if strcmp(dataType, 'neuron')
+        yMax = max([1; GoTarg(k).signalFn'; StopTarg(k).signalFn'; StopCorrect(k).signalFn']);
+        else
+                    yMax = max([GoTarg(k).signalFn'; StopTarg(k).signalFn'; StopCorrect(k).signalFn']);
+        end
+        yMin = min([0; GoTarg(k).signalFn'; StopTarg(k).signalFn'; StopCorrect(k).signalFn']);
         
         
         
@@ -91,19 +121,19 @@ if plotFlag
         % Set up plot axes
         % to target (and stop correct) trials
         ax(1, axTarg) = axes('units', 'centimeters', 'position', [xAxesPosition(1, axTarg) yAxesPosition(1, axTarg) axisWidth axisHeight]);
-        set(ax(1, axTarg), 'ylim', [0 sdfMax * 1.1], 'xlim', [epochRange(1) epochRange(end)])
+        set(ax(1, axTarg), 'ylim', [yMin yMax * 1.1], 'xlim', [epochRange(1) epochRange(end)])
         cla
         hold(ax(1, axTarg), 'on')
-        plot(ax(1, axTarg), [1 1], [0 sdfMax * 1.1], '-k', 'linewidth', 2)
+        plot(ax(1, axTarg), [1 1], [yMin yMax * 1.1], '-k', 'linewidth', 2)
         ttl = sprintf('Target:  %s', epochName);
         title(ttl)
         
         % to distractor (and stop correct) trials
         ax(1, axDist) = axes('units', 'centimeters', 'position', [xAxesPosition(1, axDist) yAxesPosition(1, axDist) axisWidth axisHeight]);
-        set(ax(1, axDist), 'ylim', [0 sdfMax * 1.1], 'xlim', [epochRange(1) epochRange(end)])
+        set(ax(1, axDist), 'ylim', [yMin yMax * 1.1], 'xlim', [epochRange(1) epochRange(end)])
         cla
         hold(ax(1, axDist), 'on')
-        plot(ax(1, axDist), [1 1], [0 sdfMax * 1.1], '-k', 'linewidth', 2)
+        plot(ax(1, axDist), [1 1], [yMin yMax * 1.1], '-k', 'linewidth', 2)
         ttl = sprintf('Distractor:  %s', epochName);
         title(ttl)
         %             set(ax(axRight, mEpoch), 'Xtick', [0 : 100 : epochRange(end) - epochRange(1)], 'XtickLabel', [epochRange(1) : 100: epochRange(end)])
@@ -125,7 +155,7 @@ if plotFlag
         
         
         
-        % Plot SDFs
+        % Plot signals
         if ~isempty(StopCorrect(k).align)
             plot(ax(1, axTarg), epochRange, StopCorrect(k).signalFn(StopCorrect(k).align + epochRange), 'color', stopStopColor, 'linewidth', targLineW)
         end
@@ -146,29 +176,29 @@ if plotFlag
             plot(ax(1, axDist), epochRange, GoDist(k).signalFn(GoDist(k).align + epochRange), '--', 'color', goColor, 'linewidth', distLineW)
         end
         
-        
+        if strcmp(dataType, 'neuron')
         % Plot Rasters
         stopCorrRas = fat_raster(StopCorrect(k).signal, tickWidth);
         stopCorrRas = stopCorrRas .* 3;
         stopTargRas = fat_raster(StopTarg(k).signal, tickWidth);
-%         stopTargRas = stopTargRas .* (2/3);
+        %         stopTargRas = stopTargRas .* (2/3);
         stopTargRas = stopTargRas .* 2;
         goTargRas = fat_raster(GoTarg(k).signal, tickWidth);
-%         goTargRas = goTargRas .* (1/3);
-
+        %         goTargRas = goTargRas .* (1/3);
+        
         stopDistRas = fat_raster(StopDist(k).signal, tickWidth);
         stopDistRas = stopDistRas .* 2;
         goDistRas = fat_raster(GoDist(k).signal, tickWidth);
         goDistRas = goDistRas;
         
         colormap([1 1 1; goColor; stopGoColor; stopStopColor])
-%         if isempty(StopCorrect(k).align)
-%         colormap([1 1 1; goColor; stopGoColor])
-%         elseif isempty(StopTarg(k).align)
-%         colormap([1 1 1; goColor; stopStopColor])
-%         elseif isempty(GoTarg(k).align)
-%         colormap([1 1 1; stopGoColor; stopStopColor])
-%         end
+        %         if isempty(StopCorrect(k).align)
+        %         colormap([1 1 1; goColor; stopGoColor])
+        %         elseif isempty(StopTarg(k).align)
+        %         colormap([1 1 1; goColor; stopStopColor])
+        %         elseif isempty(GoTarg(k).align)
+        %         colormap([1 1 1; stopGoColor; stopStopColor])
+        %         end
         axes(ax(2, axTarg))
         if ~isempty(StopCorrect(k).align)
             imagesc(epochRange, 1 : nStopCorrectTrial, stopCorrRas(:, StopCorrect(k).align + epochRange))
@@ -215,7 +245,7 @@ if plotFlag
             end
         end
         plot(ax(2, axDist), [1 1], [0 nTargTrial], '-k', 'linewidth', 2)
-        
+        end
     end
 end
 

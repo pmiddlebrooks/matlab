@@ -47,7 +47,7 @@ plotAlign = -plotRange(1);
 nElectrode      = length(electrodeArray);
 nSession = length(sessionArray);
 channelArray = [];
-for i = 1 : nElectrode
+for i = 1 : nElectrodem
    channelArray = [channelArray, find(strcmp(electrodeArray{i}, electrodeArray))];
 end
 

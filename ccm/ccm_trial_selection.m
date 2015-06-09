@@ -68,10 +68,12 @@ trialLogical = ones(nTrial, 1);
 trialData = cell_to_mat(trialData);
 
 
-if isfield(selectOpt, 'choice')
+if isfield(selectOpt, 'choiceAccuracy')
     choiceLogical = zeros(nTrial, 1);
-    switch selectOpt.choice
+    switch selectOpt.choiceAccuracy
         case 'collapse'
+            choiceArray = {};
+            choiceLogical = ones(nTrial, 1);
 % do nothing
         case 'correct'
             choiceArray = {...
@@ -84,11 +86,13 @@ if isfield(selectOpt, 'choice')
                 'stopIncorrectDistractor',...
                 'distractorHoldAbort'};
     end
+    if ~isempty(choiceArray)
    for iChoiceIndex = 1 : length(choiceArray)
       iChoice = choiceArray{iChoiceIndex};
       
       choiceLogical = choiceLogical + strcmp(trialData.trialOutcome, iChoice);
    end
+    end
 trialLogical = trialLogical & choiceLogical;
 end
 

@@ -103,7 +103,7 @@ Kernel.decay = 20;
 % Kernel.sigma = 10;
 
 
-cropWindow  = -499 : 800;  % used to extract a semi-small portion of signal for each epoch/alignemnt
+cropWindow  = -1000 : 1500;  % used to extract a semi-small portion of signal for each epoch/alignemnt
 baseWindow 	= -149 : 0;   % To baseline-shift the eeg signals, relative to event alignment index;
 
 
@@ -880,7 +880,7 @@ Data(1).targAngleArray  = targAngleArray;
 Data(1).ssdArray        = ssdArray;
 Data(1).sessionID       = sessionID;
 Data(1).subjectID       = subjectID;
-
+Data(1).options         = options;
 
 
 if options.plotFlag

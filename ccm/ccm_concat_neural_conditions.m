@@ -1,19 +1,50 @@
-function Data = ccm_concat_neural_conditions(Unit, epochName, eventMarkName, conditionArray, signalStrengthArray, ssdArray, dataType)
+function Data = ccm_concat_neural_conditions(Unit, options)
 
-% If singal strength or ssd index vectors are not input, assume user wants to
-% collapse across all of them
-if nargin < 4
-    conditionArray = {'goTarg', 'goDist', 'stopTarg', 'stopDist', 'stopCorrect'};
+if nargin < 2;
+   options.dataType         = 'neuron';  % 'lfp' or 'erp'
+   
+%    options.figureHandle     = 674;
+   options.printPlot        = false;
+   options.epochName       	= 'checkerOn';
+   options.eventMarkName   	= 'responseOnset';
+   options.colorCohArray  	= Unit(1).pSignalArray;
+   options.ssdArray       	= Unit(1).ssdArray;
+   options.conditionArray       	= {'goTarg', 'goDist', 'stopTarg', 'stopDist', 'stopCorrect'};
+   
+%    options.collapseSignal   = false;
+%    options.collapseTarg      = false;
+%    options.doStops          = true;
+%    options.filterData       = false;
+%    options.stopHz           = 50;
+%    options.normalize        = false;
+%    options.unitArray        = 'each';
+   
+   if nargin == 1
+      Data = options;
+      return
+   end
 end
-if nargin < 5
-    signalStrengthArray = Unit(1).pSignalArray;
-end
-if nargin < 6
-    ssdArray = Unit(1).ssdArray;
-end
-if nargin < 7
-    dataType = 'neuron';
-end
+dataType        = options.dataType;
+epochName       = options.epochName;
+ssdArray        = options.ssdArray;
+colorCohArray   = options.colorCohArray;
+conditionArray  = options.conditionArray;
+eventMarkName   = options.eventMarkName;
+
+% % If singal strength or ssd index vectors are not input, assume user wants to
+% % collapse across all of them
+% if nargin < 4
+%     conditionArray = {'goTarg', 'goDist', 'stopTarg', 'stopDist', 'stopCorrect'};
+% end
+% if nargin < 5
+%     colorCohArray = Unit(1).pSignalArray;
+% end
+% if nargin < 6
+%     ssdArray = Unit(1).ssdArray;
+% end
+% if nargin < 7
+%     dataType = 'neuron';
+% end
 nUnit = length(Unit);
 
 % Kernel.method = 'gaussian';
@@ -22,7 +53,7 @@ Kernel.method = 'postsynaptic potential';
 Kernel.growth = 1;
 Kernel.decay = 20;
 
-[c, sigIndexArray] = ismember(signalStrengthArray, Unit(1).pSignalArray);
+[c, sigIndexArray] = ismember(colorCohArray, Unit(1).pSignalArray);
 [c, ssdIndexArray] = ismember(ssdArray, Unit(1).ssdArray);
 % If multiple units are in the Unit struct, loop through each one.
 for k = 1 : nUnit

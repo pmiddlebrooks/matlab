@@ -72,6 +72,16 @@ return
 % Saccade
 
 sArray = {'bz0907saccade','bz0924saccade','bb0924saccade'};
+sArray = {'pg0928saccade','pg1001saccade','pm1002saccade'};
+
+sArray = {'dm0726saccade','dm0731saccade'};
+sArray = {'ts0425saccade','tn0729saccade'};
+sArray = {'oe0712saccade','oe0717saccade','og0717saccade'};
+sArray = {'xb0723saccade', 'xb0724saccade'};
+sArray = {'kf0226saccade','kf0301saccade'};
+sArray = {'cb1001saccade','cb1002saccade'};
+
+
 nSession = length(sArray);
 
 humanDataPath = '/Volumes/middlepg/HumanData/ChoiceStopTask/';
@@ -88,14 +98,15 @@ for i = 1 : nSession
     MAX_RT = 1200;
     nSTD   = 3;
     [allRT, outlierTrial]   = truncate_rt(td.rt, MIN_RT, MAX_RT, nSTD);
+    outlierTrial
     td(outlierTrial, :) = [];
-
     td = dataset2table(td);
 trialData = [trialData; td];
 
 end
-
-save(['~/matlab/local_data/human/', sArray{1}(1:2), 'Allsaccade'])
+SessionData = iTD.SessionData;
+SessionData.taskID = 'ccm';
+save(['~/matlab/local_data/human/', sArray{2}(1:2), 'Allsaccade'], 'trialData', 'SessionData')
 
 
 

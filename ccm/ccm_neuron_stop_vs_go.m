@@ -83,9 +83,9 @@ Kernel.decay = 20;
 spikeWindow = -20 : 20;
 
 
-                epochName       = 'checkerOn';
-                eventMarkName   = 'responseOnset';
-                encodeTime      = 10;
+epochName       = 'checkerOn';
+eventMarkName   = 'responseOnset';
+encodeTime      = 10;
 
 
 
@@ -93,10 +93,10 @@ spikeWindow = -20 : 20;
 
 if isempty(options.Unit)
     optSess             = ccm_session_data;
-optSess.plotFlag    = 0;
-optSess.collapseTarg = options.collapseTarg;
-optSess.unitArray   = options.unitArray;
-Unit                = ccm_session_data(subjectID, sessionID, optSess);
+    optSess.plotFlag    = 0;
+    optSess.collapseTarg = options.collapseTarg;
+    optSess.unitArray   = options.unitArray;
+    Unit                = ccm_session_data(subjectID, sessionID, optSess);
 else
     Unit = options.Unit;
 end
@@ -138,11 +138,11 @@ for kUnitIndex = 1 : nUnit
         disp(Unit(kUnitIndex, jTarg).name)
         
         % For now, use the grand SSRT via integratin method
-if isempty(options.ssrt)
-        ssrt = round(mean(dataInh(jTarg).ssrtIntegrationWeighted));
-else
-    ssrt = options.ssrt;
-end
+        if isempty(options.ssrt)
+            ssrt = round(mean(dataInh(jTarg).ssrtIntegrationWeighted));
+        else
+            ssrt = options.ssrt;
+        end
         
         
         
@@ -236,8 +236,19 @@ end
                 end
                 axisHeight = axisHeight * .9;
                 clf
-                dataL           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'goTarg'}, pSignalArray(leftSigInd), ssdArray);
+                
+                opt = ccm_concat_neural_conditions;
+                opt.epochName = epochName;
+                opt.eventMarkName = eventMarkName;
+                opt.conditionArray = {'goTarg'};
+                opt.colorCohArray = pSignalArray(leftSigInd);
+                opt.ssdArray = ssdArray;
+                
+                dataL           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
+                
+                opt.colorCohArray = pSignalArray(rightSigInd);
                 dataR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'goTarg'}, pSignalArray(rightSigInd), ssdArray);
+                
                 sdfAllL         = nanmean(spike_density_function(dataL.raster(:,:), Kernel), 1);
                 sdfAllR         = nanmean(spike_density_function(dataR.raster(:,:), Kernel), 1);
                 sdfMax          = max([sdfAllL, sdfAllR] .* 1.2);
@@ -298,7 +309,7 @@ end
                         data = ccm_match_rt(iGoTarg.eventLatency, iStopTarg.eventLatency, nStopCorrect);
                         iGoFastTrial = data.goFastTrial;
                 end
-                    iGoFastSDF   = nanmean(spike_density_function(iGoTarg.raster(iGoFastTrial,:), Kernel), 1);
+                iGoFastSDF   = nanmean(spike_density_function(iGoTarg.raster(iGoFastTrial,:), Kernel), 1);
                 iStopTargSDF   = nanmean(spike_density_function(iStopTarg.raster(iStopTargTrial,:), Kernel), 1);
                 
                 
@@ -367,7 +378,7 @@ end
             % Canceled Stop vs latency-matched (slow) Go:  Top row of graphs first
             if usableStopStop(iSignalInd, iSSDInd)
                 
-                               
+                
                 
                 % Get the go trial data: these need to be split to latency-match with
                 % the stop trial data
@@ -470,7 +481,7 @@ end
                         elseif length(riseAbove2Std) > length(sinkBelow2Std)
                             if riseAbove2Std(end) < length(std2Ind) - 49
                                 pass50msTestInd = riseAbove2Std(end);
-                            end                           
+                            end
                         end
                     end
                 end
@@ -541,7 +552,7 @@ end
                     plot(ax(rStopStop, iCol), epochRange, iGoSlowSDF(iGoTarg.align + epochRange), 'color', cMap(iSignalInd,:), 'linewidth', targLineW)
                     plot(ax(rStopStop, iCol), epochRange, iStopStop.sdf(iStopStop.align + epochRange), 'color', cMap(iSignalInd,:), 'linewidth', 1)
                     if ~isnan(cancelTime)
-                    plot(ax(rStopStop, iCol), iSSD + ssrt - cancelTime, iStopStop.sdf(iStopStop.align + iSSD + ssrt - cancelTime), '.r', 'markersize', 20)
+                        plot(ax(rStopStop, iCol), iSSD + ssrt - cancelTime, iStopStop.sdf(iStopStop.align + iSSD + ssrt - cancelTime), '.r', 'markersize', 20)
                     end
                 end
                 

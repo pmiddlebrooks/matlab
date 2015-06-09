@@ -8,8 +8,16 @@ if testCode
     [trialData, SessionData, pSignalArray , ssdArray] = load_data('Broca', 'bp093n02');
     %%
     sigInd = 6;
-    dataGoTarg    = ccm_concat_neural_conditions(Unit(1), 'checkerOn', 'responseOnset', {'goTarg'}, pSignalArray(sigInd), ssdArray);
+    opt = ccm_concat_neural_conditions;
+    
+    opt.conditionArray = {'goTarg'};
+    dataGoTarg    = ccm_concat_neural_conditions(Unit(1), opt);
+    
+    opt.conditionArray = {'stopTarg'};
     dataStopTarg    = ccm_concat_neural_conditions(Unit(1), 'checkerOn', 'responseOnset', {'stopTarg'}, pSignalArray(sigInd), ssdArray);
+    
+    opt.conditionArray = {'stopCorrect'};
+    opt.eventMarkName = {'checkerOn'};
     dataStopStop    = ccm_concat_neural_conditions(Unit(1), 'checkerOn', 'checkerOn', {'stopCorrect'}, pSignalArray(sigInd), ssdArray);
     
     %%
