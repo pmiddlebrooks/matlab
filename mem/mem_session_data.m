@@ -132,7 +132,7 @@ nEpoch = length(epochArray);
 
 % How many units were recorded?
 nUnit = size(dataArray, 2);
-
+% nUnit = 1;
 
 
 
@@ -383,7 +383,6 @@ end
 
 if plotFlag
    cMap = ccm_colormap([0 1]);
-   
    kernelMethod = 'gaussian';
    SIGMA = 20;
    kernelMethod = 'postsynaptic potential';
@@ -399,8 +398,7 @@ if plotFlag
    
    
    for kDataIndex = 1 : nUnit
-      %         colormap([1 1 1; rightTargColor; leftTargColor])
-      colormap([1 1 1; cMap(1,:); cMap(2,:)])
+%       colormap([1 1 1; cMap(1,:); cMap(2,:)])
       nRow = 2;
       nEpoch = length(epochArray);
       nColumn = nEpoch;
@@ -492,16 +490,17 @@ if plotFlag
                end
                
                axes(ax(axRas, mEpoch))
-               rasRightTarg =  Data(kDataIndex).rightTarg.(mEpochName).raster;
+               colormap([1 1 1; cMap(1,:); cMap(2,:)])
+              rasRightTarg =  Data(kDataIndex).rightTarg.(mEpochName).raster;
                rightTargRas = fat_raster(rasRightTarg, tickWidth);
-               rightTargRas = rightTargRas .* .5;
-               colormap(flipud(gray))
-               imagesc(epochRangeDisplay, 1 : size(rasRightTarg, 1), rightTargRas(:, alignRightTarg + epochRangeDisplay))
+                rightTargRas = rightTargRas .* 2;
+%                  colormap([1 1 1; cMap(2,:)])
+              imagesc(epochRangeDisplay, 1 : size(rasRightTarg, 1), rightTargRas(:, alignRightTarg + epochRangeDisplay))
                
                rasLeftTarg =  Data(kDataIndex).leftTarg.(mEpochName).raster;
                leftTargRas = fat_raster(rasLeftTarg, tickWidth);
 %                 colormap([1 1 1; cMap(1,:)])
-              imagesc(epochRangeDisplay, size(rasRightTarg, 1) : size(rasLeftTarg, 1), leftTargRas(:, alignLeftTarg + epochRangeDisplay))
+              imagesc(epochRangeDisplay, 1+size(rasRightTarg, 1) : size(rasRightTarg, 1) + size(rasLeftTarg, 1), leftTargRas(:, alignLeftTarg + epochRangeDisplay))
                
                plot(ax(axRas, mEpoch), [1 1], [0 rasYlim * .9], '-k', 'linewidth', 2)
                

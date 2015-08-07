@@ -237,7 +237,8 @@ for kUnitIndex = 1 : nUnit
                 axisHeight = axisHeight * .9;
                 clf
                 
-                opt = ccm_concat_neural_conditions;
+                opt = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+                
                 opt.epochName = epochName;
                 opt.eventMarkName = eventMarkName;
                 opt.conditionArray = {'goTarg'};

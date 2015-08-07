@@ -1,4 +1,4 @@
-function trialData = saccade_data(trialData, taskID, eyeSampleHz)
+    function trialData = saccade_data(trialData, taskID, eyeSampleHz)
 
 if nargin < 3
     eyeSampleHz = 1000; % Default eyetracker rate of 1000 hz
