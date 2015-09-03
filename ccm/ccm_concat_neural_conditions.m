@@ -142,6 +142,13 @@ end  % main function
 
 
 
+
+
+
+% ******************************************
+%               SUBFUNCTIONS
+% ******************************************
+
 function [eventLatency] = get_event_latency(UnitCondition, epochName, eventMarkName)
 
 eventLatency = [];

@@ -1,11 +1,9 @@
-function [Data, options] = mem_session_data(subjectID, sessionID, options)
+function mem_trial_visualize(subjectID, sessionID, options)
 
 %
 % function Unit = mem_session_data(subjectID, sessionID, dataType, varargin)
 %
-% Single neuron analyses for choice countermanding task. Only plots the
-% sdfs. To see rasters, use ccm_single_neuron_rasters, which displays all
-% conditions in a given epoch
+% Step through trials and visualize the data
 %
 % input:
 %   subjectID: e.g. 'Broca', 'Xena', 'pm', etc
@@ -15,35 +13,151 @@ function [Data, options] = mem_session_data(subjectID, sessionID, options)
 %   ccm_session_data.m is called without input arguments, the default
 %   options structure is returned. options has the following fields with
 %   possible values (default listed first):
-%
-%    options.dataType = 'neuron', 'lfp', 'erp';
-%
-%    options.figureHandle   = 1000;
-%    options.printPlot      = false, true;
-%    options.plotFlag       = true, false;
-%    options.collapseTarg         = false, true;
-%    options.filterData 	= false, true;
-%    options.normalize      = false, true;
-%    options.unitArray      = {'spikeUnit17a'},'each', units want to analyze
-%
-%
-% Returns Unit structure with fields:
-%
-%   Unit.signalStrength(x).(condition).ssd(x).(epoch name)
-%
-%   condition can be:  rightTarg, goDist, stopTarg, stopDist, stopCorrect
-%   ssd(x):  only applies for stop trials, else the field is absent
-%   epoch name: fixOn, targOn, checkerOn, etc.
-%   nGo
-%   nGoRight
-%   nStopIncorrect
-%   nStopIncorrectRight
-%   goRightLogical
-%   goRightSignalStrength
-%   stopRightLogical
-%   stopRightSignalStrength
+
 
 %%
+subjectID   = 'broca';
+sessionID   = 'bp121n01';
+jUnit       = 1;
+
+% Load the data
+[trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
+
+nTrial = size(trialData, 1);
+
+% CONSTANTS
+TICK_WIDTH = 5;
+sdfColor = [0 0 1];
+% Set up plot
+printPlot = false;
+figureHandle = 87;
+nRow = 7;
+nColumn = 1;
+if printPlot
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nColumn, figureHandle);
+else
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
+end
+clf
+
+axEye = 1;
+axRas = 2;
+axH10 = 3;
+axH20 = 4;
+axG10 = 5;
+axG20 = 6;
+axPSP = 7;
+
+% Eye trace axes
+ax(axEye) = axes('units', 'centimeters', 'position', [xAxesPosition(axEye) yAxesPosition(axEye) axisWidth axisHeight]);
+
+ax(axRas) = axes('units', 'centimeters', 'position', [xAxesPosition(axRas) yAxesPosition(axRas) axisWidth axisHeight]);
+ax(axH10) = axes('units', 'centimeters', 'position', [xAxesPosition(axH10) yAxesPosition(axH10) axisWidth axisHeight]);
+ax(axH20) = axes('units', 'centimeters', 'position', [xAxesPosition(axH20) yAxesPosition(axH20) axisWidth axisHeight]);
+ax(axG10) = axes('units', 'centimeters', 'position', [xAxesPosition(axG10) yAxesPosition(axG10) axisWidth axisHeight]);
+ax(axG20) = axes('units', 'centimeters', 'position', [xAxesPosition(axG20) yAxesPosition(axG20) axisWidth axisHeight]);
+ax(axPSP) = axes('units', 'centimeters', 'position', [xAxesPosition(axPSP) yAxesPosition(axPSP) axisWidth axisHeight]);
+
+for i = 1 : nTrial
+
+    
+    %   Eye Traces
+    % ************************
+    eyeX            = trialData.eyeX{i};
+    eyeY            = trialData.eyeY{i}; 
+   
+    axes(ax(axEye))
+    cla
+    hold(ax(axEye), 'on')
+set(ax(axEye), 'xlim', [0 length(eyeX)])
+    plot(ax(axEye), eyeX)
+    plot(ax(axEye), eyeY)
+    plot(ax(axEye), [trialData.fixWindowEntered(i) trialData.fixWindowEntered(i)], [-5 5], 'k')
+
+    
+    %   Raster
+    % ************************
+    iRas            = spike_to_raster(trialData.spikeData{i,jUnit});
+    iTick           = fat_raster(iRas, TICK_WIDTH);
+   
+    axes(ax(axRas))
+    cla
+    hold(ax(axRas), 'on')
+set(ax(axRas), 'xlim', [0 length(eyeX)])
+    colormap([1 1 1; sdfColor])
+    imagesc(iTick)
+
+    
+    %   PSTH 10 ms
+    % ************************
+    binWidth        = 10;
+    [PSTH, binCenters] = peristimulus_time_histogram(iRas, binWidth, 0);
+   
+    axes(ax(axH10))
+    cla
+    hold(ax(axH10), 'on')
+set(ax(axH10), 'xlim', [0 length(eyeX)])
+    bar(binCenters, PSTH, 'hist');
+%     bar(binCenters, PSTH, 'hist', 'faceColor', sdfColor);
+
+
+    %   PSTH 20 ms
+    % ************************
+    binWidth        = 20;
+    [PSTH, binCenters] = peristimulus_time_histogram(iRas, binWidth, 0);
+   
+    axes(ax(axH20))
+    cla
+    hold(ax(axH20), 'on')
+set(ax(axH20), 'xlim', [0 length(eyeX)])
+    bar(binCenters, PSTH, 'hist');
+%     bar(binCenters, PSTH, 'hist', 'color', sdfColor);
+
+    
+    %   SDF Gaussian 10 ms
+    % ************************
+    Kernel.method = 'gaussian';
+    Kernel.sigma = 10;
+    [sdf, kShape] = spike_density_function(iRas, Kernel);
+   
+    axes(ax(axG10))
+    cla
+    hold(ax(axG10), 'on')
+set(ax(axG10), 'xlim', [0 length(eyeX)])
+    plot(ax(axG10), sdf, 'color', sdfColor)
+
+    %   SDF Gaussian 20 ms
+    % ************************
+    Kernel.method = 'gaussian';
+    Kernel.sigma = 20;
+    [sdf, kShape] = spike_density_function(iRas, Kernel);
+   
+    axes(ax(axG20))
+    cla
+    hold(ax(axG20), 'on')
+set(ax(axG20), 'xlim', [0 length(eyeX)])
+    plot(ax(axG20), sdf, 'color', sdfColor)
+
+    %   PSP growth = 1ms;  decay = 20ms
+    % ************************
+    Kernel.method = 'postsynaptic potential';
+            Kernel.growth = 1;
+            Kernel.decay = 20;
+    [sdf, kShape] = spike_density_function(iRas, Kernel);
+   
+    axes(ax(axPSP))
+    cla
+    hold(ax(axPSP), 'on')
+set(ax(axPSP), 'xlim', [0 length(eyeX)])
+    plot(ax(axPSP), sdf, 'color', sdfColor)
+
+
+
+pause
+end
+
+%%
+
 clear Data
 
 if nargin < 3
@@ -216,8 +330,6 @@ for kDataIndex = 1 : nUnit
             case 'neuron'
                 % Right Target trials
                 [alignedRasters, alignIndex] = spike_to_raster(trialData.spikeData(rightTargTrial, kUnit), alignListR);
-                % add NaN pad because often we want to display the sdf longer, and low-firing cells will otherwise get cut off
-                alignedRasters = [alignedRasters, nan(length(alignListR), 6000)];
                 Data(kDataIndex).rightTarg.(mEpochName).alignTime = alignIndex;
                 sdf = spike_density_function(alignedRasters, Kernel);
                 if ~isempty(sdf); yMax(kDataIndex, mEpoch, 1) = nanmax(nanmean(sdf, 1)); end;
@@ -227,7 +339,6 @@ for kDataIndex = 1 : nUnit
                 
                 % Left Target trials
                 [alignedRasters, alignIndex] = spike_to_raster(trialData.spikeData(leftTargTrial, kUnit), alignListL);
-                alignedRasters = [alignedRasters, nan(length(alignListL), 6000)];
                 Data(kDataIndex).leftTarg.(mEpochName).alignTime = alignIndex;
                 sdf = spike_density_function(alignedRasters, Kernel);
                 if ~isempty(sdf); yMax(kDataIndex, mEpoch, 2) = nanmax(nanmean(sdf, 1)); end;
@@ -331,16 +442,6 @@ for kDataIndex = 1 : nUnit
         
     end % mEpoch
     
-    yLimMax = max(yMax(kDataIndex, :)) * 1.1;
-    %          yLimMax = 55;
-    switch dataType
-        case 'neuron'
-            yLimMin = 0;
-        case {'lfp', 'erp'}
-            yLimMin = min(yMin(kDataIndex, :)) * 1.1;
-    end
-    Data(kDataIndex).yMax = yLimMax;
-    Data(kDataIndex).yMin = yLimMin;
     
 end % kUnitIndex
 
@@ -460,6 +561,16 @@ if plotFlag
             epochRangeDisplay = mem_epoch_range(mEpochName, 'plot');
             epochRangeAnalysis = mem_epoch_range(mEpochName, 'analyze');
             
+            yLimMax = max(yMax(kDataIndex, :)) * 1.1;
+            %          yLimMax = 55;
+            switch dataType
+                case 'neuron'
+                    yLimMin = 0;
+                case {'lfp', 'erp'}
+                    yLimMin = min(yMin(kDataIndex, :)) * 1.1;
+            end
+            Data(kDataIndex).yMax = yLimMax;
+            Data(kDataIndex).yMin = yLimMin;
             
             % _______  Set up axes  ___________
             % axes names
@@ -580,8 +691,7 @@ if plotFlag
         text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top', 'color', 'k')
         if printPlot
             localFigurePath = local_figure_path;
-            %          print(figureHandle,[localFigurePath, sessionID, '_', dataArray{kDataIndex}, '_mem_session_' dataType],'-dpdf', '-r300')
-            print(figureHandle,[localFigurePath, sessionID, '_', dataArray{kDataIndex}, '_mem_session_' dataType],'-djpeg')
+            print(figureHandle,[localFigurePath, sessionID, '_', dataArray{kDataIndex}, '_mem_session_' dataType],'-dpdf', '-r300')
         end
     end % kUnitIndex
     

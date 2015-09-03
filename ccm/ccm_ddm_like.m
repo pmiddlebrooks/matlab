@@ -119,7 +119,7 @@ for iUnit = 1 : length(spikeUnit)
    
    
    % Ding and Gold use the median RT for their end-of-epoch, and truncate
-   % teh epochs on a trial-to-trial basis when a trial RT is shorter that the
+   % the epochs on a trial-to-trial basis when a trial RT is shorter than the
    % median RT. My RTs are pretty quick as is, though, so I will define an
    % epoch ending on every trial based on the RT of that trial (and thus
    % skip the first pass of using median RT).

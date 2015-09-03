@@ -16,24 +16,28 @@ switch plotOrAnalyze
         epochRange = -299 : 300;
         switch epochName
             case 'fixWindowEntered'
-                shitRange = 150;
+                shiftRange = 150;
             case 'targOn'
-                shitRange = 100;
+                shiftRange = 100;
+            case 'responseCueOn'
+                shiftRange = 0;
             case 'responseOnset'
-                shitRange = -50;
+                shiftRange = -50;
             case 'rewardOn'
-                shitRange = 100;
+                shiftRange = 100;
         end
         
         
         
-        epochRange = epochRange + shitRange;
+        epochRange = epochRange + shiftRange;
     case 'analyze'
         switch epochName
             case 'fixWindowEntered'
         epochRange = 51 : 250;
             case 'targOn'
         epochRange = 51 : 151;
+            case 'responseCueOn'
+        epochRange = 51 : 201;
             case 'responseOnset'
         epochRange = -99 : 0;
             case 'rewardOn'

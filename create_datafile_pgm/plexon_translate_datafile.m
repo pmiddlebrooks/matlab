@@ -75,8 +75,8 @@ for iChannel = 1:64
                 iData{iTrial} = spikeRealTime - (firstTrialStart + trialData.trialOnset(iTrial));
             end
             trialData.spikeData(:,nUnit) = iData;
-            nUnit = nUnit + 1;            
-                                    
+            nUnit = nUnit + 1;
+            
             unitName = sprintf('spikeUnit%s%s', num2str(iChannel, '%02i'), jUnitAppend); %figure out the channel name
             SessionData.spikeUnitArray = [SessionData.spikeUnitArray, unitName];
             jUnit = jUnit + 1;
@@ -105,7 +105,7 @@ iEEG = 1;
 iLFP = 1;
 % get AD channels
 for iChannel = 1:64
-% for iChannel = 62:64
+    % for iChannel = 62:64
     [ADvalues ADname] = plexon_ADchannels_translation(tebaDataPath,...
         plexonFile,...
         iChannel,...
@@ -200,7 +200,10 @@ eyeSampleHz = 1000;
 trialData = saccade_data(trialData, taskID, eyeSampleHz);
 % trialData = saccade_data(trialData, adData.eyeX, adData.eyeY, eyeSampleHz);
 
-
+% Calculate RT if there is one to calculate
+if ismember('responseOnset',td.Properties.VariableNames)
+    trialData.rt = trialData.responseOnset - trialData.responseCueOn;
+end
 
 
 

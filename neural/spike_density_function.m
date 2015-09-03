@@ -40,7 +40,10 @@ end
 % Set default values
 if nargin < 2
     Kernel.method = 'gaussian';
-    Kernel.sigma = 10;
+    Kernel.sigma = 20;
+%     Kernel.method = 'postsynaptic potential';
+%             Kernel.growth = 1;
+%             Kernel.decay = 20;
 end
 
 switch Kernel.method

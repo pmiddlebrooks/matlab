@@ -4,7 +4,7 @@ function [rt, outlierTrial] = truncate_rt(rt, minRT, maxRT, nSTD)
 %
 % Truncate a vector of input RTs, such that:
 %
-% minRT < rt < minRT
+% minRT < rt < maxRT
 % (rt - nSTD*std(rt)) < rt < (rt + nSTD*std(rt))
 
 if nargin < 4, nSTD = 3; end

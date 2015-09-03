@@ -26,14 +26,14 @@ end
 % 1.1. Identify user
 % =========================================================================
 if ismac | isunix
-    user = getenv('USER');
+    user = getenv('USER')
 elseif ispc
     user = getenv('name');
 end
    
 % 1.2. Define a time string containing date, time, and timezone
 % =========================================================================
-[~,timeStr] = unix(['python ',which('now.py')]);
+[~,timeStr] = unix(['python ',which('now.py')])
 
 % 1.3. Define header text
 % =========================================================================
@@ -73,7 +73,7 @@ text = sprintf(['function %s\n',...
                 funName,upper(funName),upper(funName),repmat('.',1,73), ...
                 deblank(timeStr),user,deblank(timeStr),user,...
                 repmat('%',1,73),repmat('%',1,73),repmat('=',1,73),...
-                repmat('-',1,73));
+                repmat('-',1,73))
 
 % 1.4. Open new document in MATLAB editor
 % =========================================================================

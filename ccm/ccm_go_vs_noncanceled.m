@@ -22,7 +22,9 @@ function Data = ccm_go_vs_noncanceled(subjectID, sessionID, options)
 %           TARGET within each hemifield
 %           false, true
 %     options.latencyMatchMethod  = wich method to use to match go trial latencies with canceled and noncanceled stop trials:
-%           'ssrt','match','mean';
+%           'ssrt' Use RTs less than or after SSRT
+%           'match' Employ a nearest-neighbor algorithm to find closest RT matches
+%           'mean' Remove latest Go RTs until the Go RT distribution mean equals the noncanceled Stop RTs mean
 %     options.minTrialPerCond  	= how many trials must a condition have to
 %           include in the analyses?
 %     options.cellType  	= Are we treating it as a movement or fixaiton

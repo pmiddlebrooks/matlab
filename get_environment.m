@@ -2,10 +2,10 @@ function env = get_environment
 
 
 switch matlabroot
-    case '/Applications/MATLAB_R2014a.app'
+    case '/Applications/MATLAB_R2015a.app'
         hostname = char( getHostName( java.net.InetAddress.getLocalHost ) );
         switch hostname
-            case 'pauls-MacBook-Pro.local'
+            case 'pmiddleb-Mac-Pro.local'
                 env = 'home';
             otherwise
                 env = 'work';

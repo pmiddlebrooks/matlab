@@ -22,7 +22,9 @@ function Data = ccm_go_vs_canceled(subjectID, sessionID, options)
 %           TARGET within each hemifield
 %           false, true
 %     options.latencyMatchMethod  = wich method to use to match go trial latencies with canceled and noncanceled stop trials:
-%           'ssrt','match','mean';
+%           'ssrt' Use RTs less than or after SSRT
+%           'match' Employ a nearest-neighbor algorithm to find closest RT matches
+%           'mean' Remove latest Go RTs until the Go RT distribution mean equals the noncanceled Stop RTs mean
 %     options.minTrialPerCond  	= how many trials must a condition have to
 %           include in the analyses?
 %     options.cellType  	= Are we treating it as a movement or fixaiton
@@ -153,6 +155,16 @@ for kUnitIndex = 1 : nUnit
         
         disp(Unit(kUnitIndex, jTarg).name)
         
+        % Initialize the cell arrays to be used for analyses:
+        
+        %       ****** Decscriptions ******
+        % stopStopCheckerData: canceled stop trials (stopStop = stop trial the monkey stopped on), CheckerData = rasters aligned on checker onset
+        % stopStopCheckerAlign: where the rasters are aligned (the checker onset time)
+        % stopStopCheckerEventaLat: Latency of some event (usually saccade, but can be defined as some other event) with respect to aligned data
+        %
+        % goTargSlowChecker? no-stop trials with correct choice (to target), aligned on checker onset
+        % goTargSlowSacc? no-stop trials with correct choice (to target), aligned on saccade onset
+        
         stopStopCheckerData          = cell(nSignal, nSSD);
         stopStopCheckerFn          = cell(nSignal, nSSD);
         stopStopCheckerEventLat  	= cell(nSignal, nSSD);
@@ -246,6 +258,7 @@ for kUnitIndex = 1 : nUnit
                     % subsample of go trials that match the noncanceled
                     % stop trials
                     switch latencyMatchMethod
+                        
                         case 'ssrt'
                             iStopLatency = mSSD + ssrt;
                             %                             iGoFastTrial = iGoTargChecker.eventLatency <= iStopLatency & iGoTargChecker.eventLatency >  mSSD + encodeTime;
@@ -478,7 +491,7 @@ for kUnitIndex = 1 : nUnit
             % Figure out y-axis limits (to be consistent across graphs)
             leftSigInd = pSignalArray < .5;
             rightSigInd = pSignalArray > .5;
-
+            
             opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
             
             opt.epochName       = 'responseOnset';

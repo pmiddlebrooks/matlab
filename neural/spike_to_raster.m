@@ -36,20 +36,10 @@ if isempty(spikeTrainMatrix)
     return
 end
 
-if nargin < 2
-   alignmentTimeList = ones(size(spikeTrainMatrix, 1), 1);
-end
-
-% Return empty matricies if alignTimeList is all NaNs (e.g. if the few
-% trials we wanted to analyze were discarded for not making criteria as
-% valid saccades to target, etc)
-if nargin > 1 && sum(~isnan(alignmentTimeList)) == 0
-    alignedRasters = [];
-    alignmentIndex = [];
-    return
-end
+% Determine how many trials we're dealing with
+% and
+% If it's a cell, transform it into a matrix with NaNs padding
 if iscell(spikeTrainMatrix)
-    nTrial = length(spikeTrainMatrix);
     % reshape cell contents if necessary
     if sum(cellfun(@(x) size(x, 1)>1, spikeTrainMatrix))
         spikeTrainMatrix = cellfun(@(x) x', spikeTrainMatrix, 'uniformoutput', false);
@@ -61,12 +51,57 @@ if iscell(spikeTrainMatrix)
 %     alignedRasters = [];
 %     alignmentIndex = [];
 %     return
-%     end        
-else
-    if ~sum(isnan(spikeTrainMatrix(:, 1)))
-        nTrial = size(spikeTrainMatrix(:,1));
-    end
+%     end 
 end
+
+
+% If it's a vector, there's only one trial.
+if min(size(spikeTrainMatrix)) == 1 && ~sum(isnan(spikeTrainMatrix))
+        nTrial = 1;
+        % Else is it's a matrix, for now assume (require) each row is a
+        % trial
+else
+    nTrial = size(spikeTrainMatrix, 1);
+end
+
+    
+%         % If it's a matrix, trials might be included as rows or columns.
+%         % Figure that out and 
+% elseif ~sum(isnan(spikeTrainMatrix(:, 1)))
+%         nTrial = size(spikeTrainMatrix(:,1));
+% elseif ~sum(isnan(spikeTrainMatrix(1, :)))
+%         nTrial = size(spikeTrainMatrix(1,:));
+% end
+
+
+
+if nargin < 2
+   alignmentTimeList = ones(nTrial, 1);
+end
+
+
+
+
+
+
+% Return empty matricies if alignTimeList is all NaNs (e.g. if the few
+% trials we wanted to analyze were discarded for not making criteria as
+% valid saccades to target, etc)
+if nargin > 1 && sum(~isnan(alignmentTimeList)) == 0
+    alignedRasters = [];
+    alignmentIndex = [];
+    return
+end
+
+
+
+
+
+
+
+
+
+
 % Make sure there are no spikes at negative times- sesms that some are at
 % -1, -2, etc
 spikeTrainMatrix(spikeTrainMatrix < 0) = 1;
@@ -87,11 +122,15 @@ if isempty(lastSpikeTime)
 end
 
 
-if size(spikeTrainMatrix, 2) == 1 && size(spikeTrainMatrix, 1) > 1 && nTrial == 1
-    spikeTrainMatrix = spikeTrainMatrix';
-end
+% if size(spikeTrainMatrix, 2) == 1 && size(spikeTrainMatrix, 1) > 1 && nTrial == 1
+%     spikeTrainMatrix = spikeTrainMatrix';
+% end
 
     
+
+
+
+
 % % EXTRA_PAD ms will be added to the end of alignedRasters once
 % % alignedRasters is assigned. This is done because we want the full trial-
 % % otherwise the raster would extend only to the last spike.

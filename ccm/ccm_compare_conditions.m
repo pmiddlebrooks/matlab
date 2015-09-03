@@ -42,7 +42,8 @@ function Data = ccm_compare_conditions(subjectID, sessionID, options)
 %     options.figureHandle:  optional way to assign the figure to a handle
 
 
-
+disp('This function is incomplete: Use ccm_go_vs_canceled and ccm_go_vs_noncanceled for now')
+return
 %%
 
 subjectID = 'broca';

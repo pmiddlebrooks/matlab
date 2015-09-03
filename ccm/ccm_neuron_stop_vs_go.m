@@ -248,7 +248,7 @@ for kUnitIndex = 1 : nUnit
                 dataL           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
                 
                 opt.colorCohArray = pSignalArray(rightSigInd);
-                dataR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'goTarg'}, pSignalArray(rightSigInd), ssdArray);
+                dataR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
                 
                 sdfAllL         = nanmean(spike_density_function(dataL.raster(:,:), Kernel), 1);
                 sdfAllR         = nanmean(spike_density_function(dataR.raster(:,:), Kernel), 1);
