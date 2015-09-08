@@ -1,4 +1,4 @@
-function [alignedRasters, alignmentIndex] = spike_to_raster(spikeTrainMatrix, alignmentTimeList)
+function [alignedRasters, alignmentIndex] = spike_to_raster(spikeTrainMatrix, alignmentTimeList, debugMode)
 
 % [alignedRasters, alignmentIndex] = spike_to_raster(spikeTrainMatrix, alignmentTimeList)
 %
@@ -17,17 +17,23 @@ function [alignedRasters, alignmentIndex] = spike_to_raster(spikeTrainMatrix, al
 %
 % alignmentIndex: The index that the rasters are aligned to if a spike
 % train matrix was input.
-
-
+%
+%
 % Two main parts:
 % 1. Change the spikeTrain matrix to rasters
 % 2. Align the rasters on alignmentTimeList
-
+%
 % spikeTrainMatrix:         [trials X spike trains], each nonzero number in
 % a row is the time of a spike on that trial
-
+%
 % alignmentTimeList:        [trials X 1], each number is the time to align
-% the rasters for each trial
+% the rasters for each trial.
+%
+% debugMode: 0 (default) to supress warning messages (like, "no spikes in spikeTrainMatrix, etc), 1 to print them to screen
+
+if nargin < 3
+    debugMode = 0;
+end
 
 if isempty(spikeTrainMatrix)
 %     disp('In spike_to_raster.m, apparently there are no spikes in the spike train')
@@ -36,10 +42,13 @@ if isempty(spikeTrainMatrix)
     return
 end
 
+nTrial = [];
+
 % Determine how many trials we're dealing with
 % and
 % If it's a cell, transform it into a matrix with NaNs padding
 if iscell(spikeTrainMatrix)
+nTrial = length(spikeTrainMatrix);
     % reshape cell contents if necessary
     if sum(cellfun(@(x) size(x, 1)>1, spikeTrainMatrix))
         spikeTrainMatrix = cellfun(@(x) x', spikeTrainMatrix, 'uniformoutput', false);
@@ -52,9 +61,7 @@ if iscell(spikeTrainMatrix)
 %     alignmentIndex = [];
 %     return
 %     end 
-end
-
-
+else
 % If it's a vector, there's only one trial.
 if min(size(spikeTrainMatrix)) == 1 && ~sum(isnan(spikeTrainMatrix))
         nTrial = 1;
@@ -63,7 +70,7 @@ if min(size(spikeTrainMatrix)) == 1 && ~sum(isnan(spikeTrainMatrix))
 else
     nTrial = size(spikeTrainMatrix, 1);
 end
-
+end
     
 %         % If it's a matrix, trials might be included as rows or columns.
 %         % Figure that out and 
@@ -115,7 +122,9 @@ lastSpikeTime = round(max(spikeTrainMatrix(:)));
 % case when a neuron did not fire at all over many trials (in a certain
 % condition, or for a very low firing neuron, etc).
 if isempty(lastSpikeTime)
+    if debugMode
     disp('In spike_to_raster.m, apparently there are no spikes in the spike train')
+    end
     alignedRasters = zeros(nTrial, 6000);
     alignmentIndex = 3000;
     return
@@ -204,7 +213,9 @@ else
     % maximumShift is the amount we have to increase the matrix size.
     maximumShift = maximumIndex - minimumIndex;
     if maximumShift == 0 && nTrial > 1
+        if debugMode
         disp( 'In spike_to_raster.m, check your rsater to make sure: seems the rasters were already aligned when input' );
+        end
     end
     
     % Initializes the alignedRasters to be as long as the required shift,

@@ -54,8 +54,9 @@ for kDataIndex = 1 : nUnit
       
       switch dataType
           case 'neuron'
-      yLimMax = Data(kDataIndex, jTarg).yMax * 1.1;
+      yLimMax = max(1, Data(kDataIndex, jTarg).yMax * 1.1);
       yLimMin = min(Data(kDataIndex, jTarg).yMin * 1.1);
+      
           case {'erp','lfp'}
               yLimMax = .1;
               yLimMin = -.1;

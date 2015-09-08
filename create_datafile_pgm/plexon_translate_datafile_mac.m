@@ -31,7 +31,7 @@ nError = 0;
 
 
 prompt = 'Are these LFP and EEG channels correct (y or n)? ';
-disp(sprintf('LFP Channels: %d\n', LFP_CHANNELS))
+disp(sprintf('LFP/SPike Channels: %d\n', LFP_CHANNELS))
 disp(sprintf('EEG Channels: %d\n', EEG_CHANNELS))
 answer = input(prompt, 's');
 
@@ -1127,6 +1127,13 @@ taskID = SessionData.taskID;
 
 
 
+
+
+
+
+
+
+
 %__________________________________________________________________________
 %                   GET SPIKE TIME DATA.
 %__________________________________________________________________________
@@ -1134,6 +1141,8 @@ nSpikeChannel               = length(plx.SpikeChannels);
 
 SessionData.spikeUnitArray  = {};
 spikeChannelArray           = [];
+nUnitInd                 = 1; % nUnitFilled gets incremented with each unit
+
 
 % Although online plexon allows only 4 units per channel, offline sorting
 % allows more. Enable that possibility here:
@@ -1146,9 +1155,9 @@ for iChannel = 1:nSpikeChannel
     end
     
     % How many units on this channel? Units are numbered from 0
-    maxUnit = double(max(plx.SpikeChannels(iChannel).Units) - 1);
-    for jUnit = 0 : maxUnit
-        jUnitAppend = char(unit_appends(jUnit+1));
+    maxUnit = double(max(plx.SpikeChannels(iChannel).Units));
+    for jUnit = 1 : maxUnit
+        jUnitAppend = char(unit_appends(jUnit));
         jStampInd = plx.SpikeChannels(iChannel).Units == jUnit;  % Get the timestamp indices for this particular unit
         jSpikeTime = round(double(plx.SpikeChannels(iChannel).Timestamps(jStampInd)) ./ (plx.ADFrequency / 1000));
         
@@ -1168,13 +1177,13 @@ for iChannel = 1:nSpikeChannel
         end
         
         % Fill the spikeData from all the trials for this jUnit
-        trialData.spikeData(:,jUnit+1) = iData;
+        trialData.spikeData(:,nUnitInd) = iData;
         
         unitName = sprintf('spikeUnit%s%s', num2str(iChannel, '%02i'), jUnitAppend); %figure out the channel name
         SessionData.spikeUnitArray = [SessionData.spikeUnitArray, unitName];
-        %         else
-        %             addUnit = false;
-        %         end  % ~isempty
+
+        
+        nUnitInd = nUnitInd + 1;
     end  % while addUnit
 end  % for iChannel
 % end
@@ -1343,7 +1352,7 @@ fprintf('Saving behavioral variables to %s ...\n', sessionID);
 % saveFileName = [tebaDataPath, sessionID];
 % save(saveFileName, 'trialData', 'SessionData')
 % Make a local copy too
-saveLocalName = [localDataPath, sessionID, '_test'];
+saveLocalName = [localDataPath, sessionID];
 save(saveLocalName, 'trialData', 'SessionData')
 
 toc
