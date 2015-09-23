@@ -43,16 +43,16 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 
 % If not input, return the default options structure
 if nargin < 2
-   selectOpt.outcome            = 'valid';
-   selectOpt.choiceAccuracy             = 'collapse';
-   selectOpt.rightCheckerPct   = 'collapse';
-   selectOpt.ssd               = 'any';
-   selectOpt.targDir           = 'collapse';
-   selectOpt.responseDir       = 'collapse';
-   if nargin < 1
-      trialList                   = selectOpt;
-      return
-   end
+    selectOpt.outcome            = 'valid';
+    selectOpt.choiceAccuracy             = 'collapse';
+    selectOpt.rightCheckerPct   = 'collapse';
+    selectOpt.ssd               = 'any';
+    selectOpt.targDir           = 'collapse';
+    selectOpt.responseDir       = 'collapse';
+    if nargin < 1
+        trialList                   = selectOpt;
+        return
+    end
 end
 
 
@@ -74,7 +74,7 @@ if isfield(selectOpt, 'choiceAccuracy')
         case 'collapse'
             choiceArray = {};
             choiceLogical = ones(nTrial, 1);
-% do nothing
+            % do nothing
         case 'correct'
             choiceArray = {...
                 'goCorrectTarget',...
@@ -87,13 +87,13 @@ if isfield(selectOpt, 'choiceAccuracy')
                 'distractorHoldAbort'};
     end
     if ~isempty(choiceArray)
-   for iChoiceIndex = 1 : length(choiceArray)
-      iChoice = choiceArray{iChoiceIndex};
-      
-      choiceLogical = choiceLogical + strcmp(trialData.trialOutcome, iChoice);
-   end
+        for iChoiceIndex = 1 : length(choiceArray)
+            iChoice = choiceArray{iChoiceIndex};
+            
+            choiceLogical = choiceLogical + strcmp(trialData.trialOutcome, iChoice);
+        end
     end
-trialLogical = trialLogical & choiceLogical;
+    trialLogical = trialLogical & choiceLogical;
 end
 
 
@@ -102,22 +102,23 @@ end
 
 % Trials w.r.t. the outcome
 if strcmp(selectOpt.outcome, 'valid')
-   selectOpt.outcome = {...
-      'goCorrectTarget', 'goCorrectDistractor', ...
-      'goIncorrect', ...
-      'stopCorrect', ...
-      'stopIncorrectTarget', 'stopIncorrectDistractor'};
+    selectOpt.outcome = {...
+        'goCorrectTarget', 'goCorrectDistractor', ...
+        'goIncorrect', ...
+        'stopCorrect', ...
+        'stopIncorrectTarget', 'stopIncorrectDistractor'};
+    
 end
 
 if strcmp(selectOpt.outcome, 'collapse')
-   outcomeLogical = ones(nTrial, 1);
+    outcomeLogical = ones(nTrial, 1);
 else
-   outcomeLogical = zeros(nTrial, 1);
-   for iOutcomeIndex = 1 : length(selectOpt.outcome)
-      iOutcome = selectOpt.outcome{iOutcomeIndex};
-      
-      outcomeLogical = outcomeLogical + strcmp(trialData.trialOutcome, iOutcome);
-   end
+    outcomeLogical = zeros(nTrial, 1);
+    for iOutcomeIndex = 1 : length(selectOpt.outcome)
+        iOutcome = selectOpt.outcome{iOutcomeIndex};
+        
+        outcomeLogical = outcomeLogical + strcmp(trialData.trialOutcome, iOutcome);
+    end
 end
 trialLogical = trialLogical & outcomeLogical;
 
@@ -129,14 +130,14 @@ trialLogical = trialLogical & outcomeLogical;
 % checkers
 if strcmp(selectOpt.rightCheckerPct, 'collapse')
 else
-   if strcmp(selectOpt.rightCheckerPct, 'right')
-      target1Proportion = selectOpt.rightCheckerPct/100 > 50;
-   elseif strcmp(selectOpt.rightCheckerPct, 'left')
-      target1Proportion = selectOpt.rightCheckerPct/100 < 50;
-   else
-      target1Proportion = selectOpt.rightCheckerPct / 100;
-   end
-   trialLogical = trialLogical & ismember(trialData.targ1CheckerProp, target1Proportion);
+    if strcmp(selectOpt.rightCheckerPct, 'right')
+        target1Proportion = selectOpt.rightCheckerPct/100 > 50;
+    elseif strcmp(selectOpt.rightCheckerPct, 'left')
+        target1Proportion = selectOpt.rightCheckerPct/100 < 50;
+    else
+        target1Proportion = selectOpt.rightCheckerPct / 100;
+    end
+    trialLogical = trialLogical & ismember(trialData.targ1CheckerProp, target1Proportion);
 end
 
 
@@ -148,18 +149,18 @@ end
 
 % Trials w.r.t. the SSDs
 if strcmp(selectOpt.ssd, 'none')
-   % take any trials without a stop signal (nan values for selectOpt.ssd)
-   trialLogical = trialLogical & isnan(trialData.ssd);
+    % take any trials without a stop signal (nan values for selectOpt.ssd)
+    trialLogical = trialLogical & isnan(trialData.ssd);
 elseif strcmp(selectOpt.ssd, 'any')
-   % Do nothing- might want trials without regard to stop/go
+    % Do nothing- might want trials without regard to stop/go
 elseif strcmp(selectOpt.ssd, 'collapse')
-   ssd = min(trialData.ssd) : max(trialData.ssd);
-   trialLogical = trialLogical & ismember(trialData.ssd, ssd);
+    ssd = min(trialData.ssd) : max(trialData.ssd);
+    trialLogical = trialLogical & ismember(trialData.ssd, ssd);
 else
-   %     ssd = [ssd - 1, ssd, ssd + 1];
-   % For now, use range to within an extra frame refresh
-   ssd = [selectOpt.ssd - 13 : selectOpt.ssd + 18];
-   trialLogical = trialLogical & ismember(trialData.ssd, ssd);
+    %     ssd = [ssd - 1, ssd, ssd + 1];
+    % For now, use range to within an extra frame refresh
+    ssd = [selectOpt.ssd - 13 : selectOpt.ssd + 18];
+    trialLogical = trialLogical & ismember(trialData.ssd, ssd);
 end
 
 
@@ -171,26 +172,26 @@ end
 % Get list(s) of trials w.r.t. the SSDs
 targAngle = trialData.targAngle;
 if strcmp(selectOpt.targDir, 'collapse')
-      % Do nothing
-targTrial = ones(nTrial, 1);
+    % Do nothing
+    targTrial = ones(nTrial, 1);
 elseif strcmp(selectOpt.targDir, 'right')
-      targTrial = ((targAngle > 270) & (targAngle <= 360)) | ...
-         ((targAngle >= 0) & (targAngle < 90)) | ...
-         ((targAngle > -90) & (targAngle < 0)) | ...
-         ((targAngle >= -360) & (targAngle < -270));
+    targTrial = ((targAngle > 270) & (targAngle <= 360)) | ...
+        ((targAngle >= 0) & (targAngle < 90)) | ...
+        ((targAngle > -90) & (targAngle < 0)) | ...
+        ((targAngle >= -360) & (targAngle < -270));
 elseif strcmp(selectOpt.targDir, 'left')
-      targTrial = ((targAngle > 90) & (targAngle <= 270)) | ...
-         ((targAngle < -90) & (targAngle > -270));
+    targTrial = ((targAngle > 90) & (targAngle <= 270)) | ...
+        ((targAngle < -90) & (targAngle > -270));
 elseif strcmp(selectOpt.targDir, 'leftUp')
-      targTrial = targAngle == decAngleLeftUp;
+    targTrial = targAngle == decAngleLeftUp;
 elseif strcmp(selectOpt.targDir, 'leftDown')
-      targTrial = targAngle == decAngleLeftDown;
+    targTrial = targAngle == decAngleLeftDown;
 elseif strcmp(selectOpt.targDir, 'rightUp')
-      targTrial = targAngle == decAngleRightUp;
+    targTrial = targAngle == decAngleRightUp;
 elseif strcmp(selectOpt.targDir, 'rightDown')
-      targTrial = targAngle == decAngleRightDown;
+    targTrial = targAngle == decAngleRightDown;
 else
-      targTrial = ismember(targAngle,selectOpt.targDir);
+    targTrial = ismember(targAngle,selectOpt.targDir);
 end
 trialLogical = trialLogical & targTrial;
 
@@ -200,41 +201,41 @@ trialLogical = trialLogical & targTrial;
 
 if isfield(selectOpt, 'responseDir') && ~strcmp(selectOpt.responseDir, 'collapse')
     saccAngle = nan(nTrial, 1);
-   responseTrial = ~isnan(trialData.saccToTargIndex);
-
-%    trialData.saccAngle(nanResp) = cellfun(@(x) [x 0], trialData.saccAngle(nanResp), 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
-   saccAngle(responseTrial) = cellfun(@(x,y) x(y), trialData.saccAngle(responseTrial), num2cell(trialData.saccToTargIndex(responseTrial)));
-%    saccAngle = cell2num(trialData.saccAngle);
-   %     switch selectOpt.responseDir
-   if strcmp(selectOpt.responseDir, 'collapse')
-      % Do nothing
-   saccTrial = ones(nTrial, 1);
-   elseif strcmp(selectOpt.responseDir, 'right')
-      saccTrial = ((saccAngle > 270) & (saccAngle <= 360)) | ...
-         ((saccAngle >= 0) & (saccAngle < 90)) | ...
-         ((saccAngle > -90) & (saccAngle < 0)) | ...
-         ((saccAngle >= -360) & (saccAngle < -270));
-   elseif strcmp(selectOpt.responseDir, 'left')
-      saccTrial = ((saccAngle > 90) & (saccAngle <= 270)) | ...
-         ((saccAngle < -90) & (saccAngle > -270));
-   elseif strcmp(selectOpt.responseDir, 'leftUp')
-      saccTrial = saccAngle == decAngleLeftUp;
-   elseif strcmp(selectOpt.responseDir, 'leftDown')
-      saccTrial = saccAngle == decAngleLeftDown;
-   elseif strcmp(selectOpt.responseDir, 'rightUp')
-      saccTrial = saccAngle == decAngleRightUp;
-   elseif strcmp(selectOpt.responseDir, 'rightDown')
-      saccTrial = saccAngle == decAngleRightDown;
-   else
-      saccTrial = ismember(saccAngle,selectOpt.responseDir);
-   end
-   trialLogical = trialLogical & saccTrial;
-   % For go trials and noncanceled stop trials, get rid of trials without
-   % responses (for canceled stop trials all of them should be trials
-   % without responses, so leave them in)
-   if strcmp(selectOpt.ssd, 'none')
-      trialLogical = trialLogical & responseTrial;
-   end
+    responseTrial = ~isnan(trialData.saccToTargIndex);
+    
+    %    trialData.saccAngle(nanResp) = cellfun(@(x) [x 0], trialData.saccAngle(nanResp), 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
+    saccAngle(responseTrial) = cellfun(@(x,y) x(y), trialData.saccAngle(responseTrial), num2cell(trialData.saccToTargIndex(responseTrial)));
+    %    saccAngle = cell2num(trialData.saccAngle);
+    %     switch selectOpt.responseDir
+    if strcmp(selectOpt.responseDir, 'collapse')
+        % Do nothing
+        saccTrial = ones(nTrial, 1);
+    elseif strcmp(selectOpt.responseDir, 'right')
+        saccTrial = ((saccAngle > 270) & (saccAngle <= 360)) | ...
+            ((saccAngle >= 0) & (saccAngle < 90)) | ...
+            ((saccAngle > -90) & (saccAngle < 0)) | ...
+            ((saccAngle >= -360) & (saccAngle < -270));
+    elseif strcmp(selectOpt.responseDir, 'left')
+        saccTrial = ((saccAngle > 90) & (saccAngle <= 270)) | ...
+            ((saccAngle < -90) & (saccAngle > -270));
+    elseif strcmp(selectOpt.responseDir, 'leftUp')
+        saccTrial = saccAngle == decAngleLeftUp;
+    elseif strcmp(selectOpt.responseDir, 'leftDown')
+        saccTrial = saccAngle == decAngleLeftDown;
+    elseif strcmp(selectOpt.responseDir, 'rightUp')
+        saccTrial = saccAngle == decAngleRightUp;
+    elseif strcmp(selectOpt.responseDir, 'rightDown')
+        saccTrial = saccAngle == decAngleRightDown;
+    else
+        saccTrial = ismember(saccAngle,selectOpt.responseDir);
+    end
+    trialLogical = trialLogical & saccTrial;
+    % For go trials and noncanceled stop trials, get rid of trials without
+    % responses (for canceled stop trials all of them should be trials
+    % without responses, so leave them in)
+    if strcmp(selectOpt.ssd, 'none')
+        trialLogical = trialLogical & responseTrial;
+    end
 end
 
 

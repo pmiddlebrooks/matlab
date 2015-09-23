@@ -51,13 +51,14 @@ dataType        = DataIn.dataType;
 plotFlag        = 1;
 rightColor      = [0 0 1];
 leftColor       = rightColor;
+markerColorOpen    	= [.5 .5 .5];
 markerColor    	= [0 0 0];
-markerSize    	= 50;
+markerSize    	= 60;
 
 
 if plotFlag
     targLineW = 2;
-    tickWidth = 4;
+    tickWidth = 6;
     
     for k = 1 : nUnit
         
@@ -222,7 +223,7 @@ if plotFlag
                 leftRasTarg = fat_raster(DataIn(k).(targSide).targOn.raster(iRTOrder,:), tickWidth);
                 imagesc(epochTarg, 1 : nLeftTrial, leftRasTarg(:, DataIn(k).(targSide).targOn.alignTime + epochTarg))
 
-                scatter(leftCueLat(iRTOrder,:), 1 : nLeftTrial, 'o', 'markeredgecolor', markerColor, 'sizeData', markerSize)
+                scatter(leftCueLat(iRTOrder,:), 1 : nLeftTrial, 'd', 'markeredgecolor', markerColor, 'markerfacecolor', markerColorOpen, 'sizeData', markerSize)
                 scatter(leftRTLat(iRTOrder,:), 1 : nLeftTrial, 'o', 'markeredgecolor', markerColor, 'markerfacecolor', markerColor, 'sizeData', markerSize)
 
                 
@@ -251,7 +252,7 @@ if plotFlag
                	leftRasSacc = fat_raster(DataIn(k).(targSide).responseOnset.raster(iTargOrder,:), tickWidth);               
                 imagesc(epochSacc, 1 : nLeftTrial, leftRasSacc(:, DataIn(k).(targSide).responseOnset.alignTime + epochSacc))
                 
-                scatter(leftCueLat(iTargOrder,:), 1 : nLeftTrial, 'o', 'markeredgecolor', markerColor, 'sizeData', markerSize)
+                scatter(leftCueLat(iTargOrder,:), 1 : nLeftTrial, 'd', 'markeredgecolor', markerColor, 'markerfacecolor', markerColorOpen, 'sizeData', markerSize)
                 scatter(leftTargLat(iTargOrder,:), 1 : nLeftTrial, 'o', 'markeredgecolor', markerColor, 'markerfacecolor', markerColor, 'sizeData', markerSize)
 
                 % Alignment line

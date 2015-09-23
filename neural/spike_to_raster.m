@@ -65,8 +65,9 @@ else
 % If it's a vector, there's only one trial.
 if min(size(spikeTrainMatrix)) == 1 && ~sum(isnan(spikeTrainMatrix))
         nTrial = 1;
-        % Else is it's a matrix, for now assume (require) each row is a
-        % trial
+        if size(spikeTrainMatrix, 2) == 1
+            spikeTrainMatrix = spikeTrainMatrix';
+        end
 else
     nTrial = size(spikeTrainMatrix, 1);
 end

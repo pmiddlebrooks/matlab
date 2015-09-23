@@ -3,25 +3,25 @@
 load('local_data/broca/brocaRT.mat')
 
 % Fixation aborts only
-fa = strcmp(monkeyB.outcome, 'fixationAbort');
+fa = strcmp(trialData.trialOutcome, 'fixationAbort');
 prefa = [fa(2:end); false];
 postfa = [false; fa(1:end-1)];
-nanmean(monkeyB.rt(prefa))
-nanmean(monkeyB.rt(postfa))
+nanmean(trialData.rt(prefa))
+nanmean(trialData.rt(postfa))
 
 %%
 % Any aborts
-ab = strcmp(monkeyB.outcome, ('fixationAbort')) | ...
-    strcmp(monkeyB.outcome, ('choiceStimulusAbort')) | ...
-    strcmp(monkeyB.outcome, ('noFixation')) | ...
-    strcmp(monkeyB.outcome, ('saccadeAbort')) | ...
-    strcmp(monkeyB.outcome, ('targetHoldAbort')) | ...
-    strcmp(monkeyB.outcome, ('distractorHoldAbort'));
+ab = strcmp(trialData.trialOutcome, ('fixationAbort')) | ...
+    strcmp(trialData.trialOutcome, ('choiceStimulusAbort')) | ...
+    strcmp(trialData.trialOutcome, ('noFixation')) | ...
+    strcmp(trialData.trialOutcome, ('saccadeAbort')) | ...
+    strcmp(trialData.trialOutcome, ('targetHoldAbort')) | ...
+    strcmp(trialData.trialOutcome, ('distractorHoldAbort'));
 
 prefa = [ab(2:end); false];
 postfa = [false; ab(1:end-1)];
-nanmean(monkeyB.rt(prefa))
-nanmean(monkeyB.rt(postfa))
+nanmean(trialData.rt(prefa))
+nanmean(trialData.rt(postfa))
 
 %% triplet analysis:
 % Replicating Nelson et al 2010 and Emeric et al. 2007 for Choice
@@ -43,7 +43,9 @@ nanmean(monkeyB.rt(postfa))
 
 
 subjectArray = {'broca','xena'};
-subjectArray = {'human'};
+% subjectArray = {'broca'};
+% subjectArray = {'human'};
+colorArray = {'b','r'};
 deleteAborts = false;
 acrossSession = true;
 if acrossSession == true
@@ -52,7 +54,6 @@ else
     figN = 2;
 end
 
-colorArray = {'b','r'};
 figure(figN);
 clf
 hold all;
@@ -69,7 +70,7 @@ for i = 1 : length(subjectArray)
     
     % load('local_data/broca/brocaRT.mat')
     % load('local_data/xena/xenaRT.mat')
-    % monkeyB = monkeyX;
+    % trialData = monkeyX;
     
     load(iFile)  % Loads trialData into workspace (and SessionData)
     
@@ -86,12 +87,12 @@ for i = 1 : length(subjectArray)
     
     % Find session switch trials so we don't process them as if a new
     % session was a continuation of one big session
-%     if strcmp(iSubject, 'human')
-%         excludeTrialPair = find(diff(trialData.sessionTag) < 0);
-%     else
-%         excludeTrialPair = find(diff(trialData.trial) < 0);
-%     end
-%     excludeTrialTriplet = [excludeTrialPair; excludeTrialPair-1]; % Exclude last 2 trials of a session as possible beginning trials in triplets
+    %     if strcmp(iSubject, 'human')
+    %         excludeTrialPair = find(diff(trialData.sessionTag) < 0);
+    %     else
+    %         excludeTrialPair = find(diff(trialData.trial) < 0);
+    %     end
+    %     excludeTrialTriplet = [excludeTrialPair; excludeTrialPair-1]; % Exclude last 2 trials of a session as possible beginning trials in triplets
     
     
     
@@ -106,242 +107,400 @@ for i = 1 : length(subjectArray)
     else
         nSession = 1;
         excludeTrialPair = find(diff(trialData.sessionTag) < 0);
-     excludeTrialTriplet = [excludeTrialPair; excludeTrialPair-1]; % Exclude last 2 trials of a session as possible beginning trials in triplets
-   end
+        excludeTrialTriplet = [excludeTrialPair; excludeTrialPair-1]; % Exclude last 2 trials of a session as possible beginning trials in triplets
+    end
     
+    % Initialize vectors for per-session RT means
     % Overall session RTs
-    ns = nan(nSession, 1);
+    rtNs          = nan(nSession, 1);
     
     % Pairs
-    nsNs1 = nan(nSession, 1);
-    nsNs2 = nan(nSession, 1);
-    cNs1 = nan(nSession, 1);
-    cNs2 = nan(nSession, 1);
-    ncNs1 = nan(nSession, 1);
-    ncNs2 = nan(nSession, 1);
-    eNs1 = nan(nSession, 1);
-    eNs2 = nan(nSession, 1);
+    rtNsNs1     = nan(nSession, 1);
+    rtNsNs2     = nan(nSession, 1);
+    rtCNs1      = nan(nSession, 1);
+    rtCNs2      = nan(nSession, 1);
+    rtNcNs1     = nan(nSession, 1);
+    rtNcNs2     = nan(nSession, 1);
+    rtENs1      = nan(nSession, 1);
+    rtENs2      = nan(nSession, 1);
     
-    % Triplets
-    nsCNs1 = nan(nSession, 1);
-    nsCNs2 = nan(nSession, 1);
-    nsNcNs1 = nan(nSession, 1);
-    nsNcNs2 = nan(nSession, 1);
-    nsNcNs3 = nan(nSession, 1);
-    nsENs1 = nan(nSession, 1);
-    nsENs2 = nan(nSession, 1);
-    nsENs3 = nan(nSession, 1);
-    nsNsNs1 = nan(nSession, 1);
-    nsNsNs2 = nan(nSession, 1);
-    nsNsNs3 = nan(nSession, 1);
-    
+    % Triplets: no-stop correct choices -> various outcomes -> no-stop correct choices
+    nNsCNs      = nan(nSession, 1);
+    rtNsCNs1    = nan(nSession, 1);
+    rtNsCNs3    = nan(nSession, 1);
+    nNsNcNs     = nan(nSession, 1);
+    rtNsNcNs1   = nan(nSession, 1);
+    rtNsNcNs2   = nan(nSession, 1);
+    rtNsNcNs3   = nan(nSession, 1);
+    nNsENs      = nan(nSession, 1);
+    rtNsENs1    = nan(nSession, 1);
+    rtNsENs2    = nan(nSession, 1);
+    rtNsENs3    = nan(nSession, 1);
+    nNsNsNs     = nan(nSession, 1);
+    rtNsNsNs1   = nan(nSession, 1);
+    rtNsNsNs2   = nan(nSession, 1);
+    rtNsNsNs3   = nan(nSession, 1);
+ 
+  	nNsCNse      = nan(nSession, 1);
+    rtNsCNse1    = nan(nSession, 1);
+    rtNsCNse3    = nan(nSession, 1);
+    nNsNcNse     = nan(nSession, 1);
+    rtNsNcNse1   = nan(nSession, 1);
+    rtNsNcNse2   = nan(nSession, 1);
+    rtNsNcNse3   = nan(nSession, 1);
+    nNsENse      = nan(nSession, 1);
+   	rtNsENse1    = nan(nSession, 1);
+    rtNsENse2    = nan(nSession, 1);
+    rtNsENse3    = nan(nSession, 1);
+    nNsNsNse     = nan(nSession, 1);
+    rtNsNsNse1   = nan(nSession, 1);
+    rtNsNsNse2   = nan(nSession, 1);
+    rtNsNsNse3   = nan(nSession, 1);
+
     for j = 1 : nSession
         
-     if acrossSession
-        jTD = trialData(trialData.sessionTag == j, :);
-    else
-        jTD = trialData;
-    end
-       
+        if acrossSession
+            jTD = trialData(trialData.sessionTag == j, :);
+        else
+            jTD = trialData;
+        end
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % PARSE DATA AND CALCULATE METRICS
+        %      PARSE DATA AND CALCULATE METRICS
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         iSubject = subjectArray{i};
         % Total mean No-stop RT
-        sOpt = ccm_trial_selection;
-        sOpt.outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt.ssd = 'none';
-        nsTrial = ccm_trial_selection(jTD, sOpt);
-        ns(j) = nanmean(jTD.rt(nsTrial));
+        opt = ccm_trial_selection;
+        opt.outcome = {'goCorrectTarget', 'goCorrectDistractor'};
+        opt.ssd = 'none';
+        nsTrial = ccm_trial_selection(jTD, opt);
+        rtNs(j) = nanmean(jTD.rt(nsTrial));
         
+        
+        %--------------------------------------------------------------------------
+        %       PAIRS
+        %--------------------------------------------------------------------------
+        Opt2(1) = opt; % Initialize structure with 2 levels
+        Opt2(2) = opt; 
+        
+     	%--------------------------------------------------------------------------
         % NS -> NS
-        sOpt(1) = ccm_trial_selection;
-        % sOpt(1).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(1).outcome = {'goCorrectTarget'};
-        sOpt(1).ssd = 'none';
+%         disp('NoStop - NoStop')
+
+        Opt2(1).outcome = {'goCorrectTarget'};
+        Opt2(1).ssd = 'none';
         
-        sOpt(2) = ccm_trial_selection;
-        % sOpt(2).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(2).outcome = {'goCorrectTarget'};
-        sOpt(2).ssd = 'none';
         
-        nsNsTrial = ccm_trial_sequence(jTD, sOpt);
-        nsNsTrial = setxor(nsNsTrial, excludeTrialTriplet);
-        disp('NoStop - NoStop')
-        nsNs1(j) = nanmean(jTD.rt(nsNsTrial));
-        nsNs2(j) = nanmean(jTD.rt(nsNsTrial + 1));
-        [h,p,ci,stats] = ttest2(jTD.rt(nsNsTrial), jTD.rt(nsNsTrial+1));
+        Opt2(2).outcome = {'goCorrectTarget'};
+        Opt2(2).ssd = 'none';
+        rtNsNsTrial = ccm_trial_sequence(jTD, Opt2);
+        rtNsNsTrial = setxor(rtNsNsTrial, excludeTrialTriplet);
+        rtNsNs1(j) = nanmean(jTD.rt(rtNsNsTrial));
+        rtNsNs2(j) = nanmean(jTD.rt(rtNsNsTrial + 1));
+        [h,p,ci,stats] = ttest2(jTD.rt(rtNsNsTrial), jTD.rt(rtNsNsTrial+1));
         
+     	%--------------------------------------------------------------------------
         % C -> NS
-        sOpt(1) = ccm_trial_selection;
-        % sOpt(1).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(1).outcome = {'stopCorrect'};
-        sOpt(1).ssd = 'any';
+%         disp('Canceled - NoStop')
         
-        sOpt(2) = ccm_trial_selection;
-        % sOpt(2).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(2).outcome = {'goCorrectTarget'};
-        sOpt(2).ssd = 'none';
+        Opt2(1).outcome = {'stopCorrect'};
+        Opt2(1).ssd = 'any';
         
-        CNsTrial = ccm_trial_sequence(jTD, sOpt);
+        Opt2(2).outcome = {'goCorrectTarget'};
+        Opt2(2).ssd = 'none';
+        
+        CNsTrial = ccm_trial_sequence(jTD, Opt2);
         CNsTrial = setxor(CNsTrial, excludeTrialTriplet);
-        disp('Canceled - NoStop')
-        cNs1(j) = nanmean(jTD.rt(CNsTrial));
-        cNs2(j) = nanmean(jTD.rt(CNsTrial + 1));
+        rtCNs1(j) = nanmean(jTD.rt(CNsTrial));
+        rtCNs2(j) = nanmean(jTD.rt(CNsTrial + 1));
         [h,p,ci,stats] = ttest2(jTD.rt(CNsTrial), jTD.rt(CNsTrial+1));
         
+     	%--------------------------------------------------------------------------
         % NC -> NS
-        sOpt(1) = ccm_trial_selection;
-        % sOpt(1).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(1).outcome = {'stopIncorrectTarget','stopIncorrectDistractor','targetHoldAbort','distractorHoldAbort'};
-        sOpt(1).ssd = 'any';
+%         disp('Noncanceled - NoStop')
         
-        sOpt(2) = ccm_trial_selection;
-        % sOpt(2).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(2).outcome = {'goCorrectTarget'};
-        sOpt(2).ssd = 'none';
+        Opt2(1).outcome = {'stopIncorrectTarget','stopIncorrectDistractor','targetHoldAbort','distractorHoldAbort'};
+        Opt2(1).ssd = 'any';
         
-        ncNsTrial = ccm_trial_sequence(jTD, sOpt);
-        ncNsTrial = setxor(ncNsTrial, excludeTrialTriplet);
-        disp('Noncanceled - NoStop')
-        ncNs1(j) = nanmean(jTD.rt(ncNsTrial));
-        ncNs2(j) = nanmean(jTD.rt(ncNsTrial + 1));
-        [h,p,ci,stats] = ttest2(jTD.rt(ncNsTrial), jTD.rt(ncNsTrial+1));
+        Opt2(2).outcome = {'goCorrectTarget'};
+        Opt2(2).ssd = 'none';
         
-        % E -> NS
-        sOpt(1) = ccm_trial_selection;
-        % sOpt(1).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(1).outcome = {'goCorrectDistractor'};
-        sOpt(1).ssd = 'none';
+        rtNcNsTrial = ccm_trial_sequence(jTD, Opt2);
+        rtNcNsTrial = setxor(rtNcNsTrial, excludeTrialTriplet);
+        rtNcNs1(j) = nanmean(jTD.rt(rtNcNsTrial));
+        rtNcNs2(j) = nanmean(jTD.rt(rtNcNsTrial + 1));
+        [h,p,ci,stats] = ttest2(jTD.rt(rtNcNsTrial), jTD.rt(rtNcNsTrial+1));
         
-        sOpt(2) = ccm_trial_selection;
-        % sOpt(2).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(2).outcome = {'goCorrectTarget'};
-        sOpt(2).ssd = 'none';
+     	%--------------------------------------------------------------------------
+       % E -> NS    No-stop Error Choice -> No-stop Correct Choice
+%         disp('Error - NoStop')
         
-        eNsTrial = ccm_trial_sequence(jTD, sOpt);
-        eNsTrial = setxor(eNsTrial, excludeTrialTriplet);
-        disp('Error - NoStop')
-        eNs1(j) = nanmean(jTD.rt(eNsTrial));
-        eNs2(j) = nanmean(jTD.rt(eNsTrial + 1));
-        [h,p,ci,stats] = ttest2(jTD.rt(eNsTrial), jTD.rt(eNsTrial+1));
+        Opt2(1).outcome = {'goCorrectDistractor'};
+        Opt2(1).ssd = 'none';
+        
+        Opt2(2).outcome = {'goCorrectTarget'};
+        Opt2(2).ssd = 'none';
+        
+        rtENsTrial = ccm_trial_sequence(jTD, Opt2);
+        rtENsTrial = setxor(rtENsTrial, excludeTrialTriplet);
+        rtENs1(j) = nanmean(jTD.rt(rtENsTrial));
+        rtENs2(j) = nanmean(jTD.rt(rtENsTrial + 1));
+        [h,p,ci,stats] = ttest2(jTD.rt(rtENsTrial), jTD.rt(rtENsTrial+1));
         
         
         
         
         
         
+        
+        
+        
+        
+        
+        
+        %--------------------------------------------------------------------------
+        %       TRIPLETS
+        %--------------------------------------------------------------------------
+         Opt3(1) = opt; % Initialize structure with 3 levels
+        Opt3(2) = opt; 
+        Opt3(3) = opt; 
+       
+        
+     	%--------------------------------------------------------------------------
         % NS -> C -> NS
-        sOpt(1) = ccm_trial_selection;
-        % sOpt(2).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(1).outcome = {'goCorrectTarget'};
-        sOpt(1).ssd = 'none';
+%         disp('NoStop - Canceled - NoStop')
         
-        sOpt(2) = ccm_trial_selection;
-        sOpt(2).outcome = {'stopCorrect'};
-        sOpt(2).ssd = 'any';
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
         
-        sOpt(3) = ccm_trial_selection;
-        % sOpt(3).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(3).outcome = {'goCorrectTarget'};
-        sOpt(3).ssd = 'none';
+        Opt3(2).outcome     = {'stopCorrect'};
+        Opt3(2).ssd         = 'any';
         
-        disp('NoStop - Canceled - NoStop')
-        nsCNsTrial = ccm_trial_sequence(jTD, sOpt);
-        nsCNsTrial = setxor(nsCNsTrial, excludeTrialTriplet);
-        nsCNs1(j) = nanmean(jTD.rt(nsCNsTrial));
-        nsCNs2(j) = nanmean(jTD.rt(nsCNsTrial + 2));
-        [h,p,ci,stats] = ttest2(jTD.rt(nsCNsTrial), jTD.rt(nsCNsTrial+2));
+        Opt3(3).outcome     = {'goCorrectTarget'};
+        Opt3(3).ssd         = 'none';
+        
+        rtNsCNsTrial        = ccm_trial_sequence(jTD, Opt3);
+        rtNsCNsTrial        = setxor(rtNsCNsTrial, excludeTrialTriplet);
+        nNsCNs(j)           = length(rtNsCNsTrial);
+        rtNsCNs1(j)         = nanmean(jTD.rt(rtNsCNsTrial));
+        rtNsCNs3(j)         = nanmean(jTD.rt(rtNsCNsTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsCNsTrial), jTD.rt(rtNsCNsTrial+2));
         
         
+        
+     	%--------------------------------------------------------------------------
         % NS -> NC -> NS
-        sOpt(1) = ccm_trial_selection;
-        % sOpt(1).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(1).outcome = {'goCorrectTarget'};
-        sOpt(1).ssd = 'none';
+%          disp('NoStop - NonCanceled - NoStop')
+       
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
         
-        sOpt(2) = ccm_trial_selection;
-        sOpt(2).outcome = {'stopIncorrectTarget', 'stopIncorrectDistractor', 'targetHoldAbort', 'distractorHoldAbort'};
-        sOpt(2).outcome = {'stopIncorrectTarget', 'targetHoldAbort'};
-        sOpt(2).ssd = 'any';
+        %         Opt3(2).outcome = {'stopIncorrectTarget', 'stopIncorrectDistractor', 'targetHoldAbort', 'distractorHoldAbort'};
+        Opt3(2).outcome     = {'stopIncorrectTarget', 'targetHoldAbort'};
+        Opt3(2).ssd         = 'any';
         
-        sOpt(3) = ccm_trial_selection;
-        % sOpt(3).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
-        sOpt(3).outcome = {'goCorrectTarget'};
-        sOpt(3).ssd = 'none';
+        % Opt3(3).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
+        Opt3(3).outcome     = {'goCorrectTarget'};
+        Opt3(3).ssd         = 'none';
         
-        disp('NoStop - NonCanceled - NoStop')
-        nsNcNsTrial = ccm_trial_sequence(jTD, sOpt);
-        nsNcNsTrial = setxor(nsNcNsTrial, excludeTrialTriplet);
-        nsNcNs1(j) = nanmean(jTD.rt(nsNcNsTrial));
-        nsNcNs3(j) = nanmean(jTD.rt(nsNcNsTrial + 1));
-        nsNcNs2(j) = nanmean(jTD.rt(nsNcNsTrial + 2));
-        [h,p,ci,stats] = ttest2(jTD.rt(nsNcNsTrial), jTD.rt(nsNcNsTrial+2));
+        rtNsNcNsTrial       = ccm_trial_sequence(jTD, Opt3);
+        rtNsNcNsTrial       = setxor(rtNsNcNsTrial, excludeTrialTriplet);
+      	nNsNcNs(j)        	= length(rtNsNcNsTrial);
+        rtNsNcNs1(j)        = nanmean(jTD.rt(rtNsNcNsTrial));
+        rtNsNcNs2(j)        = nanmean(jTD.rt(rtNsNcNsTrial + 1));
+        rtNsNcNs3(j)        = nanmean(jTD.rt(rtNsNcNsTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsNcNsTrial), jTD.rt(rtNsNcNsTrial+2));
         
         
+
+        %--------------------------------------------------------------------------
         % NS -> Error -> NS
-        sOpt(1) = ccm_trial_selection;
-        sOpt(1).outcome = {'goCorrectTarget'};
-        sOpt(1).ssd = 'none';
+%         disp('NoStop - Choice Error - NoStop')
         
-        sOpt(2) = ccm_trial_selection;
-        sOpt(2).outcome = {'goCorrectDistractor'};
-        sOpt(2).ssd = 'none';
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
         
-        sOpt(3) = ccm_trial_selection;
-        sOpt(3).outcome = {'goCorrectTarget'};
-        sOpt(3).ssd = 'none';
+        Opt3(2).outcome  	= {'goCorrectDistractor'};
+        Opt3(2).ssd         = 'none';
         
-        disp('NoStop - Choice Error - NoStop')
-        nsENsTrial = ccm_trial_sequence(jTD, sOpt);
-        nsENsTrial = setxor(nsENsTrial, excludeTrialTriplet);
-        nsENs1(j) = nanmean(jTD.rt(nsENsTrial));
-        nsENs3(j) = nanmean(jTD.rt(nsENsTrial + 1));
-        nsENs2(j) = nanmean(jTD.rt(nsENsTrial + 2));
-        [h,p,ci,stats] = ttest2(jTD.rt(nsENsTrial), jTD.rt(nsENsTrial+2));
+        Opt3(3).outcome     = {'goCorrectTarget'};
+        Opt3(3).ssd         = 'none';
+        
+        rtNsENsTrial        = ccm_trial_sequence(jTD, Opt3);
+        rtNsENsTrial        = setxor(rtNsENsTrial, excludeTrialTriplet);
+      	nNsENs(j)        	= length(rtNsENsTrial);
+        rtNsENs1(j)         = nanmean(jTD.rt(rtNsENsTrial));
+        rtNsENs2(j)         = nanmean(jTD.rt(rtNsENsTrial + 1));
+        rtNsENs3(j)         = nanmean(jTD.rt(rtNsENsTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsENsTrial), jTD.rt(rtNsENsTrial+2));
         
         
-        % NS -> NS -> NS
-        sOpt(1) = ccm_trial_selection;
-        sOpt(1).outcome = {'goCorrectTarget'};
-        sOpt(1).ssd = 'none';
         
-        sOpt(2) = ccm_trial_selection;
-        sOpt(2).outcome = {'goCorrectTarget'};
-        sOpt(2).ssd = 'none';
+      	%--------------------------------------------------------------------------
+       % NS -> NS -> NS
+%          disp('NoStop - Choice Error - NoStop')
+       
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
         
-        sOpt(3) = ccm_trial_selection;
-        sOpt(3).outcome = {'goCorrectTarget'};
-        sOpt(3).ssd = 'none';
+        Opt3(2).outcome     = {'goCorrectTarget'};
+        Opt3(2).ssd         = 'none';
         
-        disp('NoStop - Choice Error - NoStop')
-        nsNsNsTrial = ccm_trial_sequence(jTD, sOpt);
-        nsNsNsTrial = setxor(nsNsNsTrial, excludeTrialTriplet);
-        nsNsNs1(j) = nanmean(jTD.rt(nsNsNsTrial));
-        nsNsNs3(j) = nanmean(jTD.rt(nsNsNsTrial + 1));
-        nsNsNs2(j) = nanmean(jTD.rt(nsNsNsTrial + 2));
-        [h,p,ci,stats] = ttest2(jTD.rt(nsNsNsTrial), jTD.rt(nsNsNsTrial+2));
+        Opt3(3).outcome     = {'goCorrectTarget'};
+        Opt3(3).ssd         = 'none';
         
+        rtNsNsNsTrial       = ccm_trial_sequence(jTD, Opt3);
+        rtNsNsNsTrial       = setxor(rtNsNsNsTrial, excludeTrialTriplet);
+      	nNsNsNs(j)        	= length(rtNsNsNsTrial);
+        rtNsNsNs1(j)        = nanmean(jTD.rt(rtNsNsNsTrial));
+        rtNsNsNs2(j)        = nanmean(jTD.rt(rtNsNsNsTrial + 1));
+        rtNsNsNs3(j)        = nanmean(jTD.rt(rtNsNsNsTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsNsNsTrial), jTD.rt(rtNsNsNsTrial+2));
+        
+        
+        
+        
+        
+        
+        % ERROR ANALYSIS
+        
+        
+        
+      	%--------------------------------------------------------------------------
+        % NS -> C -> NSe (no-stop choice errors
+%         disp('NoStop - Canceled - NoStopError')
+       
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
+        
+        Opt3(2).outcome     = {'stopCorrect'};
+        Opt3(2).ssd         = 'any';
+        
+        Opt3(3).outcome     = {'goCorrectDistractor'};
+        Opt3(3).ssd         = 'none';
+        
+        rtNsCNseTrial       = ccm_trial_sequence(jTD, Opt3);
+        rtNsCNseTrial       = setxor(rtNsCNseTrial, excludeTrialTriplet);
+        nNsCNse(j)          = length(rtNsCNseTrial);
+        rtNsCNse1(j)        = nanmean(jTD.rt(rtNsCNseTrial));
+        rtNsCNse3(j)        = nanmean(jTD.rt(rtNsCNseTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsCNseTrial), jTD.rt(rtNsCNseTrial+2));
+        
+ 
+             	%--------------------------------------------------------------------------
+        % NS -> NC -> NSe
+%          disp('NoStop - NonCanceled - NoStopError')
+       
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
+        
+        %         Opt3(2).outcome = {'stopIncorrectTarget', 'stopIncorrectDistractor', 'targetHoldAbort', 'distractorHoldAbort'};
+        Opt3(2).outcome     = {'stopIncorrectTarget', 'targetHoldAbort'};
+        Opt3(2).ssd         = 'any';
+        
+        % Opt3(3).outcome = {'goCorrectTarget', 'goCorrectDistractor'};
+        Opt3(3).outcome     = {'goCorrectDistractor'};
+        Opt3(3).ssd         = 'none';
+        
+        rtNsNcNseTrial       = ccm_trial_sequence(jTD, Opt3);
+        rtNsNcNseTrial       = setxor(rtNsNcNseTrial, excludeTrialTriplet);
+      	nNsNcNse(j)        	= length(rtNsNcNseTrial);
+        rtNsNcNse1(j)        = nanmean(jTD.rt(rtNsNcNseTrial));
+        rtNsNcNse2(j)        = nanmean(jTD.rt(rtNsNcNseTrial + 1));
+        rtNsNcNse3(j)        = nanmean(jTD.rt(rtNsNcNseTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsNcNseTrial), jTD.rt(rtNsNcNseTrial+2));
+        
+        
+
+        %--------------------------------------------------------------------------
+        % NS -> Error -> NSe
+%         disp('NoStop - Choice Error - NoStopError')
+        
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
+        
+        Opt3(2).outcome  	= {'goCorrectDistractor'};
+        Opt3(2).ssd         = 'none';
+        
+        Opt3(3).outcome     = {'goCorrectDistractor'};
+        Opt3(3).ssd         = 'none';
+        
+        rtNsENseTrial        = ccm_trial_sequence(jTD, Opt3);
+        rtNsENseTrial        = setxor(rtNsENseTrial, excludeTrialTriplet);
+      	nNsENse(j)        	= length(rtNsENseTrial);
+        rtNsENse1(j)         = nanmean(jTD.rt(rtNsENseTrial));
+        rtNsENse2(j)         = nanmean(jTD.rt(rtNsENseTrial + 1));
+        rtNsENse3(j)         = nanmean(jTD.rt(rtNsENseTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsENseTrial), jTD.rt(rtNsENseTrial+2));
+        
+        
+        
+      	%--------------------------------------------------------------------------
+       % NS -> NS -> NSe
+%          disp('NoStop - Choice Error - NoStopError')
+       
+        Opt3(1).outcome     = {'goCorrectTarget'};
+        Opt3(1).ssd         = 'none';
+        
+        Opt3(2).outcome     = {'goCorrectTarget'};
+        Opt3(2).ssd         = 'none';
+        
+        Opt3(3).outcome     = {'goCorrectDistractor'};
+        Opt3(3).ssd         = 'none';
+        
+        rtNsNsNseTrial       = ccm_trial_sequence(jTD, Opt3);
+        rtNsNsNseTrial       = setxor(rtNsNsNseTrial, excludeTrialTriplet);
+      	nNsNsNse(j)        	= length(rtNsNsNseTrial);
+        rtNsNsNs1(j)        = nanmean(jTD.rt(rtNsNsNseTrial));
+        rtNsNsNs2(j)        = nanmean(jTD.rt(rtNsNsNseTrial + 1));
+        rtNsNsNs3(j)        = nanmean(jTD.rt(rtNsNsNseTrial + 2));
+        [h,p,ci,stats]      = ttest2(jTD.rt(rtNsNsNseTrial), jTD.rt(rtNsNsNseTrial+2));
+ 
         
         
     end % for j = 1 : nSession
     
-        % Plot
-        % ylim([250 350])
-        plot([1 12], [nanmean(ns) nanmean(ns)], '--', 'color', colorArray{i})
-        plot([1:4], [nanmean(nsNs2) nanmean(cNs2) nanmean(ncNs2) nanmean(eNs2)], '--o', 'color', colorArray{i})
-        plot([5 6], [nanmean(nsCNs1) nanmean(nsCNs2)], '-o', 'color', colorArray{i})
-        plot([7 7.5 8], [nanmean(nsNcNs1) nanmean(nsNcNs3) nanmean(nsNcNs2)], '-o', 'color', colorArray{i})
-        plot([9 9.5 10], [nanmean(nsENs1) nanmean(nsENs3) nanmean(nsENs2)], '-o', 'color', colorArray{i})
-        plot([11 11.5 12], [nanmean(nsNsNs1) nanmean(nsNsNs3) nanmean(nsNsNs2)], '-o', 'color', colorArray{i})
+    
+    pNsCNse  	= sum(nNsCNse) / sum([nNsCNse;nNsCNs]);
+    pNsNcNse    = sum(nNsNcNse) / sum([nNsNcNse;nNsNcNs]);
+    pNsENse     = sum(nNsENse) / sum([nNsENse;nNsENs]);
+    pNsNsNse    = sum(nNsNsNse) / sum([nNsNsNse;nNsNsNs]);
+    fprintf('%s error probability after trial type:\n', subjectArray{i})
+    fprintf('Canceled:\t\t%0.3f\n', pNsCNse)
+    fprintf('Nonanceled:\t\t%0.3f\n', pNsNcNse)
+    fprintf('No-stop Error:\t\t%0.3f\n', pNsENse)
+    fprintf('No-stop Correct:\t%0.3f\n', pNsNsNse)
+    
+    
+    
+    
+    
+    % Plot
+    % ylim([250 350])
+    plot([1 21], [nanmean(rtNs) nanmean(rtNs)], '--', 'color', colorArray{i})
+    plot([1:2], [nanmean(rtNsNs1) nanmean(rtNsNs2)], '--o', 'color', colorArray{i})
+    plot([4], [nanmean(rtCNs2)], '--o', 'color', colorArray{i})
+    plot([5:6], [nanmean(rtNcNs1) nanmean(rtNcNs2)], '--o', 'color', colorArray{i})
+    plot([7:8], [nanmean(rtENs1) nanmean(rtENs2)], '--o', 'color', colorArray{i})
+    plot([10 11 12], [nanmean(rtNsNsNs1) nanmean(rtNsNsNs2) nanmean(rtNsNsNs3)], '-o', 'color', colorArray{i})
+    plot([13 15], [nanmean(rtNsCNs1) nanmean(rtNsCNs3)], '-o', 'color', colorArray{i})
+    plot([16 17 18], [nanmean(rtNsNcNs1) nanmean(rtNsNcNs2) nanmean(rtNsNcNs3)], '-o', 'color', colorArray{i})
+    plot([19 20 21], [nanmean(rtNsENs1) nanmean(rtNsENs2) nanmean(rtNsENs3)], '-o', 'color', colorArray{i})
+    
+    
+    
+    
+    
+    
 end
 if strcmp(iSubject, 'human')
     ylim([550 750])
 else
     ylim([200 350])
 end
-set(gca, 'xtick', [1 2 3 4 5 5.5 6 7 7.5 8 9 9.5 10 11 11.5 12])
-set(gca, 'xticklabel', {'NS','C','NC','E','NS','C','NS','NS','NC','NS','NS','E','NS','NS','NS','NS'})
+xlim([0 22])
+set(gca, 'xtick', [1.5 3.5 5.5 7.5 11 14 17 20])
+set(gca, 'xticklabel', {'NS-NS','C-NS','NC-NS','E-NS','NS-NS-NS','NS-C-NS','NS-NC-NS','NS-E-NS'})
 % legend({'Broca','Xena'})
 
 

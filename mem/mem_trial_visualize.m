@@ -29,7 +29,7 @@ nTrial = size(trialData, 1);
 TICK_WIDTH = 5;
 sdfColor = [0 0 1];
 % Set up plot
-printPlot = false;
+printPlot = true;
 figureHandle = 87;
 nRow = 7;
 nColumn = 1;
@@ -38,6 +38,7 @@ if printPlot
 else
     [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
 end
+axisHeight = axisHeight*1.4
 clf
 
 axEye = 1;
@@ -59,101 +60,110 @@ ax(axG20) = axes('units', 'centimeters', 'position', [xAxesPosition(axG20) yAxes
 ax(axPSP) = axes('units', 'centimeters', 'position', [xAxesPosition(axPSP) yAxesPosition(axPSP) axisWidth axisHeight]);
 
 for i = 1 : nTrial
-
+    
     
     %   Eye Traces
     % ************************
     eyeX            = trialData.eyeX{i};
-    eyeY            = trialData.eyeY{i}; 
-   
+    eyeY            = trialData.eyeY{i};
+    
     axes(ax(axEye))
     cla
     hold(ax(axEye), 'on')
-set(ax(axEye), 'xlim', [0 length(eyeX)])
+    set(ax(axEye), 'xlim', [0 length(eyeX)])
     plot(ax(axEye), eyeX)
     plot(ax(axEye), eyeY)
-    plot(ax(axEye), [trialData.fixWindowEntered(i) trialData.fixWindowEntered(i)], [-5 5], 'k')
-
+    yS = ylim;
+    plot(ax(axEye), [trialData.fixWindowEntered(i) trialData.fixWindowEntered(i)], [yS(1) yS(2)], 'k')
+    plot(ax(axEye), [trialData.targOn(i) trialData.targOn(i)], [yS(1) yS(2)], 'k')
+    plot(ax(axEye), [trialData.responseCueOn(i) trialData.responseCueOn(i)], [yS(1) yS(2)], 'k')
+    plot(ax(axEye), [trialData.responseOnset(i) trialData.responseOnset(i)], [yS(1) yS(2)], 'k')
+    plot(ax(axEye), [trialData.rewardOn(i) trialData.rewardOn(i)], [yS(1) yS(2)], 'k')
+    
     
     %   Raster
     % ************************
     iRas            = spike_to_raster(trialData.spikeData{i,jUnit});
     iTick           = fat_raster(iRas, TICK_WIDTH);
-   
+    %    return
     axes(ax(axRas))
     cla
     hold(ax(axRas), 'on')
-set(ax(axRas), 'xlim', [0 length(eyeX)])
+    set(ax(axRas), 'xlim', [0 length(eyeX)])
     colormap([1 1 1; sdfColor])
     imagesc(iTick)
-
+    
     
     %   PSTH 10 ms
     % ************************
     binWidth        = 10;
     [PSTH, binCenters] = peristimulus_time_histogram(iRas, binWidth, 0);
-   
+    
     axes(ax(axH10))
     cla
     hold(ax(axH10), 'on')
-set(ax(axH10), 'xlim', [0 length(eyeX)])
+    set(ax(axH10), 'xlim', [0 length(eyeX)])
     bar(binCenters, PSTH, 'hist');
-%     bar(binCenters, PSTH, 'hist', 'faceColor', sdfColor);
-
-
+    %     bar(binCenters, PSTH, 'hist', 'faceColor', sdfColor);
+    
+    
     %   PSTH 20 ms
     % ************************
     binWidth        = 20;
     [PSTH, binCenters] = peristimulus_time_histogram(iRas, binWidth, 0);
-   
+    
     axes(ax(axH20))
     cla
     hold(ax(axH20), 'on')
-set(ax(axH20), 'xlim', [0 length(eyeX)])
+    set(ax(axH20), 'xlim', [0 length(eyeX)])
     bar(binCenters, PSTH, 'hist');
-%     bar(binCenters, PSTH, 'hist', 'color', sdfColor);
-
+    %     bar(binCenters, PSTH, 'hist', 'color', sdfColor);
+    
     
     %   SDF Gaussian 10 ms
     % ************************
     Kernel.method = 'gaussian';
     Kernel.sigma = 10;
     [sdf, kShape] = spike_density_function(iRas, Kernel);
-   
+    
     axes(ax(axG10))
     cla
     hold(ax(axG10), 'on')
-set(ax(axG10), 'xlim', [0 length(eyeX)])
+    set(ax(axG10), 'xlim', [0 length(eyeX)])
     plot(ax(axG10), sdf, 'color', sdfColor)
-
+    
     %   SDF Gaussian 20 ms
     % ************************
     Kernel.method = 'gaussian';
     Kernel.sigma = 20;
     [sdf, kShape] = spike_density_function(iRas, Kernel);
-   
+    
     axes(ax(axG20))
     cla
     hold(ax(axG20), 'on')
-set(ax(axG20), 'xlim', [0 length(eyeX)])
+    set(ax(axG20), 'xlim', [0 length(eyeX)])
     plot(ax(axG20), sdf, 'color', sdfColor)
-
+    
     %   PSP growth = 1ms;  decay = 20ms
     % ************************
     Kernel.method = 'postsynaptic potential';
-            Kernel.growth = 1;
-            Kernel.decay = 20;
+    Kernel.growth = 1;
+    Kernel.decay = 20;
     [sdf, kShape] = spike_density_function(iRas, Kernel);
-   
+    
     axes(ax(axPSP))
     cla
     hold(ax(axPSP), 'on')
-set(ax(axPSP), 'xlim', [0 length(eyeX)])
+    set(ax(axPSP), 'xlim', [0 length(eyeX)])
     plot(ax(axPSP), sdf, 'color', sdfColor)
-
-
-
-pause
+    
+    
+    
+savePlot = input('save?', 's');
+if strcmp(savePlot, 'y')
+         localFigurePath = local_figure_path;
+         print(figureHandle,[localFigurePath, sprintf('%s_trial%.2d', sessionID, i)],'-dpdf', '-r300')
+end
 end
 
 %%
