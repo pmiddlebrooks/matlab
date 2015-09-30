@@ -1,3 +1,36 @@
+
+
+%% Session-long RTs
+figureHandle = 66;   
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(1, 1, figureHandle);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LOAD DATA AND SET VARIABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+iSubject = 'broca';
+[sessionArray, subjectIDArray] = task_session_array(iSubject, 'ccm', 'behavior2');
+for i = 1 : length(sessionArray)
+    sessionID = sessionArray{i};
+    
+    [td, S] = load_data(iSubject,sessionID);
+    [allRT, rtOutlierTrial] = truncate_rt(td.rt, 120, 1200, 3);
+
+             clf
+    ax = axes('units', 'centimeters', 'position', [xAxesPosition(1) yAxesPosition(1) axisWidth axisHeight]);
+    plot(ax, allRT, '-k')
+    xlim([1 length(allRT)])
+    ylim([min(allRT)-20 max(allRT)+20])
+    
+    savePlot = 'y';
+%     input('save?', 's');
+    if strcmp(savePlot, 'y')
+        localFigurePath = local_figure_path;
+        print(figureHandle,[localFigurePath, sprintf('session_rts_%s', sessionID)],'-dpdf', '-r300')
+    end
+             
+
+    
+end
 %%
 
 load('local_data/broca/brocaRT.mat')
@@ -54,7 +87,8 @@ else
     figN = 2;
 end
 
-figure(figN);
+figureHandle = 66;   
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(1, 1, figureHandle);
 clf
 hold all;
 
@@ -140,8 +174,8 @@ for i = 1 : length(subjectArray)
     rtNsNsNs1   = nan(nSession, 1);
     rtNsNsNs2   = nan(nSession, 1);
     rtNsNsNs3   = nan(nSession, 1);
- 
-  	nNsCNse      = nan(nSession, 1);
+    
+    nNsCNse      = nan(nSession, 1);
     rtNsCNse1    = nan(nSession, 1);
     rtNsCNse3    = nan(nSession, 1);
     nNsNcNse     = nan(nSession, 1);
@@ -149,14 +183,14 @@ for i = 1 : length(subjectArray)
     rtNsNcNse2   = nan(nSession, 1);
     rtNsNcNse3   = nan(nSession, 1);
     nNsENse      = nan(nSession, 1);
-   	rtNsENse1    = nan(nSession, 1);
+    rtNsENse1    = nan(nSession, 1);
     rtNsENse2    = nan(nSession, 1);
     rtNsENse3    = nan(nSession, 1);
     nNsNsNse     = nan(nSession, 1);
     rtNsNsNse1   = nan(nSession, 1);
     rtNsNsNse2   = nan(nSession, 1);
     rtNsNsNse3   = nan(nSession, 1);
-
+    
     for j = 1 : nSession
         
         if acrossSession
@@ -181,12 +215,12 @@ for i = 1 : length(subjectArray)
         %       PAIRS
         %--------------------------------------------------------------------------
         Opt2(1) = opt; % Initialize structure with 2 levels
-        Opt2(2) = opt; 
+        Opt2(2) = opt;
         
-     	%--------------------------------------------------------------------------
+        %--------------------------------------------------------------------------
         % NS -> NS
-%         disp('NoStop - NoStop')
-
+        %         disp('NoStop - NoStop')
+        
         Opt2(1).outcome = {'goCorrectTarget'};
         Opt2(1).ssd = 'none';
         
@@ -199,9 +233,9 @@ for i = 1 : length(subjectArray)
         rtNsNs2(j) = nanmean(jTD.rt(rtNsNsTrial + 1));
         [h,p,ci,stats] = ttest2(jTD.rt(rtNsNsTrial), jTD.rt(rtNsNsTrial+1));
         
-     	%--------------------------------------------------------------------------
+        %--------------------------------------------------------------------------
         % C -> NS
-%         disp('Canceled - NoStop')
+        %         disp('Canceled - NoStop')
         
         Opt2(1).outcome = {'stopCorrect'};
         Opt2(1).ssd = 'any';
@@ -215,9 +249,9 @@ for i = 1 : length(subjectArray)
         rtCNs2(j) = nanmean(jTD.rt(CNsTrial + 1));
         [h,p,ci,stats] = ttest2(jTD.rt(CNsTrial), jTD.rt(CNsTrial+1));
         
-     	%--------------------------------------------------------------------------
+        %--------------------------------------------------------------------------
         % NC -> NS
-%         disp('Noncanceled - NoStop')
+        %         disp('Noncanceled - NoStop')
         
         Opt2(1).outcome = {'stopIncorrectTarget','stopIncorrectDistractor','targetHoldAbort','distractorHoldAbort'};
         Opt2(1).ssd = 'any';
@@ -231,9 +265,9 @@ for i = 1 : length(subjectArray)
         rtNcNs2(j) = nanmean(jTD.rt(rtNcNsTrial + 1));
         [h,p,ci,stats] = ttest2(jTD.rt(rtNcNsTrial), jTD.rt(rtNcNsTrial+1));
         
-     	%--------------------------------------------------------------------------
-       % E -> NS    No-stop Error Choice -> No-stop Correct Choice
-%         disp('Error - NoStop')
+        %--------------------------------------------------------------------------
+        % E -> NS    No-stop Error Choice -> No-stop Correct Choice
+        %         disp('Error - NoStop')
         
         Opt2(1).outcome = {'goCorrectDistractor'};
         Opt2(1).ssd = 'none';
@@ -261,14 +295,14 @@ for i = 1 : length(subjectArray)
         %--------------------------------------------------------------------------
         %       TRIPLETS
         %--------------------------------------------------------------------------
-         Opt3(1) = opt; % Initialize structure with 3 levels
-        Opt3(2) = opt; 
-        Opt3(3) = opt; 
-       
+        Opt3(1) = opt; % Initialize structure with 3 levels
+        Opt3(2) = opt;
+        Opt3(3) = opt;
         
-     	%--------------------------------------------------------------------------
+        
+        %--------------------------------------------------------------------------
         % NS -> C -> NS
-%         disp('NoStop - Canceled - NoStop')
+        %         disp('NoStop - Canceled - NoStop')
         
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
@@ -288,10 +322,10 @@ for i = 1 : length(subjectArray)
         
         
         
-     	%--------------------------------------------------------------------------
+        %--------------------------------------------------------------------------
         % NS -> NC -> NS
-%          disp('NoStop - NonCanceled - NoStop')
-       
+        %          disp('NoStop - NonCanceled - NoStop')
+        
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
         
@@ -305,17 +339,17 @@ for i = 1 : length(subjectArray)
         
         rtNsNcNsTrial       = ccm_trial_sequence(jTD, Opt3);
         rtNsNcNsTrial       = setxor(rtNsNcNsTrial, excludeTrialTriplet);
-      	nNsNcNs(j)        	= length(rtNsNcNsTrial);
+        nNsNcNs(j)        	= length(rtNsNcNsTrial);
         rtNsNcNs1(j)        = nanmean(jTD.rt(rtNsNcNsTrial));
         rtNsNcNs2(j)        = nanmean(jTD.rt(rtNsNcNsTrial + 1));
         rtNsNcNs3(j)        = nanmean(jTD.rt(rtNsNcNsTrial + 2));
         [h,p,ci,stats]      = ttest2(jTD.rt(rtNsNcNsTrial), jTD.rt(rtNsNcNsTrial+2));
         
         
-
+        
         %--------------------------------------------------------------------------
         % NS -> Error -> NS
-%         disp('NoStop - Choice Error - NoStop')
+        %         disp('NoStop - Choice Error - NoStop')
         
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
@@ -328,7 +362,7 @@ for i = 1 : length(subjectArray)
         
         rtNsENsTrial        = ccm_trial_sequence(jTD, Opt3);
         rtNsENsTrial        = setxor(rtNsENsTrial, excludeTrialTriplet);
-      	nNsENs(j)        	= length(rtNsENsTrial);
+        nNsENs(j)        	= length(rtNsENsTrial);
         rtNsENs1(j)         = nanmean(jTD.rt(rtNsENsTrial));
         rtNsENs2(j)         = nanmean(jTD.rt(rtNsENsTrial + 1));
         rtNsENs3(j)         = nanmean(jTD.rt(rtNsENsTrial + 2));
@@ -336,10 +370,10 @@ for i = 1 : length(subjectArray)
         
         
         
-      	%--------------------------------------------------------------------------
-       % NS -> NS -> NS
-%          disp('NoStop - Choice Error - NoStop')
-       
+        %--------------------------------------------------------------------------
+        % NS -> NS -> NS
+        %          disp('NoStop - Choice Error - NoStop')
+        
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
         
@@ -351,7 +385,7 @@ for i = 1 : length(subjectArray)
         
         rtNsNsNsTrial       = ccm_trial_sequence(jTD, Opt3);
         rtNsNsNsTrial       = setxor(rtNsNsNsTrial, excludeTrialTriplet);
-      	nNsNsNs(j)        	= length(rtNsNsNsTrial);
+        nNsNsNs(j)        	= length(rtNsNsNsTrial);
         rtNsNsNs1(j)        = nanmean(jTD.rt(rtNsNsNsTrial));
         rtNsNsNs2(j)        = nanmean(jTD.rt(rtNsNsNsTrial + 1));
         rtNsNsNs3(j)        = nanmean(jTD.rt(rtNsNsNsTrial + 2));
@@ -366,10 +400,10 @@ for i = 1 : length(subjectArray)
         
         
         
-      	%--------------------------------------------------------------------------
+        %--------------------------------------------------------------------------
         % NS -> C -> NSe (no-stop choice errors
-%         disp('NoStop - Canceled - NoStopError')
-       
+        %         disp('NoStop - Canceled - NoStopError')
+        
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
         
@@ -386,11 +420,11 @@ for i = 1 : length(subjectArray)
         rtNsCNse3(j)        = nanmean(jTD.rt(rtNsCNseTrial + 2));
         [h,p,ci,stats]      = ttest2(jTD.rt(rtNsCNseTrial), jTD.rt(rtNsCNseTrial+2));
         
- 
-             	%--------------------------------------------------------------------------
+        
+        %--------------------------------------------------------------------------
         % NS -> NC -> NSe
-%          disp('NoStop - NonCanceled - NoStopError')
-       
+        %          disp('NoStop - NonCanceled - NoStopError')
+        
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
         
@@ -404,17 +438,17 @@ for i = 1 : length(subjectArray)
         
         rtNsNcNseTrial       = ccm_trial_sequence(jTD, Opt3);
         rtNsNcNseTrial       = setxor(rtNsNcNseTrial, excludeTrialTriplet);
-      	nNsNcNse(j)        	= length(rtNsNcNseTrial);
+        nNsNcNse(j)        	= length(rtNsNcNseTrial);
         rtNsNcNse1(j)        = nanmean(jTD.rt(rtNsNcNseTrial));
         rtNsNcNse2(j)        = nanmean(jTD.rt(rtNsNcNseTrial + 1));
         rtNsNcNse3(j)        = nanmean(jTD.rt(rtNsNcNseTrial + 2));
         [h,p,ci,stats]      = ttest2(jTD.rt(rtNsNcNseTrial), jTD.rt(rtNsNcNseTrial+2));
         
         
-
+        
         %--------------------------------------------------------------------------
         % NS -> Error -> NSe
-%         disp('NoStop - Choice Error - NoStopError')
+        %         disp('NoStop - Choice Error - NoStopError')
         
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
@@ -427,7 +461,7 @@ for i = 1 : length(subjectArray)
         
         rtNsENseTrial        = ccm_trial_sequence(jTD, Opt3);
         rtNsENseTrial        = setxor(rtNsENseTrial, excludeTrialTriplet);
-      	nNsENse(j)        	= length(rtNsENseTrial);
+        nNsENse(j)        	= length(rtNsENseTrial);
         rtNsENse1(j)         = nanmean(jTD.rt(rtNsENseTrial));
         rtNsENse2(j)         = nanmean(jTD.rt(rtNsENseTrial + 1));
         rtNsENse3(j)         = nanmean(jTD.rt(rtNsENseTrial + 2));
@@ -435,10 +469,10 @@ for i = 1 : length(subjectArray)
         
         
         
-      	%--------------------------------------------------------------------------
-       % NS -> NS -> NSe
-%          disp('NoStop - Choice Error - NoStopError')
-       
+        %--------------------------------------------------------------------------
+        % NS -> NS -> NSe
+        %          disp('NoStop - Choice Error - NoStopError')
+        
         Opt3(1).outcome     = {'goCorrectTarget'};
         Opt3(1).ssd         = 'none';
         
@@ -450,12 +484,12 @@ for i = 1 : length(subjectArray)
         
         rtNsNsNseTrial       = ccm_trial_sequence(jTD, Opt3);
         rtNsNsNseTrial       = setxor(rtNsNsNseTrial, excludeTrialTriplet);
-      	nNsNsNse(j)        	= length(rtNsNsNseTrial);
+        nNsNsNse(j)        	= length(rtNsNsNseTrial);
         rtNsNsNs1(j)        = nanmean(jTD.rt(rtNsNsNseTrial));
         rtNsNsNs2(j)        = nanmean(jTD.rt(rtNsNsNseTrial + 1));
         rtNsNsNs3(j)        = nanmean(jTD.rt(rtNsNsNseTrial + 2));
         [h,p,ci,stats]      = ttest2(jTD.rt(rtNsNsNseTrial), jTD.rt(rtNsNsNseTrial+2));
- 
+        
         
         
     end % for j = 1 : nSession

@@ -43,8 +43,8 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 
 % If not input, return the default options structure
 if nargin < 2
-    selectOpt.outcome            = 'valid';
-    selectOpt.choiceAccuracy             = 'collapse';
+    selectOpt.outcome           = 'valid';
+    selectOpt.choiceAccuracy   	= 'collapse';
     selectOpt.rightCheckerPct   = 'collapse';
     selectOpt.ssd               = 'any';
     selectOpt.targDir           = 'collapse';
