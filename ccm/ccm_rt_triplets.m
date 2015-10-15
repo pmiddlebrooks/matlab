@@ -1,62 +1,75 @@
+function data = ccm_rt_triplets(subjectArray, sessionArray, options)
+%
+% function data = ccm_rt_triplets(subjectArray, sessionArray, opt)
+%
+% Replicating Nelson et al 2010 and Emeric et al. 2007 for Choice
+% countermanding data.
+% These analyses can be done a few ways:
+%
+% input:
+%   subjectArray:
+%             a single subject, e.g. {'Broca'}
+%             a list of subjects, e.g. {broca', xena'}, etc
+%   sessionArray: a cell input
+%             a single session (if subjectArray has single subject)e.g. {'bp111n01'}
+%             a list of single sessions (if subjectArray has single subject)e.g. {'bp111n01', 'bp112n02'}
+%             a single batch session term that refers to a collection of sesssions data file (e.g. {'behavior1'}
+%
+%   options: A structure with various ways to select/organize data: If
+%   ccm_session_data.m is called without input arguments, the default
+%   options structure is returned. options has the following fields with
+%   possible values (default listed first):
+%
+%    options.dataType = 'neuron', 'lfp', 'erp';
+%
+%    options.figureHandle   = 1000;
+%    options.printPlot      = false, true;
+%    options.plotFlag       = true, false;
+%    options.collapseSignal = false, true;
+%     options.collapseTarg         = false, true;
+%    options.doStops        = true, false;
+%    options.filterData 	= false, true;
+%    options.stopHz         = 50, <any number, above which signal is filtered;
+%    options.normalize      = false, true;
+%    options.unitArray      = {'spikeUnit17a'},'each', units want to analyze
 
 
-%% Session-long RTs
-figureHandle = 66;   
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(1, 1, figureHandle);
+%   Include/exclude aborted trials: This will affect the number of paired
+%   and triplet trials that make it into analyses, since aborts between
+%   trials may or may not count as successive trials. (this seems not to
+%   matter though: deleteAborts = true vs. false
+%
+%   Analyze data across sessions, taking the mean across sessions, or
+%   analyze with all data collapsed (as if one big session). Also doesn't
+%   alter the results much. acrossSession = true vs. false
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LOAD DATA AND SET VARIABLES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-iSubject = 'broca';
-[sessionArray, subjectIDArray] = task_session_array(iSubject, 'ccm', 'behavior2');
-for i = 1 : length(sessionArray)
-    sessionID = sessionArray{i};
-    
-    [td, S] = load_data(iSubject,sessionID);
-    [allRT, rtOutlierTrial] = truncate_rt(td.rt, 120, 1200, 3);
 
-             clf
-    ax = axes('units', 'centimeters', 'position', [xAxesPosition(1) yAxesPosition(1) axisWidth axisHeight]);
-    plot(ax, allRT, '-k')
-    xlim([1 length(allRT)])
-    ylim([min(allRT)-20 max(allRT)+20])
-    
-    savePlot = 'y';
-%     input('save?', 's');
-    if strcmp(savePlot, 'y')
-        localFigurePath = local_figure_path;
-        print(figureHandle,[localFigurePath, sprintf('session_rts_%s', sessionID)],'-dpdf', '-r300')
-    end
-             
 
-    
-end
-%%
+% %% Analyze RTs surrounding fixation aborts
+%
+% load('local_data/broca/brocaRT.mat')
+%
+% % Fixation aborts only
+% fa = strcmp(trialData.trialOutcome, 'fixationAbort');
+% prefa = [fa(2:end); false];
+% postfa = [false; fa(1:end-1)];
+% nanmean(trialData.rt(prefa))
+% nanmean(trialData.rt(postfa))
 
-load('local_data/broca/brocaRT.mat')
+% %% Analyze RTs surrounding any/all aborts
+%
+% ab = strcmp(trialData.trialOutcome, ('fixationAbort')) | ...
+%     strcmp(trialData.trialOutcome, ('choiceStimulusAbort')) | ...
+%     strcmp(trialData.trialOutcome, ('noFixation')) | ...
+%     strcmp(trialData.trialOutcome, ('saccadeAbort')) | ...
+%     strcmp(trialData.trialOutcome, ('targetHoldAbort')) | ...
+%     strcmp(trialData.trialOutcome, ('distractorHoldAbort'));
+%
+% prefa = [ab(2:end); false];
+% postfa = [false; ab(1:end-1)];
+% nanmean(trialData.rt(prefa))
+% nanmean(trialData.rt(postfa))
 
-% Fixation aborts only
-fa = strcmp(trialData.trialOutcome, 'fixationAbort');
-prefa = [fa(2:end); false];
-postfa = [false; fa(1:end-1)];
-nanmean(trialData.rt(prefa))
-nanmean(trialData.rt(postfa))
-
-%%
-% Any aborts
-ab = strcmp(trialData.trialOutcome, ('fixationAbort')) | ...
-    strcmp(trialData.trialOutcome, ('choiceStimulusAbort')) | ...
-    strcmp(trialData.trialOutcome, ('noFixation')) | ...
-    strcmp(trialData.trialOutcome, ('saccadeAbort')) | ...
-    strcmp(trialData.trialOutcome, ('targetHoldAbort')) | ...
-    strcmp(trialData.trialOutcome, ('distractorHoldAbort'));
-
-prefa = [ab(2:end); false];
-postfa = [false; ab(1:end-1)];
-nanmean(trialData.rt(prefa))
-nanmean(trialData.rt(postfa))
-
-%% triplet analysis:
 % Replicating Nelson et al 2010 and Emeric et al. 2007 for Choice
 % countermanding data.
 % These analyses can be done a few ways:
@@ -70,43 +83,84 @@ nanmean(trialData.rt(postfa))
 %   analyze with all data collapsed (as if one big session). Also doesn't
 %   alter the results much. acrossSession = true vs. false
 
+%% triplet analysis:
+
 % Keeping aborted trials in
 % without respect to choice difficulty. As a first, dont' remove any aborted
 % trials. This will greatly reduce the data, but is a more valid test
 
-
-subjectArray = {'broca','xena'};
-% subjectArray = {'broca'};
-% subjectArray = {'human'};
-colorArray = {'b','r'};
-deleteAborts = false;
-acrossSession = true;
-if acrossSession == true
-    figN = 1;
-else
-    figN = 2;
+if nargin < 3
+    %    options.subjectArray     = {'broca','xena'};
+    %    options.sessionArray     = {'behavior'};
+    options.deleteAborts     = true;
+    options.printPlot        = true;
+    options.plotFlag         = true;
+    options.plotData            = 'both';
+    if nargin == 0
+        data = options;
+        return
+    end
 end
 
-figureHandle = 66;   
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(1, 1, figureHandle);
-clf
-hold all;
+% subjectArray    = options.subjectArray;
+% sessionArray    = options.sessionArray;
+plotFlag        = options.plotFlag;
+printPlot       = options.printPlot;
+plotData        = options.plotData;
+deleteAborts    = options.deleteAborts;
 
+
+nsColor = [0 .8 0];
+cColor = [1 0 .5];
+ncColor = [150 50 0] ./ 255;
+eColor = 'b';
+
+acrossSession = true;
+adjustForMean = false;
+
+figureHandle = 466;
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(1, 2, figureHandle);
+clf
+axPair = axes('units', 'centimeters', 'position', [xAxesPosition(1,1) yAxesPosition(1,1) axisWidth*16/20 axisHeight * .4]);
+hold(axPair, 'all')
+axTrip = axes('units', 'centimeters', 'position', [xAxesPosition(1,2)*.85 yAxesPosition(1,2) axisWidth*24/20 axisHeight * .4]);
+hold(axTrip, 'all')
+set(axTrip, 'yTickLabel', [])
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     LOOP THROUGH SUBJECTS AND PLOT TRIPLET RTS ON ONE GRAPH
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i = 1 : length(subjectArray)
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % LOAD DATA AND SET VARIABLES
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %    LOAD DATA AND SET VARIABLES
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     iSubject = subjectArray{i};
     
-    iFile = fullfile('local_data',iSubject,strcat(iSubject,'RT.mat'));
+    switch sessionArray
+        case 'concat'
+            iFile = fullfile('local_data',iSubject,strcat(iSubject,'RT.mat'));
+            load(iFile)  % Loads trialData into workspace (and SessionData)
+        case {'behavior1', 'behavior2', 'neural1', 'neural2'}
+            iFile = fullfile('local_data',iSubject,strcat(iSubject,'_',sessionArray,'.mat'));
+            load(iFile)  % Loads trialData into workspace (and SessionData)
+        otherwise
+            % Load the data
+            [trialData, SessionData, ExtraVar] = load_data(iSubject, sessionArray);
+            pSignalArray    = ExtraVar.pSignalArray;
+            targAngleArray	= ExtraVar.targAngleArray;
+            ssdArray        = ExtraVar.ssdArray;
+            nSSD            = length(ssdArray);
+            
+            if ~strcmp(SessionData.taskID, 'ccm')
+                fprintf('Not a chioce countermanding saccade session, try again\n')
+                return
+            end
+    end
     
-    % load('local_data/broca/brocaRT.mat')
-    % load('local_data/xena/xenaRT.mat')
-    % trialData = monkeyX;
     
-    load(iFile)  % Loads trialData into workspace (and SessionData)
     
     if deleteAborts
         selectOpt = ccm_trial_selection;
@@ -136,7 +190,11 @@ for i = 1 : length(subjectArray)
     % excludeTrialTriplet: Find session switch trials so we don't process them as if a new
     % session was a continuation of one big session
     if acrossSession
-        nSession = max(trialData.sessionTag);
+        if ismember(sessionArray, {'concat','behavior1', 'behavior2', 'neural1', 'neural2'})
+            nSession = max(trialData.sessionTag);
+        else
+            nSession = 1;
+        end
         excludeTrialTriplet = [];
     else
         nSession = 1;
@@ -175,6 +233,7 @@ for i = 1 : length(subjectArray)
     rtNsNsNs2   = nan(nSession, 1);
     rtNsNsNs3   = nan(nSession, 1);
     
+    % Triplets that end in no-stop error: no-stop correct choices -> various outcomes -> no-stop error choices
     nNsCNse      = nan(nSession, 1);
     rtNsCNse1    = nan(nSession, 1);
     rtNsCNse3    = nan(nSession, 1);
@@ -193,7 +252,7 @@ for i = 1 : length(subjectArray)
     
     for j = 1 : nSession
         
-        if acrossSession
+        if acrossSession && ismember(sessionArray, {'concat','behavior1', 'behavior2', 'neural1', 'neural2'})
             jTD = trialData(trialData.sessionTag == j, :);
         else
             jTD = trialData;
@@ -204,7 +263,7 @@ for i = 1 : length(subjectArray)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         iSubject = subjectArray{i};
         % Total mean No-stop RT
-        opt = ccm_trial_selection;
+        opt = ccm_options;
         opt.outcome = {'goCorrectTarget', 'goCorrectDistractor'};
         opt.ssd = 'none';
         nsTrial = ccm_trial_selection(jTD, opt);
@@ -492,49 +551,190 @@ for i = 1 : length(subjectArray)
         
         
         
+        
+        %   	plot([1 21], [rtNs(j) rtNs(j)], '--', 'color', colorArray{i})
+        %     plot([1:2], [rtNsNs1(j) rtNsNs2(j)], '--o', 'color', colorArray{i})
+        %     plot([4], [rtCNs2(j)], '--o', 'color', colorArray{i})
+        %     plot([5:6], [rtNcNs1(j) rtNcNs2(j)], '--o', 'color', colorArray{i})
+        %     plot([7:8], [rtENs1(j) rtENs2(j)], '--o', 'color', colorArray{i})
+        %     plot([10 11 12], [rtNsNsNs1(j) rtNsNsNs2(j) rtNsNsNs3(j)], '-o', 'color', colorArray{i})
+        %     plot([13 15], [rtNsCNs1(j) rtNsCNs3(j)], '-o', 'color', colorArray{i})
+        %     plot([16 17 18], [rtNsNcNs1(j) rtNsNcNs2(j) rtNsNcNs3(j)], '-o', 'color', colorArray{i})
+        %     plot([19 20 21], [rtNsENs1(j) rtNsENs2(j) rtNsENs3(j)], '-o', 'color', colorArray{i})
+        %
+        
+        
     end % for j = 1 : nSession
     
     
-    pNsCNse  	= sum(nNsCNse) / sum([nNsCNse;nNsCNs]);
-    pNsNcNse    = sum(nNsNcNse) / sum([nNsNcNse;nNsNcNs]);
-    pNsENse     = sum(nNsENse) / sum([nNsENse;nNsENs]);
-    pNsNsNse    = sum(nNsNsNse) / sum([nNsNsNse;nNsNsNs]);
-    fprintf('%s error probability after trial type:\n', subjectArray{i})
+    pNsCNse  	= nNsCNs ./ (nNsCNse + nNsCNs);
+    pNsNcNse    = nNsNcNs ./ (nNsNcNse + nNsNcNs);
+    pNsENse     = nNsENs ./ (nNsENse + nNsENs);
+    pNsNsNse    = nNsNsNs ./ (nNsNsNse + nNsNsNs);
+%     pNsCNse  	= sum(nNsCNs) / sum([nNsCNse;nNsCNs]);
+%     pNsNcNse    = sum(nNsNcNs) / sum([nNsNcNse;nNsNcNs]);
+%     pNsENse     = sum(nNsENs) / sum([nNsENse;nNsENs]);
+%     pNsNsNse    = sum(nNsNsNs) / sum([nNsNsNse;nNsNsNs]);
+    fprintf('%s accuracy after trial type:\n', subjectArray{i})
+    fprintf('No-stop Correct:\t%0.3f\n', pNsNsNse)
     fprintf('Canceled:\t\t%0.3f\n', pNsCNse)
     fprintf('Nonanceled:\t\t%0.3f\n', pNsNcNse)
     fprintf('No-stop Error:\t\t%0.3f\n', pNsENse)
-    fprintf('No-stop Correct:\t%0.3f\n', pNsNsNse)
+    probFig = figure(784);
+    clf
+    hold on;
+    yData = [mean(pNsNsNse), mean(pNsCNse), mean(pNsNcNse), mean(pNsENse)];
+    bar(yData)
+    errorbar(1:4, yData, [sem(pNsNsNse) sem(pNsCNse) sem(pNsNcNse) sem(pNsENse)], 'linestyle' , 'none', 'color', 'k', 'linewidth' , 2)
+    ylim([.7 .9])
+    print(probFig, [local_figure_path, sprintf('%s_%s_prob_correct_after_trial', subjectArray{1}, sessionArray)],'-dpdf', '-r300')
+     
+    
+    
+    % ********************************************************
+    % Adjust each session's RTs to the mean overall no-stop Rt and plot
+    % ********************************************************
+    switch iSubject
+        case 'human'
+            set(axPair, 'yLim',[550 750])
+            set(axTrip, 'yLim',[550 750])
+        case 'broca'
+            yLimit = [150 400];
+            yLimit = [200 300];
+            set(axPair, 'yLim',yLimit)
+            set(axTrip, 'yLim',yLimit)
+        case 'xena'
+            set(axPair, 'yLim',[200 450])
+            set(axTrip, 'yLim',[200 450])
+    end
+    set(axPair, 'xLim', [.5 8.5])
+    set(axPair, 'xtick', [1.5 3.5 5.5 7.5])
+    set(axPair, 'xticklabel', {'NS-NS','C-NS','NC-NS','E-NS'})
+
+    set(axTrip, 'xLim', [.5 12.5])
+   set(axTrip, 'xtick', [2 5 8 11])
+    set(axTrip, 'xticklabel', {'NS-NS-NS','NS-C-NS','NS-NC-NS','NS-E-NS'})
     
     
     
+    jMarkererSize = 6;
+    jColor = [.5 .5 .5];
+    %     jColor = 'k';
+    for j = 1 : nSession
+        
+        if adjustForMean
+            meanAdjust = rtNs(j) - nanmean(rtNs);
+        else
+            meanAdjust = 0;
+        end
+        
+        %   	plot([1 21], [rtNs(j)-meanAdjust rtNs(j)-meanAdjust], '--', 'color', jColor)
+        plot(axPair, [1:2], [rtNsNs1(j)-meanAdjust rtNsNs2(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+        plot(axPair, [4], [rtCNs2(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+        plot(axPair, [5:6], [rtNcNs1(j)-meanAdjust rtNcNs2(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+        plot(axPair, [7:8], [rtENs1(j)-meanAdjust rtENs2(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+        
+        
+        plot(axTrip, [1 2 3], [rtNsNsNs1(j)-meanAdjust rtNsNsNs2(j)-meanAdjust rtNsNsNs3(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+        plot(axTrip, [4 6], [rtNsCNs1(j)-meanAdjust rtNsCNs3(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+        plot(axTrip, [7 8 9], [rtNsNcNs1(j)-meanAdjust rtNsNcNs2(j)-meanAdjust rtNsNcNs3(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+        plot(axTrip, [10 11 12], [rtNsENs1(j)-meanAdjust rtNsENs2(j)-meanAdjust rtNsENs3(j)-meanAdjust], '-o', 'color', jColor, 'markerSize', jMarkererSize, 'markerFaceColor', jColor, 'markerEdgeColor', jColor)
+    end % for j = 1 : nSession
     
     
-    % Plot
-    % ylim([250 350])
-    plot([1 21], [nanmean(rtNs) nanmean(rtNs)], '--', 'color', colorArray{i})
-    plot([1:2], [nanmean(rtNsNs1) nanmean(rtNsNs2)], '--o', 'color', colorArray{i})
-    plot([4], [nanmean(rtCNs2)], '--o', 'color', colorArray{i})
-    plot([5:6], [nanmean(rtNcNs1) nanmean(rtNcNs2)], '--o', 'color', colorArray{i})
-    plot([7:8], [nanmean(rtENs1) nanmean(rtENs2)], '--o', 'color', colorArray{i})
-    plot([10 11 12], [nanmean(rtNsNsNs1) nanmean(rtNsNsNs2) nanmean(rtNsNsNs3)], '-o', 'color', colorArray{i})
-    plot([13 15], [nanmean(rtNsCNs1) nanmean(rtNsCNs3)], '-o', 'color', colorArray{i})
-    plot([16 17 18], [nanmean(rtNsNcNs1) nanmean(rtNsNcNs2) nanmean(rtNsNcNs3)], '-o', 'color', colorArray{i})
-    plot([19 20 21], [nanmean(rtNsENs1) nanmean(rtNsENs2) nanmean(rtNsENs3)], '-o', 'color', colorArray{i})
     
+    % ********************************************************
+    % Plot mean rts from all the sessions
+    % ********************************************************
+    iMarkerSize = 15;
+    grayFill = [.9 .9 .9];
+    
+    % Pairs
+     axes(axPair)
+   switch sessionArray
+        case {'concat', 'behavior1', 'behavior2', 'neural1', 'neural2'}
+    h = fill([0 9 9 0], [nanmean(rtNs)-sem(rtNs) nanmean(rtNs)-sem(rtNs) nanmean(rtNs)+sem(rtNs) nanmean(rtNs)+sem(rtNs)], grayFill);
+        otherwise
+    h = fill([0 9 9 0], [nanmean(rtNs)-sem(jTD.rt(nsTrial)) nanmean(rtNs)-sem(jTD.rt(nsTrial)) nanmean(rtNs)+sem(jTD.rt(nsTrial)) nanmean(rtNs)+sem(jTD.rt(nsTrial))], grayFill);
+    end
+    set(h, 'edgecolor', 'none');
+
+     plot([0 9], [nanmean(rtNs) nanmean(rtNs)], '--', 'color', 'k')
+
+     plot(axPair, [1:2], [nanmean(rtNsNs1) nanmean(rtNsNs2)], '-o', 'color', nsColor, 'markerSize', iMarkerSize, 'markerFaceColor', nsColor)
+    plot(axPair, [4], [nanmean(rtCNs2)], '-o', 'color', cColor, 'markerSize', iMarkerSize, 'markerFaceColor', cColor)
+    plot(axPair, [5:6], [nanmean(rtNcNs1) nanmean(rtNcNs2)], '-o', 'color', ncColor, 'markerSize', iMarkerSize, 'markerFaceColor', ncColor)
+    plot(axPair, [7:8], [nanmean(rtENs1) nanmean(rtENs2)], '-o', 'color', eColor, 'markerSize', iMarkerSize, 'markerFaceColor', eColor)
+    
+    % Triplets
+    axes(axTrip)
+   switch sessionArray
+        case {'concat', 'behavior1', 'behavior2', 'neural1', 'neural2'}
+    h = fill([0 13 13 0], [nanmean(rtNs)-sem(rtNs) nanmean(rtNs)-sem(rtNs) nanmean(rtNs)+sem(rtNs) nanmean(rtNs)+sem(rtNs)], grayFill);
+        otherwise
+    h = fill([0 13 13 0], [nanmean(rtNs)-sem(jTD.rt(nsTrial)) sem(rtNs)-nanstd(jTD.rt(nsTrial)) sem(rtNs)+nanstd(jTD.rt(nsTrial)) sem(rtNs)+nanstd(jTD.rt(nsTrial))], grayFill);
+    end
+    set(h, 'edgecolor', 'none');
+
+    plot(axTrip, [0 13], [nanmean(rtNs) nanmean(rtNs)], '--', 'color', 'k')
+    plot(axTrip, [1 2 3], [nanmean(rtNsNsNs1) nanmean(rtNsNsNs2) nanmean(rtNsNsNs3)], '-o', 'color', nsColor, 'markerSize', iMarkerSize, 'markerFaceColor', nsColor)
+    plot(axTrip, [4 6], [nanmean(rtNsCNs1) nanmean(rtNsCNs3)], '-o', 'color', cColor, 'markerSize', iMarkerSize, 'markerFaceColor', cColor)
+    plot(axTrip, [7 8 9], [nanmean(rtNsNcNs1) nanmean(rtNsNcNs2) nanmean(rtNsNcNs3)], '-o', 'color', ncColor, 'markerSize', iMarkerSize, 'markerFaceColor', ncColor)
+    plot(axTrip, [10 11 12], [nanmean(rtNsENs1) nanmean(rtNsENs2) nanmean(rtNsENs3)], '-o', 'color', eColor, 'markerSize', iMarkerSize, 'markerFaceColor', eColor)
+    
+    fprintf('RT paired and triplet t-tests:\n')
+    [h,p,ci,stats]      = ttest2(rtNsNs1, rtNsNs2);
+    fprintf('NsNs:\t%0.3f\n', p)
+    [h,p,ci,stats]      = ttest2(rtNcNs1, rtNcNs2);
+    fprintf('NcNs:\t%0.3f\n', p)
+    [h,p,ci,stats]      = ttest2(rtENs1, rtENs2);
+    fprintf('ENs:\t%0.3f\n', p)
+    [h,p,ci,stats]      = ttest2(rtNsNsNs1, rtNsNsNs3);
+    fprintf('NsNsNs:\t%0.3f\n', p)
+    [h,p,ci,stats]      = ttest2(rtNsCNs1, rtNsCNs3);
+    fprintf('NsCNs:\t%0.3f\n', p)
+    [h,p,ci,stats]      = ttest2(rtNsNcNs1, rtNsNcNs3);
+    fprintf('NsNcNs:\t%0.3f\n', p)
+    [h,p,ci,stats]      = ttest2(rtNsENs1, rtNsENs3);
+    fprintf('NsENs:\t%0.3f\n', p)
     
     
     
     
     
 end
-if strcmp(iSubject, 'human')
-    ylim([550 750])
-else
-    ylim([200 350])
+
+
+if printPlot
+    print(figureHandle,[local_figure_path, subjectArray{1}, '_rt_triplets_',sessionArray, '.pdf'],'-dpdf', '-r300')
 end
-xlim([0 22])
-set(gca, 'xtick', [1.5 3.5 5.5 7.5 11 14 17 20])
-set(gca, 'xticklabel', {'NS-NS','C-NS','NC-NS','E-NS','NS-NS-NS','NS-C-NS','NS-NC-NS','NS-E-NS'})
-% legend({'Broca','Xena'})
+
+
+
+
+switch sessionArray
+    case {'concat','behavior1', 'behavior2', 'neural1', 'neural2'}
+    otherwise
+        [rt, outlierTrial] = truncate_rt(trialData.rt, 100, 1200);
+        trialData.rt(outlierTrial) = nan;
+        iMarkerSize = 10;
+        figureHandle = 26;
+        [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(3, 1, figureHandle);
+        clf
+        ax2 = axes('units', 'centimeters', 'position', [xAxesPosition(1) yAxesPosition(1) axisWidth axisHeight]);
+        hold(ax2, 'all')
+        ax3 = axes('units', 'centimeters', 'position', [xAxesPosition(1) yAxesPosition(2) axisWidth axisHeight]);
+        hold(ax3, 'all')
+        plot(ax3, trialData.rt, '-', 'color', [0 0 0])
+%         plot(ax2, trialData.rt, '-', 'color', [.3 .3 .3])
+%         plot(ax2, smooth(trialData.rt), '-', 'color', [1 0 0])
+        plot(ax2, rtNsNsNsTrial+2, trialData.rt(rtNsNsNsTrial+2), 'o', 'markerSize', iMarkerSize, 'markerFaceColor', nsColor, 'markerEdgeColor', nsColor)
+        plot(ax2, rtNsCNsTrial+2, trialData.rt(rtNsCNsTrial+2), 'o', 'markerSize', iMarkerSize, 'markerFaceColor', cColor, 'markerEdgeColor', cColor)
+        plot(ax2, rtNsNcNsTrial+2, trialData.rt(rtNsNcNsTrial+2), 'o', 'markerSize', iMarkerSize, 'markerFaceColor', ncColor, 'markerEdgeColor', ncColor)
+        plot(ax2, rtNsENsTrial+2, trialData.rt(rtNsENsTrial+2), 'o', 'markerSize', iMarkerSize, 'markerFaceColor', eColor, 'markerEdgeColor', eColor)
+        if printPlot
+            print(figureHandle,[local_figure_path, subjectArray{1}, '_rt_triplets_session_',sessionArray, '.pdf'],'-dpdf', '-r300')
+        end
+end
 
 

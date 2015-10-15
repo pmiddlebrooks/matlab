@@ -1,5 +1,4 @@
 function Data = ccm_session_data(subjectID, sessionID, options)%dataType, varargin)
-
 %
 % function Data = ccm_single_neuron(subjectID, sessionID, plotFlag, unitArray)
 %

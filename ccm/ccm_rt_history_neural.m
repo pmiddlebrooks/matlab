@@ -23,8 +23,14 @@ subjectID = 'broca';
 sessionID = 'bp093n02';
 % sessionID = 'bp132n02';
 % sessionID = 'bp131n02';
-epochName = 'responseOnset';
+epochName = 'fixWindowEntered';
+epochName = 'targOn';
 epochName = 'checkerOn';
+epochName = 'responseOnset';
+% epochName = 'rewardOn';
+
+EPOCH_WINDOW    = -299:300;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD DATA AND SET VARIABLES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,6 +67,7 @@ switch dataType
             unitArray     = dataArray;
         end
 end
+unitArray = {'spikeUnit17a'};
 
 
 
@@ -70,7 +77,12 @@ MAX_RT          = 1200;
 STD_MULTIPLE    = 3;
 DELETE_ABORTS   = false;
 N_UNIT = length(unitArray);
-EPOCH_WINDOW    = -199:300;
+
+nsColor = 'g';
+cColor = [1 .5 0];
+ncColor = 'k';
+eColor = 'b';
+
 
 % Get rid of trials with outlying RTs
 [allRT, rtOutlierTrial] = truncate_rt(trialData.rt, MIN_RT, MAX_RT, STD_MULTIPLE);
@@ -106,15 +118,27 @@ responseDirs = {'left', 'right'};
 figureHandle = 66;
 nRow = 1;
 nCol = 2;
+yLimit = [0 80];
+for kDataInd = 1 : N_UNIT
 
-for kUnit = 1 : N_UNIT
+       switch dataType
+      case 'neuron'
+         [a, kUnit] = ismember(unitArray{kDataInd}, SessionData.spikeUnitArray);
+      case 'lfp'
+         [a, kUnit] = ismember(unitArray{kDataInd}, SessionData.lfpChannel);
+      case 'erp'
+         [a, kUnit] = ismember(unitArray{kDataInd}, eeg_electrode_map(subjectID));
+       end
 
+   
 [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nCol, figureHandle);
 clf
 ax(1,1) = axes('units', 'centimeters', 'position', [xAxesPosition(1,1) yAxesPosition(1,1) axisWidth axisHeight]);
+set(ax(1,1), 'ylim', yLimit)
          hold(ax(1,1), 'on')
 ax(1,2) = axes('units', 'centimeters', 'position', [xAxesPosition(1,2) yAxesPosition(1,2) axisWidth axisHeight]);
-         hold(ax(1,2), 'on')
+ set(ax(1,2), 'ylim', yLimit)
+        hold(ax(1,2), 'on')
 
     for dirInd = 1 : length(responseDirs)
         iResponseDir = responseDirs{dirInd};
@@ -245,7 +269,7 @@ Opt3(3).ssd         = 'none';
 Opt3(3).responseDir = iResponseDir;
 
 rtNsCNsTrial        = ccm_trial_sequence(trialData, Opt3);
-rtNsCNsTrial        = setxor(rtNsCNsTrial, excludeTrialTriplet);
+% rtNsCNsTrial        = setxor(rtNsCNsTrial, excludeTrialTriplet);
 nNsCNs             = length(rtNsCNsTrial);
 rtNsCNs1         = trialData.rt(rtNsCNsTrial);
 rtNsCNs3         = trialData.rt(rtNsCNsTrial + 2);
@@ -273,7 +297,7 @@ Opt3(3).ssd         = 'none';
 Opt3(3).responseDir = iResponseDir;
 
 rtNsNcNsTrial       = ccm_trial_sequence(trialData, Opt3);
-rtNsNcNsTrial       = setxor(rtNsNcNsTrial, excludeTrialTriplet);
+% rtNsNcNsTrial       = setxor(rtNsNcNsTrial, excludeTrialTriplet);
 nNsNcNs        	= length(rtNsNcNsTrial);
 rtNsNcNs1        = trialData.rt(rtNsNcNsTrial);
 rtNsNcNs2        = trialData.rt(rtNsNcNsTrial + 1);
@@ -300,7 +324,7 @@ Opt3(3).ssd         = 'none';
 Opt3(3).responseDir = iResponseDir;
 
 rtNsENsTrial        = ccm_trial_sequence(trialData, Opt3);
-rtNsENsTrial        = setxor(rtNsENsTrial, excludeTrialTriplet);
+% rtNsENsTrial        = setxor(rtNsENsTrial, excludeTrialTriplet);
 nNsENs        	= length(rtNsENsTrial);
 rtNsENs1         = trialData.rt(rtNsENsTrial);
 rtNsENs2         = trialData.rt(rtNsENsTrial + 1);
@@ -328,7 +352,7 @@ Opt3(3).ssd         = 'none';
 Opt3(3).responseDir = iResponseDir;
 
 rtNsNsNsTrial       = ccm_trial_sequence(trialData, Opt3);
-rtNsNsNsTrial       = setxor(rtNsNsNsTrial, excludeTrialTriplet);
+% rtNsNsNsTrial       = setxor(rtNsNsNsTrial, excludeTrialTriplet);
 nNsNsNs        	= length(rtNsNsNsTrial);
 rtNsNsNs1        = trialData.rt(rtNsNsNsTrial);
 rtNsNsNs2        = trialData.rt(rtNsNsNsTrial + 1);
@@ -345,10 +369,11 @@ sdfNsNsNs = spike_density_function(rasNsNsNs, Kernel);
 
 
 
-plot(ax(dirInd), nanmean(sdfNsCNs(:, EPOCH_WINDOW + alignNsCNs)), 'color', 'r')
-plot(ax(dirInd), nanmean(sdfNsNcNs(:, EPOCH_WINDOW + alignNsNcNs)), '--', 'color', 'r')
-plot(ax(dirInd), nanmean(sdfNsENs(:, EPOCH_WINDOW + alignNsENs)), '--', 'color', 'k')
-plot(ax(dirInd), nanmean(sdfNsNsNs(:, EPOCH_WINDOW + alignNsNsNs)), 'color', 'k')
+plot(ax(dirInd), nanmean(sdfNsCNs(:, EPOCH_WINDOW + alignNsCNs)), 'color', cColor)
+plot(ax(dirInd), nanmean(sdfNsNcNs(:, EPOCH_WINDOW + alignNsNcNs)), 'color', ncColor)
+plot(ax(dirInd), nanmean(sdfNsENs(:, EPOCH_WINDOW + alignNsENs)), 'color', eColor)
+plot(ax(dirInd), nanmean(sdfNsNsNs(:, EPOCH_WINDOW + alignNsNsNs)), 'color', nsColor)
+plot(ax(dirInd), [-EPOCH_WINDOW(1)+1 -EPOCH_WINDOW(1)+1], [0 yLimit(2)*.8], 'k')
 
 
 
@@ -489,42 +514,42 @@ plot(ax(dirInd), nanmean(sdfNsNsNs(:, EPOCH_WINDOW + alignNsNsNs)), 'color', 'k'
 % plot([7:8], [nanmean(rtENs1) nanmean(rtENs2)], '--o', 'color', colorArray{i})
 
 
-colorArray = {'k'};
-i = 1;
-
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(1, 1, figureHandle + 100);
-clf
-axes('units', 'centimeters', 'position', [xAxesPosition(1,1) yAxesPosition(1,1) axisWidth axisHeight]);
-         hold on
-
-plot([1 22], [nanmean(rtNs) nanmean(rtNs)], '--', 'color', colorArray{i})
-plot([10 11 12], [nanmean(rtNsNsNs1) nanmean(rtNsNsNs2) nanmean(rtNsNsNs3)], '-o', 'color', colorArray{i})
-plot([13 15], [nanmean(rtNsCNs1) nanmean(rtNsCNs3)], '-o', 'color', colorArray{i})
-plot([16 17 18], [nanmean(rtNsNcNs1) nanmean(rtNsNcNs2) nanmean(rtNsNcNs3)], '-o', 'color', colorArray{i})
-plot([19 20 21], [nanmean(rtNsENs1) nanmean(rtNsENs2) nanmean(rtNsENs3)], '-o', 'color', colorArray{i})
-
+% colorArray = {'k'};
+% i = 1;
 % 
+% [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(1, 1, figureHandle + 100);
+% clf
+% axes('units', 'centimeters', 'position', [xAxesPosition(1,1) yAxesPosition(1,1) axisWidth axisHeight]);
+%          hold on
 % 
+% plot([1 22], [nanmean(rtNs) nanmean(rtNs)], '--', 'color', 'k')
+% plot([10 11 12], [nanmean(rtNsNsNs1) nanmean(rtNsNsNs2) nanmean(rtNsNsNs3)], '-o', 'color', nsColor)
+% plot([13 15], [nanmean(rtNsCNs1) nanmean(rtNsCNs3)], '-o', 'color', cColor)
+% plot([16 17 18], [nanmean(rtNsNcNs1) nanmean(rtNsNcNs2) nanmean(rtNsNcNs3)], '-o', 'color', ncColor)
+% plot([19 20 21], [nanmean(rtNsENs1) nanmean(rtNsENs2) nanmean(rtNsENs3)], '-o', 'color', eColor)
 % 
-% 
-% 
-% 
-if strcmp(iSubject, 'human')
-    ylim([550 750])
-else
-    ylim([200 350])
-end
-xlim([0 22])
-set(gca, 'xtick', [1.5 3.5 5.5 7.5 11 14 17 20])
-set(gca, 'xticklabel', {'NS-NS','C-NS','NC-NS','E-NS','NS-NS-NS','NS-C-NS','NS-NC-NS','NS-E-NS'})
-% % legend({'Broca','Xena'})
-% 
-% 
+% % 
+% % 
+% % 
+% % 
+% % 
+% % 
+% if strcmp(iSubject, 'human')
+%     ylim([550 750])
+% else
+%     ylim([0 80])
+% end
+% xlim([0 22])
+% set(gca, 'xtick', [1.5 3.5 5.5 7.5 11 14 17 20])
+% set(gca, 'xticklabel', {'NS-NS','C-NS','NC-NS','E-NS','NS-NS-NS','NS-C-NS','NS-NC-NS','NS-E-NS'})
+% % % legend({'Broca','Xena'})
+% % 
+% % 
 % savePlot = 'y';
 % %     input('save?', 's');
 % if strcmp(savePlot, 'y')
-%     localFigurePath = local_figure_path;
-%     print(figureHandle,[localFigurePath, sprintf('session_rts_%s', sessionID)],'-dpdf', '-r300')
+    localFigurePath = local_figure_path;
+    print(figureHandle,[localFigurePath, sprintf('rt_history_neural_%s_%s', epochName, sessionID)],'-dpdf', '-r300')
 % end
 
 figureHandle = figureHandle + 1;
