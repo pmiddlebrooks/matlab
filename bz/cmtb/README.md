@@ -1,4 +1,0 @@
-cmtb
-====
-
-cognitive modeling toolbox

@@ -1,0 +1,9 @@
+[submodule "matlab_code_bbz"]
+	path = matlab_code_bbz
+	url = git@github.com:bramzandbelt/matlab_code_bbz.git
+[submodule "matlab_file_exchange_tools"]
+	path = matlab_file_exchange_tools
+	url = git@github.com:bramzandbelt/matlab_file_exchange_tools.git
+[submodule "cmtb"]
+	path = cmtb
+	url = git@github.com:bramzandbelt/cmtb.git
