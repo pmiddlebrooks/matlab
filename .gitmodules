@@ -7,3 +7,6 @@
 [submodule "cmtb"]
 	path = cmtb
 	url = git@github.com:bramzandbelt/cmtb.git
+[submodule "sam"]
+	path = sam
+	url = git@github.com:bramzandbelt/sam.git
