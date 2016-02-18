@@ -64,7 +64,7 @@ end
 ssrtIntWMean = median(ssrtIntW, 1);
 %%
 figureHandle = 61;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nSignal, 1, figureHandle);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nSignal, 1, 'portrait', figureHandle);
 cMap = ccm_colormap(pSignalArray);
 
 for j = 1 : nSignal

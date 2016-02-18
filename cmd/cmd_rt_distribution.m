@@ -29,7 +29,7 @@ if plotFlag
     figureHandleCmd = 1002;
     nPlotColumn = 2;
     nPlotRow = 3;
-    [axisWidthDist, axisHeightDist, xAxesPositionDist, yAxesPositionDist]   = standard_figure(nPlotRow, nPlotColumn, figureHandleCmd);
+    [axisWidthDist, axisHeightDist, xAxesPositionDist, yAxesPositionDist]   = standard_figure(nPlotRow, nPlotColumn, 'portrait', figureHandleCmd);
 %     [figureHandle, cmWidth, cmHeight] = standard_figure;
     interSpaceX = .3;
     interSpaceY = 1.2;

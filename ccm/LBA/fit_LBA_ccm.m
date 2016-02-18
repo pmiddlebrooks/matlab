@@ -534,7 +534,7 @@ if plotFlag
    %     stopColor = [1 0 0];
    %     modelStopColor = [1 0 1];
    %     figureHandleLP = 9234;
-   %     [axisWidth, axisHeight, xAxesPosition, yAxesPosition]       = standard_figure(nPlotRow, nPlotColumn, figureHandleLP);
+   %     [axisWidth, axisHeight, xAxesPosition, yAxesPosition]       = standard_figure(nPlotRow, nPlotColumn, 'portrait', figureHandleLP);
    %
    %     figure(figureHandleLP)
    %     % CHRONOMETRIC: OBSERVED AND PREDICTED

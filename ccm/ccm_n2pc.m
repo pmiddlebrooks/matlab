@@ -95,7 +95,7 @@ if plotFlag
     nPlotColumn = 2;
     nPlotRow = 2;
     yAxLim = [-.03 .03];
-    [axisWidth, axisHeight, xAxesPosition, yAxesPosition]   = standard_figure(nPlotRow, nPlotColumn, figureHandle);
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition]   = standard_figure(nPlotRow, nPlotColumn, 'portrait', figureHandle);
     
     % axes
     lE = 1;

@@ -41,7 +41,7 @@ nRow = 3;
 nColumn = 2;
 cumAx = 1;
 distAx = 2;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(cumAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 ax(distAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 hold(ax(cumAx), 'on')

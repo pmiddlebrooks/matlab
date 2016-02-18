@@ -41,8 +41,8 @@ if plotFlag
     nPlotRow = 1 + max(length(target1ProportionArray(target1ProportionArray >= .51)), length(target1ProportionArray(target1ProportionArray <= .49)));
     figureHandleDist = 1001;
     figureHandleCum = 1002;
-    [axisWidthDist, axisHeightDist, xAxesPositionDist, yAxesPositionDist]   = standard_figure(nPlotRow, nPlotColumn, figureHandleDist);
-    [axisWidthCum, axisHeightCum, xAxesPositionCum, yAxesPositionCum]       = standard_figure(nPlotRow, nPlotColumn, figureHandleCum);
+    [axisWidthDist, axisHeightDist, xAxesPositionDist, yAxesPositionDist]   = standard_figure(nPlotRow, nPlotColumn, 'portrait', figureHandleDist);
+    [axisWidthCum, axisHeightCum, xAxesPositionCum, yAxesPositionCum]       = standard_figure(nPlotRow, nPlotColumn, 'portrait', figureHandleCum);
     
     switch subjectID
         case 'Broca'

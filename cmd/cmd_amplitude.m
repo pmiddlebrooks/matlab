@@ -56,7 +56,7 @@ if plotFlag
     nColumn = 3;
     screenOrSave = 'save';
     %     [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = big_figure(nRow, nColumn, figureHandle, screenOrSave);
-    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
     stopColor = [1 0 0];
     inhColor = [0 0 0];
     ssdMargin = 20;

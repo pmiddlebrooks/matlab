@@ -6,11 +6,12 @@ switch matlabroot
         hostname = char( getHostName( java.net.InetAddress.getLocalHost ) );
         switch hostname
             case 'pmiddleb-Mac-Pro.local'
-                env = 'home';
-            otherwise
                 env = 'work';
+            otherwise
+                env = 'home';
         end
     otherwise
         env = 'accre';
+        disp('I think you are running on ACCRE- if not, check get_environment.m. Maybe you updated matlab version')
 end
 

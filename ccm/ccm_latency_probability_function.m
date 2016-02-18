@@ -25,7 +25,7 @@ if plotFlag
     % from the individual targets), plus an extra row for collapsed RTs
     nPlotRow = 3;
     figureHandleLP = 1003;
-    [axisWidth, axisHeight, xAxesPosition, yAxesPosition]       = standard_figure(nPlotRow, nPlotColumn, figureHandleLP);
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition]       = standard_figure(nPlotRow, nPlotColumn, 'portrait', figureHandleLP);
 end
 
 

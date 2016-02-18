@@ -23,7 +23,7 @@ nSession = size(populationData, 1);
 nRow = 3;
 nColumn = 2;
 rtAx = 1;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(rtAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 hold(ax(rtAx), 'on')
 
@@ -219,7 +219,7 @@ nRow = 3;
 nColumn = 2;
 inhAx = 1;
 % [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = model_figure(nRow, nColumn, 9898, 'screen');
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(inhAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 hold(ax(inhAx), 'on')
 choicePlotXMargin = .03;
@@ -324,7 +324,7 @@ nRow = 3;
 nColumn = 2;
 inhAx = 1;
 % [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = model_figure(nRow, nColumn, 9898, 'screen');
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(inhAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 hold(ax(inhAx))
 
@@ -450,7 +450,7 @@ nSession = size(populationData, 1);
 nRow = 3;
 nColumn = 2;
 inhAx = 1;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(inhAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 hold(ax(inhAx), 'on')
 
@@ -552,7 +552,7 @@ nRow = 3;
 nColumn = 2;
 cumAx = 1;
 distAx = 2;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(cumAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 ax(distAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 hold(ax(cumAx), 'on')
@@ -740,7 +740,7 @@ axELStop = 4;
 figureHandle = 9898;
 [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = big_figure(nRow, nColumn, figureHandle, 'save');
 clf
-% [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+% [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
 ax(axSDGo) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 ax(axSDStop) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 ax(axELGo) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 1) yAxesPosition(2, 1) axisWidth axisHeight]);
@@ -1243,7 +1243,7 @@ inhAx = 1;
 cumAx = 2;
 distAx = 3;
 % [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = model_figure(nRow, nColumn, 9898, 'screen');
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(inhAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 ax(cumAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 ax(distAx) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 2) yAxesPosition(2, 2) axisWidth axisHeight]);
@@ -1406,7 +1406,7 @@ nSession = size(populationData, 1);
 nRow = 2;
 nColumn = 2;
 rtAx = 1;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(rtAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 hold(ax(rtAx), 'on')
 
@@ -1540,7 +1540,7 @@ nSession = size(populationData, 1);
 % nRow = 3;
 % nColumn = 2;
 rtAxHum = 2;
-% [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+% [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(rtAxHum) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 hold(ax(rtAxHum), 'on')
 
@@ -1669,7 +1669,7 @@ nRow = 3;
 nColumn = 2;
 inhAx = 1;
 % [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = model_figure(nRow, nColumn, 9898, 'screen');
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(inhAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 hold(ax(inhAx))
 
@@ -1756,7 +1756,7 @@ load ccm_population_human
 nSession = size(populationData, 1);
 inhAxHum = 2;
 % [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = model_figure(nRow, nColumn, 9898, 'screen');
-% [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+% [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(inhAxHum) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 hold(ax(inhAxHum))
 
@@ -1847,7 +1847,7 @@ nSession = size(populationData, 1);
 nRow = 2;
 nColumn = 2;
 ssrtAx = 1;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(ssrtAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 hold(ax(ssrtAx))
 
@@ -1900,7 +1900,7 @@ nSession = size(populationData, 1);
 nRow = 2;
 nColumn = 2;
 ssrtAxHum = 2;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(ssrtAxHum) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 hold(ax(ssrtAxHum))
 
@@ -1970,7 +1970,7 @@ inhAx = 1;
 cumAx = 2;
 distAx = 3;
 % [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = model_figure(nRow, nColumn, 9898, 'screen');
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 9898);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
 ax(inhAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 ax(cumAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 ax(distAx) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 2) yAxesPosition(2, 2) axisWidth axisHeight]);
@@ -2238,7 +2238,7 @@ switch method
                 nRow = 3;
                 nColumn = 2;
                 stopNoStop = 1;
-                [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 693);
+                [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 693);
                 ax(stopNoStop) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
                 hold(ax(stopNoStop), 'on')
                 

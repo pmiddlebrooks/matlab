@@ -59,7 +59,7 @@ if plotFlag
    axRTSSD = 4;
    axPred = 5;
    figureHandle = 9898;
-   [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+   [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
    
    ax(axSSRT) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
    hold(ax(axSSRT), 'on')

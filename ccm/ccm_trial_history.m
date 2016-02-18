@@ -43,7 +43,7 @@ if plotFlag
    nRow = 3;
    nColumn = 3;
    screenOrSave = 'screen';
-   [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+   [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
    clf
    choicePlotXMargin = .03;
    ssdMargin = 20;

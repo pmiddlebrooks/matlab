@@ -1,13 +1,27 @@
-function [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle)
+function [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, orientation, figureHandle)
 
 set(0, 'units', 'centimeters')
 scrsz = get(0,'ScreenSize');
 
+if nargin == 0
+    nRow = 1;
+    nColumn = 1;
+    orientation = 'portrait';
+    figureHandle = 44;
+end
+
 switch get_environment
     case 'work'
-        % standard letter paper size
+switch orientation
+    case 'portrait'  % standard letter paper size
+        cmHeight = 27.9;
         cmWidth = 21.6;
-        cmHeight = 27.9;        
+    case 'landscape'  % standard letter paper size
+        cmHeight = 21.6;
+        cmWidth = 27.9;
+    otherwise
+        error('orientation needs to be portrait or landscape')
+end
     case 'home'
         scaleFactor = .8;
         cmHeight = scrsz(4) * scaleFactor;

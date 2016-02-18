@@ -550,7 +550,7 @@ if overlapCDF
    rowTargF     = 1;
    rowStopF     = 2;
    rowStopI     = 3;
-   [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+   [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
    clf
    
    % Set up plot axes

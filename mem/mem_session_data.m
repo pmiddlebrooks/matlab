@@ -82,7 +82,7 @@ end
 % Load the data
 [trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
 
-if ~strcmp(SessionData.taskID, 'mem')
+if ~(strcmp(SessionData.taskID, 'mem') || strcmp(SessionData.taskID, 'del'))
     fprintf('Not a memory guided saccade session, try again\n')
     return
 end

@@ -102,7 +102,7 @@ ssrtIntWMean = median(ssrtIntW, 1);
 
 %%
 figureHandle = 61;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nSignalStrength, 1, figureHandle);
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nSignalStrength, 1, 'landscape', figureHandle);
 cMap = ccm_colormap(signalStrength);
 
 for j = 1 : nSignalStrength

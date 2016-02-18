@@ -392,9 +392,9 @@ for kUnitIndex = 1 : nUnit
             %     nRow = max([nSignal, nLGraph, nRGraph]);
             nRow = max(3, nUsable);
             if printPlot
-                [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+                [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
             else
-                [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+                [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
             end
             axisHeight = axisHeight * .9;
             clf

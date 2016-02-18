@@ -54,7 +54,7 @@ if plotFlag
     nColumn = 2;
     psyAx = 1;
     figureHandle = 9898;
-    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, figureHandle);
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
     ax(psyAx) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 1) yAxesPosition(2, 1) axisWidth axisHeight]);
     cla
     stopColor = [.5 .5 .5];

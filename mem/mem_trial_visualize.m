@@ -17,7 +17,7 @@ function mem_trial_visualize(subjectID, sessionID, options)
 
 %%
 subjectID   = 'broca';
-sessionID   = 'bp121n01';
+sessionID   = 'bp211n01';
 jUnit       = 1;
 
 % Load the data
