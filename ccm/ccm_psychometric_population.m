@@ -5,12 +5,12 @@ function data = ccm_psychometric_population(subjectID, plotFlag, figureHandle)
 % *************************************************************************
 % Populaiton psychometric : Using mean choice proportion AVERAGED across sessions
 % *************************************************************************
-if nargin < 2
+% if nargin < 2
     plotFlag = 1;
-end
-if nargin < 3
+% end
+% if nargin < 3
     figureHandle = 4945;
-end
+% end
 
 fprintf('\n\n\n\')
 disp('*******************************************************************************')

@@ -7,8 +7,11 @@ if nargin == 0
     nRow = 1;
     nColumn = 1;
     orientation = 'portrait';
-    figureHandle = 44;
 end
+if nargin < 4
+        figureHandle = 44;
+end
+
 
 switch get_environment
     case 'work'
@@ -69,4 +72,5 @@ for iRow = 1 : nRow
 end
 
 set(sumFig, 'units', 'centimeters','position', [w/3 h/3 cmWidth cmHeight], 'paperunits', 'centimeters', 'paperposition', [0 0 cmWidth cmHeight], 'color', [1 1 1])
+set(sumFig, 'PaperType', 'USLetter','PaperOrientation', orientation, 'PaperPositionMode', 'auto', 'color', [.8 .8 .8])
 

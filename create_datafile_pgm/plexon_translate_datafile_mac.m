@@ -8,8 +8,8 @@ end
 %__________________________________________________________________________
 %                            CONSTANTS
 %__________________________________________________________________________
-EEG_CHANNELS        = 1:16;
-LFP_CHANNELS        = 17:32;
+EEG_CHANNELS        = [];
+LFP_CHANNELS        = 1:8;
 PD_CHANNEL          = 2;
 STROBE_CHANNEL      = 257;
 STROBE_CHANNEL_INDEX = 17;
@@ -341,7 +341,6 @@ SessionData.taskID      = taskID;
 %--------------------------------------------------------------------------
 % get the time stamped events
 fprintf('Sorting time stamps...\n')
-% trialStart     = round(1000 * timeStamps(eventCodes == eTrialstart));
 trialStart      = round(timeStamps(eventCodes == eTrialstart));
 firstTrialStart = trialStart(1);
 nTrial          = length(trialStart);
@@ -358,26 +357,28 @@ if length(trialEnd) ~= length(trialStart)
     %     trialStart(num_of_ends+1:end) = [];
     
     mismatchFlag = 1;
-    iTrial = 1;
+    iTrial = 0;
     while mismatchFlag
+        iTrial = iTrial + 1;
         % If the recording was stopped before the last Infos/end-of-trial
         % code was sent (sometimes happens if experimenter is in a hurry,
         % etc)., drop the last trial
         if iTrial == nTrial && length(trialStart) > length(trialEnd)
             trialStart(iTrial) = [];
             allStarts(iTrial) = [];
-        elseif trialEnd(iTrial) > trialStart(iTrial + 1)
+             nTrial = nTrial - 1;
+       elseif trialEnd(iTrial) > trialStart(iTrial + 1)
             trialStart(iTrial) = [];
             allStarts(iTrial) = [];
-        elseif trialStart(iTrial) > trialEnd(iTrial)
+             nTrial = nTrial - 1;
+       elseif trialStart(iTrial) > trialEnd(iTrial)
             trialEnd(iTrial) = [];
             allEnds(iTrial) = [];
         end
         if length(trialEnd) == length(trialStart)
             mismatchFlag = 0;
-            nTrial = nTrial - 1;
+            mismatchTrial = iTrial;
         end
-        iTrial = iTrial + 1;
     end % while mismatchFlag
 end
 
@@ -403,7 +404,6 @@ for iTrial = 1 : nTrial
     iStrobes(1 : iNCode)    = eventCodes(iStart : iEnd);
     iTimeStamps(1 : iNCode) = timeStamps(iStart : iEnd);
     for j = 1 : length(eventArray);
-        
         jEvent = char(eventArray(j));
         jCode = char(eventNumArray(j));
         eval(sprintf('codeNumber = %s;',jCode));
@@ -500,12 +500,21 @@ MouthEnd_(:,first_nan:end) = [];
 % get non timed trial parameters
 Start_Infos_i =  eventCodes == start_infos;
 
+
 %check for known errors
 if sum(Start_Infos_i) ~= nTrial
     fprintf('ERROR: The number of start Infos_ flags does not equal the number of trials.\n')
     fprintf('Infos_ may be inaccurate.\n')
     Error_{nError+1,1} = 'The number of start Infos_ flags does not equal the number of trials. Infos_ may be inaccurate.';
     nError = nError+1;
+% Check wether the number of infos start codes equals the number of trials.
+% In the case that a trial had to be removed because plexon error, etc,
+% infos may have been thrown twice within one trial (if an extra end trial
+% code was dropped, e.g.)
+if sum(Start_Infos_i) > nTrial
+    infoStartInd = find(Start_Infos_i);
+    Start_Infos_i(infoStartInd(mismatchTrial)) = [];
+end
 end
 
 End_Infos_i = eventCodes == end_infos;
@@ -516,6 +525,14 @@ if sum(End_Infos_i) ~= nTrial
     fprintf('Infos_ may be inaccurate.\n')
     Error_{nError+1,1} = 'The number of end Infos_ flags does not equal the number of trials. Infos_ may be inaccurate.';
     nError = nError+1;
+% Check wether the number of infos end codes equals the number of trials.
+% In the case that a trial had to be removed because plexon error, etc,
+% infos may have been thrown twice within one trial (if an extra end trial
+% code was dropped, e.g.)
+if sum(End_Infos_i) > nTrial
+    infoStartInd = find(End_Infos_i);
+    End_Infos_i(infoStartInd(mismatchTrial)) = [];
+end
 end
 
 
@@ -609,6 +626,7 @@ for iParam = 1:length(infosArray)
         end
     end % if strcmp(param_name,'targ1Targ2Array')
     
+%     paramValues = paramValues(1:nTrial);  % In case we had to delete a trial
     if ~(strcmp(paramName,'eyeXGain')          ||...
             strcmp(paramName,'eyeYGain')     ||...
             strcmp(paramName,'eyeXOffset')   ||...
@@ -661,6 +679,7 @@ temp(trialOutcome == 23) = {'disHighBet'};
 temp(trialOutcome == 24) = {'targLowBet'};
 temp(trialOutcome == 25) = {'distLowBet'};
 trialData.trialOutcome = temp;
+% trialData.trialOutcome = temp(1:nTrial);
 
 
 temp = cell(nTrial,1);
@@ -673,6 +692,7 @@ temp(trialType == 5) = {'bet'};
 temp(trialType == 6) = {'retro'};
 temp(trialType == 7) = {'pro'};
 trialData.trialType = temp;
+% trialData.trialType = temp(1:nTrial);
 
 
 
