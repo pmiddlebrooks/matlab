@@ -177,11 +177,11 @@ stopRT = [stopTargRT; stopDistRT];
 timeStep = (max(stopRT) - min(stopRT)) / nBin;
 stopRTBinValues = hist(stopRT, nBin);
 distributionArea = sum(stopRTBinValues * timeStep);
-stopCorrectPDF = stopRTBinValues / distributionArea;
-stopCorrectBinCenters = min(stopRT)+timeStep/2 : timeStep : max(stopRT)-timeStep/2;
+stopStopPDF = stopRTBinValues / distributionArea;
+stopStopBinCenters = min(stopRT)+timeStep/2 : timeStep : max(stopRT)-timeStep/2;
 
 plot(ax(distAx), goCorrectBinCenters, goCorrectPDF, '-', 'color', goColor, 'linewidth', 2)
-plot(ax(distAx), stopCorrectBinCenters, stopCorrectPDF, '--', 'color', stopColor, 'linewidth', 2)
+plot(ax(distAx), stopStopBinCenters, stopStopPDF, '--', 'color', stopColor, 'linewidth', 2)
 
 
 

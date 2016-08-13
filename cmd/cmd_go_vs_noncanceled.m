@@ -172,7 +172,7 @@ for kUnitIndex = 1 : nUnit
             % Get the stop trial data
             jStopTargTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopTarg'}, iTarget, kSSD);
             jStopTargSacc    = cmd_concat_neural_conditions(Unit(kUnitIndex), 'responseOnset', 'targOn', {'stopTarg'}, iTarget, kSSD);
-            jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopCorrect'}, iTarget, kSSD);
+            jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopStop'}, iTarget, kSSD);
             
             % Use a subsample of the noncanceled stop RTs that are
             % later than the SSD plus some time to encode the stimulus
@@ -420,7 +420,7 @@ end
 %             end
 %
 %             % Get the stop trial data
-%             jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopCorrect'}, iTarget, kSSD);
+%             jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopStop'}, iTarget, kSSD);
 %             jStopTargTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopTarg'}, iTarget, kSSD);
 %
 %             if isempty(jStopTargTarg.sdf) && ~strcmp(latencyMatchMethod, 'ssrt')

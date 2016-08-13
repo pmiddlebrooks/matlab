@@ -31,7 +31,7 @@ save('ccm_population_human.mat', 'populationData', '-mat');
 %%
 iSubjectID = 'Broca';
 task = 'ccm';
-sessionArray = monkey_task_session_array(iSubjectID, task);
+sessionArray = task_session_array(iSubjectID, task,'behavior2');
 
 iPlotFlag = 0;
 nSession = length(sessionArray);
@@ -40,7 +40,7 @@ for iSession = 1 : nSession
     
     iSessionID = sessionArray{iSession};
 
-            iSessionData = ccm_session_behavior(iSubjectID, iSessionID, iPlotFlag);
+            iSessionData = ccm_session_behavior(iSubjectID, iSessionID,iPlotFlag);
   populationData = [populationData; iSessionData];
 end % for iSession = 1 : length(sessionArray)
 save('ccm_population_broca.mat', 'populationData', '-mat');

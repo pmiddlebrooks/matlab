@@ -122,16 +122,16 @@ for kDataIndex = 1 : nUnit
          end
          stopTargSig = cell(1, length(ssdArray));
          stopTargAlign = cell(1, length(ssdArray));
-         stopCorrectSig = cell(1, length(ssdArray));
-         stopCorrectAlign = cell(1, length(ssdArray));
+         stopStopSig = cell(1, length(ssdArray));
+         stopStopAlign = cell(1, length(ssdArray));
          for jSSDIndex = 1 : length(ssdArray)
             stopTargSig{jSSDIndex} = Data(kDataIndex).angle(iTarg).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);
             stopTargAlign{jSSDIndex} = Data(kDataIndex).angle(iTarg).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime;
             
             
             if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-               stopCorrectSig{jSSDIndex} = Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).(dataSignal);
-               stopCorrectAlign{jSSDIndex} = Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).alignTime;
+               stopStopSig{jSSDIndex} = Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).(dataSignal);
+               stopStopAlign{jSSDIndex} = Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).alignTime;
             end
             
          end  % jSSDIndex = 1 : length(ssdArray)
@@ -150,7 +150,7 @@ for kDataIndex = 1 : nUnit
          if size(sigStopTarg, 2) == 1, sigStopTarg = []; end;
          
          if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-            [rasStopCorrect, alignStopCorrect] = align_raster_sets(stopCorrectSig, stopCorrectAlign);
+            [rasStopCorrect, alignStopCorrect] = align_raster_sets(stopStopSig, stopStopAlign);
             switch dataType
                case 'neuron'
                   sigStopCorrect = nanmean(rasStopCorrect, 1);

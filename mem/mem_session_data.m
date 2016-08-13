@@ -49,35 +49,31 @@ clear Data
 if nargin < 3
     options.dataType = 'neuron';
     
-    options.figureHandle     = 2000;
-    options.printPlot        = false;
+    options.figureHandle     = 1000;
+    options.printPlot        = true;
     options.plotFlag         = true;
+    options.collapseSignal   = false;
     options.collapseTarg      = false;
+    options.doStops          = true;
     options.filterData       = false;
+    options.stopHz           = 50;
     options.normalize        = false;
-    options.unitArray        = 'each';
+    options.unitArray        = 'print';
+    options.baselineCorrect  = true;
     
     if nargin == 0
         Data = options;
         return
     end
 end
+collapseSignal  = options.collapseSignal;
+doStops         = options.doStops;
 normalize       = options.normalize;
 filterData      = options.filterData;
 unitArray       = options.unitArray;
-plotFlag        = options.plotFlag;
-printPlot       = options.printPlot;
-dataType        = options.dataType;
-figureHandle    = options.figureHandle;
+baselineCorrect = options.baselineCorrect;
 
 
-
-% Make sure user input a dataType that was recorded during the session
-dataTypePossible = {'neuron', 'lfp', 'erp'};
-if ~sum(strcmp(dataType, dataTypePossible))
-    fprintf('%s Is not a valid data type \n', dataType)
-    return
-end
 
 % Load the data
 [trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
@@ -87,7 +83,6 @@ if ~(strcmp(SessionData.taskID, 'mem') || strcmp(SessionData.taskID, 'del'))
     return
 end
 
-Data.dataType = dataType;
 
 
 nTarg = length(unique(trialData.targAngle));
@@ -121,20 +116,17 @@ dataType = options.dataType;
 switch dataType
     case 'neuron'
         dataArray     = SessionData.spikeUnitArray;
-        if strcmp(unitArray, 'each')
-            unitArray     = dataArray;
-        end
     case 'lfp'
+        chNum = SessionData.lfpChannel;
         dataArray 	= num2cell(SessionData.lfpChannel);
-        if strcmp(unitArray, 'each')
-            unitArray 	= dataArray;
-        end
+        dataArray   = cellfun(@(x) sprintf('lfp_%s', num2str(x, '%02d')), dataArray, 'uniformoutput', false);
     case 'erp'
         dataArray     = eeg_electrode_map(subjectID);
-        if strcmp(unitArray, 'each')
-            unitArray     = dataArray;
-        end
 end
+if strcmp(unitArray, 'each') || strcmp(unitArray, 'step') || strcmp(unitArray, 'print')
+    unitArray     = dataArray;
+end
+
 % Make sure user input a dataType that was recorded during the session
 dataTypePossible = {'neuron', 'lfp', 'erp'};
 if ~sum(strcmp(dataType, dataTypePossible))
@@ -147,6 +139,12 @@ if isempty(unitArray)
 end
 
 
+% Make sure user input a dataType that was recorded during the session
+dataTypePossible = {'neuron', 'lfp', 'erp'};
+if ~sum(strcmp(dataType, dataTypePossible))
+    fprintf('%s Is not a valid data type \n', dataType)
+    return
+end
 
 
 
@@ -342,249 +340,303 @@ for kDataIndex = 1 : nUnit
     Data(kDataIndex).yMax = yLimMax;
     Data(kDataIndex).yMin = yLimMin;
     
+    
+    
+    
+    if strcmp(dataType, 'neuron')
+        classify_cell_type
+    end
+    
+    % print the figure if we're stepping through
+    if options.plotFlag
+        switch options.unitArray
+            case {'step','print'}
+                mem_session_data_plot(Data(kDataIndex), options)
+                if strcmp(options.unitArray, 'step')
+                    pause
+                end
+                clear Data
+        end
+    end
 end % kUnitIndex
 
 
 
 
 
-
-
-
-
-%%
-%**********************   CLASSIFY CELL RESPONSE TYPE    %*************************
-if strcmp(dataType, 'neuron')
-    for kDataIndex = 1 : nUnit
-        
-        
-        vis = false;
-        mov = false;
-        alpha = .05;
-        baseEpoch = -99 : 0;
-        visEpoch = mem_epoch_range('targOn', 'analyze');
-        movEpoch = mem_epoch_range('responseOnset', 'analyze');
-        
-        
-        baseRasR = Data(kDataIndex).rightTarg.targOn.raster(:, baseEpoch + Data(kDataIndex).rightTarg.targOn.alignTime);
-        baseRasL = Data(kDataIndex).leftTarg.targOn.raster(:, baseEpoch + Data(kDataIndex).leftTarg.targOn.alignTime);
-        nBaseSpikeR = nansum(baseRasR, 2);
-        nBaseSpikeL = nansum(baseRasL, 2);
-        
-        
-        % Visual cell?
-        rightRas = Data(kDataIndex).rightTarg.targOn.raster(:, visEpoch + Data(kDataIndex).rightTarg.targOn.alignTime);
-        nRightSpike = nansum(rightRas, 2);
-        [h, p, ci, stats] = ttest2(nBaseSpikeR, nRightSpike);
-        if p < alpha && nanmean(nBaseSpikeR) < nanmean(nRightSpike)
-            vis = true;
-        end
-        
-        leftRas = Data(kDataIndex).leftTarg.targOn.raster(:, visEpoch + Data(kDataIndex).leftTarg.targOn.alignTime);
-        nLeftSpike = nansum(leftRas, 2);
-        [h, p, ci, stats] = ttest2(nBaseSpikeL, nLeftSpike);
-        if p < alpha && nanmean(nBaseSpikeL) < nanmean(nLeftSpike)
-            vis = true;
-        end
-        
-        
-        % Movement cell?
-        rightRas = Data(kDataIndex).rightTarg.responseOnset.raster(:, movEpoch + Data(kDataIndex).rightTarg.responseOnset.alignTime);
-        nRightSpike = nansum(rightRas, 2);
-        [h, p, ci, stats] = ttest2(nBaseSpikeR, nRightSpike);
-        if p < alpha && nanmean(nBaseSpikeR) < nanmean(nRightSpike)
-            mov = true;
-        end
-        
-        leftRas = Data(kDataIndex).leftTarg.responseOnset.raster(:, movEpoch + Data(kDataIndex).leftTarg.responseOnset.alignTime);
-        nLeftSpike = nansum(leftRas, 2);
-        [h, p, ci, stats] = ttest2(nBaseSpikeL, nLeftSpike);
-        if p < alpha && nanmean(nBaseSpikeL) < nanmean(nLeftSpike)
-            mov = true;
-        end
-        
-        
-        
-        if ~vis && ~mov
-            Data(kDataIndex).cellType = nan;
-        elseif vis && ~mov
-            Data(kDataIndex).cellType = 'visual';
-        elseif ~vis && mov
-            Data(kDataIndex).cellType = 'movement';
-        elseif vis && mov
-            Data(kDataIndex).cellType = 'visuomovement';
-        end
-    end % kUnitIndex
+if options.plotFlag && ~strcmp(options.unitArray, 'step') && ~strcmp(options.unitArray, 'each') && ~strcmp(options.unitArray, 'print')
+    mem_session_data_plot(Data, options)
 end
 
 
 
+Data(1).unitArray       = unitArray;
+Data(1).dataArray       = dataArray;
+Data(1).sessionID       = sessionID;
+Data(1).subjectID       = subjectID;
+Data(1).options         = options;
 
 
 
 
 
-%%
+
+
+
+%**********************   SUBFUNCTIONS    %*************************
+%*******************************************************************
+
+
+%**********************   CLASSIFY CELL RESPONSE TYPE    %*************************
+    function classify_cell_type
+        if strcmp(dataType, 'neuron')
+            %     for kDataIndex = 1 : nUnit
+            
+            
+            vis = false;
+            mov = false;
+            alpha = .05;
+            baseEpoch = -99 : 0;
+            visEpoch = mem_epoch_range('targOn', 'analyze');
+            movEpoch = mem_epoch_range('responseOnset', 'analyze');
+            
+            
+            baseRasR = Data(kDataIndex).rightTarg.targOn.raster(:, baseEpoch + Data(kDataIndex).rightTarg.targOn.alignTime);
+            baseRasL = Data(kDataIndex).leftTarg.targOn.raster(:, baseEpoch + Data(kDataIndex).leftTarg.targOn.alignTime);
+            nBaseSpikeR = nansum(baseRasR, 2);
+            nBaseSpikeL = nansum(baseRasL, 2);
+            
+            
+            % Visual cell?
+            rightRas = Data(kDataIndex).rightTarg.targOn.raster(:, visEpoch + Data(kDataIndex).rightTarg.targOn.alignTime);
+            nRightSpike = nansum(rightRas, 2);
+            [h, p, ci, stats] = ttest2(nBaseSpikeR, nRightSpike);
+            if p < alpha && nanmean(nBaseSpikeR) < nanmean(nRightSpike)
+                vis = true;
+            end
+            
+            leftRas = Data(kDataIndex).leftTarg.targOn.raster(:, visEpoch + Data(kDataIndex).leftTarg.targOn.alignTime);
+            nLeftSpike = nansum(leftRas, 2);
+            [h, p, ci, stats] = ttest2(nBaseSpikeL, nLeftSpike);
+            if p < alpha && nanmean(nBaseSpikeL) < nanmean(nLeftSpike)
+                vis = true;
+            end
+            
+            
+            % Movement cell?
+            rightRas = Data(kDataIndex).rightTarg.responseOnset.raster(:, movEpoch + Data(kDataIndex).rightTarg.responseOnset.alignTime);
+            nRightSpike = nansum(rightRas, 2);
+            [h, p, ci, stats] = ttest2(nBaseSpikeR, nRightSpike);
+            if p < alpha && nanmean(nBaseSpikeR) < nanmean(nRightSpike)
+                mov = true;
+            end
+            
+            leftRas = Data(kDataIndex).leftTarg.responseOnset.raster(:, movEpoch + Data(kDataIndex).leftTarg.responseOnset.alignTime);
+            nLeftSpike = nansum(leftRas, 2);
+            [h, p, ci, stats] = ttest2(nBaseSpikeL, nLeftSpike);
+            if p < alpha && nanmean(nBaseSpikeL) < nanmean(nLeftSpike)
+                mov = true;
+            end
+            
+            
+            
+            if ~vis && ~mov
+                Data(kDataIndex).cellType = nan;
+            elseif vis && ~mov
+                Data(kDataIndex).cellType = 'visual';
+            elseif ~vis && mov
+                Data(kDataIndex).cellType = 'movement';
+            elseif vis && mov
+                Data(kDataIndex).cellType = 'visuomovement';
+            end
+            %     end % kUnitIndex
+        end
+    end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %**********************   PLOTTING    %*************************
-
-
-if plotFlag
-    cMap = ccm_colormap([0 1]);
-    kernelMethod = 'gaussian';
-    SIGMA = 20;
-    kernelMethod = 'postsynaptic potential';
-    GROWTH = 1;
-    DECAY = 20;
-    % kernelIn = [SIGMA];
-    
-    
-    
-    
-    targLineW = 2;
-    
-    
-    for kDataIndex = 1 : nUnit
-        %       colormap([1 1 1; cMap(1,:); cMap(2,:)])
-        nRow = 2;
-        nEpoch = length(epochArray);
-        nColumn = nEpoch;
-        figureHandle = figureHandle + 1;
-        if printPlot
-            [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nColumn, figureHandle);
-        else
-            [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
-        end
-        clf
-        for mEpoch = 1 : nEpoch
-            mEpochName = epochArray{mEpoch};
-            epochRangeDisplay = mem_epoch_range(mEpochName, 'plot');
-            epochRangeAnalysis = mem_epoch_range(mEpochName, 'analyze');
+    function mem_session_data_plot(PlotData, options)
+        
+        if options.plotFlag
+            cMap = ccm_colormap([0 1]);
+            kernelMethod = 'gaussian';
+            SIGMA = 20;
+            kernelMethod = 'postsynaptic potential';
+            GROWTH = 1;
+            DECAY = 20;
+            % kernelIn = [SIGMA];
             
             
-            % _______  Set up axes  ___________
-            % axes names
-            axSig = 1;
-            axRas = 2;
-            
-            % Set up plot axes
-            % SDFs
-            ax(axSig, mEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axSig, mEpoch) yAxesPosition(axSig, mEpoch) axisWidth axisHeight]);
-            set(ax(axSig, mEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRangeDisplay(1) epochRangeDisplay(end)])
-            cla
-            hold(ax(axSig, mEpoch), 'on')
-            title(epochArray{mEpoch})
+            [nUnitPlot, nTargPair] = size(PlotData);
+            figureHandle    = options.figureHandle;
             
             
-            % Rasters
-            ax(axRas, mEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axRas, mEpoch) yAxesPosition(axRas, mEpoch) axisWidth axisHeight]);
-            set(ax(axRas, mEpoch), 'ylim', [0 rasYlim], 'xlim', [epochRangeDisplay(1) epochRangeDisplay(end)])
-            cla
-            hold(ax(axRas, mEpoch), 'on')
+            targLineW = 2;
             
             
-            if mEpoch > 1
-                set(ax(axSig, mEpoch), 'yticklabel', [])
-                set(ax(axRas, mEpoch), 'yticklabel', [])
+            for kDataPlot = 1 : nUnitPlot
+                %       colormap([1 1 1; cMap(1,:); cMap(2,:)])
+                nRow = 2;
+                nEpoch = length(epochArray);
+                nColumn = nEpoch;
+                figureHandle = figureHandle + 1;
+                if options.printPlot
+                    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nColumn, figureHandle);
+                else
+                    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
+                end
+                clf
+                for mEpochPlot = 1 : nEpoch
+                    mEpochName = epochArray{mEpochPlot};
+                    epochRangeDisplay = mem_epoch_range(mEpochName, 'plot');
+                    epochRangeAnalysis = mem_epoch_range(mEpochName, 'analyze');
+                    
+                    
+                    % _______  Set up axes  ___________
+                    % axes names
+                    axSig = 1;
+                    axRas = 2;
+                    
+                    % Set up plot axes
+                    % SDFs
+                    ax(axSig, mEpochPlot) = axes('units', 'centimeters', 'position', [xAxesPosition(axSig, mEpochPlot) yAxesPosition(axSig, mEpochPlot) axisWidth axisHeight]);
+                    set(ax(axSig, mEpochPlot), 'ylim', [yLimMin yLimMax], 'xlim', [epochRangeDisplay(1) epochRangeDisplay(end)])
+                    cla
+                    hold(ax(axSig, mEpochPlot), 'on')
+                    title(epochArray{mEpochPlot})
+                    
+                    
+                    % Rasters
+                    ax(axRas, mEpochPlot) = axes('units', 'centimeters', 'position', [xAxesPosition(axRas, mEpochPlot) yAxesPosition(axRas, mEpochPlot) axisWidth axisHeight]);
+                    set(ax(axRas, mEpochPlot), 'ylim', [0 rasYlim], 'xlim', [epochRangeDisplay(1) epochRangeDisplay(end)])
+                    cla
+                    hold(ax(axRas, mEpochPlot), 'on')
+                    
+                    
+                    if mEpochPlot > 1
+                        set(ax(axSig, mEpochPlot), 'yticklabel', [])
+                        set(ax(axRas, mEpochPlot), 'yticklabel', [])
+                        
+                        set(ax(axSig, mEpochPlot), 'ycolor', [1 1 1])
+                        set(ax(axRas, mEpochPlot), 'ycolor', [1 1 1])
+                    end
+                    
+                    
+                    
+                    alignRightTarg = PlotData(kDataPlot).rightTarg.(mEpochName).alignTime;
+                    alignLeftTarg = PlotData(kDataPlot).leftTarg.(mEpochName).alignTime;
+                    
+                    axes(ax(axSig, mEpochPlot))
+                    fillX = [epochRangeAnalysis(1), epochRangeAnalysis(end), epochRangeAnalysis(end), epochRangeAnalysis(1)];
+                    fillY = [yLimMin yLimMin yLimMax yLimMax];
+                    fillColor = [1 1 .5];
+                    h = fill(fillX, fillY, fillColor);
+                    set(h, 'edgecolor', 'none');
+                    
+                    if strcmp(mEpochName, 'targOn')
+                        fillX = [baseEpoch(1), baseEpoch(end), baseEpoch(end), baseEpoch(1)];
+                        fillY = [yLimMin yLimMin yLimMax yLimMax];
+                        fillColor = [.8 .8 .8];
+                        b = fill(fillX, fillY, fillColor);
+                        set(b, 'edgecolor', 'none');
+                    end
+                    
+                    % Alignemnt line
+                    plot(ax(axSig, mEpochPlot), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
+                    
+                    
+                    
+                    switch dataType
+                        case 'neuron'
+                            % Right SDFs
+                            if ~isempty(alignRightTarg)
+                                sdfRightTarg = PlotData(kDataPlot).rightTarg.(mEpochName).signalMean;
+                                plot(ax(axSig, mEpochPlot), epochRangeDisplay, sdfRightTarg(alignRightTarg + epochRangeDisplay), 'color', cMap(2,:), 'linewidth', targLineW)
+                            end
+                            % Left SDFs
+                            if ~isempty(alignLeftTarg)
+                                sdfLeftTarg = PlotData(kDataPlot).leftTarg.(mEpochName).signalMean;
+                                plot(ax(axSig, mEpochPlot), epochRangeDisplay, sdfLeftTarg(alignLeftTarg + epochRangeDisplay), 'color', cMap(1,:), 'linewidth', targLineW)
+                            end
+                            
+                            axes(ax(axRas, mEpochPlot))
+                            colormap([1 1 1; cMap(1,:); cMap(2,:)])
+                            rasRightTarg =  PlotData(kDataPlot).rightTarg.(mEpochName).raster;
+                            rightTargRas = fat_raster(rasRightTarg, tickWidth);
+                            rightTargRas = rightTargRas .* 2;
+                            %                  colormap([1 1 1; cMap(2,:)])
+                            imagesc(epochRangeDisplay, 1 : size(rasRightTarg, 1), rightTargRas(:, alignRightTarg + epochRangeDisplay))
+                            
+                            rasLeftTarg =  PlotData(kDataPlot).leftTarg.(mEpochName).raster;
+                            leftTargRas = fat_raster(rasLeftTarg, tickWidth);
+                            %                 colormap([1 1 1; cMap(1,:)])
+                            imagesc(epochRangeDisplay, 1+size(rasRightTarg, 1) : size(rasRightTarg, 1) + size(rasLeftTarg, 1), leftTargRas(:, alignLeftTarg + epochRangeDisplay))
+                            
+                            plot(ax(axRas, mEpochPlot), [1 1], [0 rasYlim * .9], '-k', 'linewidth', 2)
+                            
+                            
+                        case 'lfp'
+                            % Right LFPs
+                            if ~isempty(alignRightTarg)
+                                lfpRightTarg = PlotData(kDataPlot).rightTarg.(mEpochName).signalMean;
+                                plot(ax(axSig, mEpochPlot), epochRangeDisplay, lfpRightTarg(alignRightTarg + epochRangeDisplay), 'color', cMap(1,:), 'linewidth', targLineW)
+                            end
+                            % Left LFPs
+                            if ~isempty(alignLeftTarg)
+                                lfpLeftTarg = PlotData(kDataPlot).leftTarg.(mEpochName).signalMean;
+                                plot(ax(axSig, mEpochPlot), epochRangeDisplay, lfpLeftTarg(alignLeftTarg + epochRangeDisplay), 'color', cMap(2,:), 'linewidth', targLineW)
+                            end
+                        case 'erp'
+                            % Right LFPs
+                            if ~isempty(alignRightTarg)
+                                erpRightTarg = PlotData(kDataPlot).rightTarg.(mEpochName).signalMean;
+                                plot(ax(axSig, mEpochPlot), epochRangeDisplay, erpRightTarg(alignRightTarg + epochRangeDisplay), 'color', cMap(1,:), 'linewidth', targLineW)
+                            end
+                            % Left LFPs
+                            if ~isempty(alignLeftTarg)
+                                erpLeftTarg = PlotData(kDataPlot).leftTarg.(mEpochName).signalMean;
+                                plot(ax(axSig, mEpochPlot), epochRangeDisplay, erpLeftTarg(alignLeftTarg + epochRangeDisplay), 'color', cMap(2,:), 'linewidth', targLineW)
+                            end
+                            
+                    end
+                    
+                end % mEpochPlot
                 
-                set(ax(axSig, mEpoch), 'ycolor', [1 1 1])
-                set(ax(axRas, mEpoch), 'ycolor', [1 1 1])
-            end
+                %                             legend(ax(axGo, 1), {num2cell(pSignalArray'), num2str(pSignalArray')})
+                
+                %         colorbar('peer', ax(axGo, 1), 'location', 'west')
+                %         colorbar('peer', ax(axStopGo, 1), 'location', 'west')
+                h=axes('Position', [0 0 1 1], 'Visible', 'Off');
+                titleString = sprintf('%s \t %s', sessionID, PlotData(kDataPlot).name);
+                text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top', 'color', 'k')
+                if options.printPlot
+                    localFigurePath = local_figure_path;
+                    %          print(figureHandle,[localFigurePath, sessionID, '_', dataArray{kDataPlot}, '_mem_session_' dataType],'-dpdf', '-r300')
+                    %             print(figureHandle,[localFigurePath, sessionID, '_', dataArray{kDataPlot}, '_mem_session_' dataType],'-djpeg')
+%                     print(figureHandle,[local_figure_path, sessionID, '_mem_', PlotData(kDataPlot).name, '_',dataType,'.pdf'],'-dpdf', '-r300')
+ micalaFolder = '/Volumes/SchallLab/Users/Paul/micala/mem/';
+print(figureHandle,[micalaFolder, sessionID, '_mem_', PlotData(kDataPlot).name, '_',dataType,'.pdf'],'-dpdf', '-r300')
+               end
+            end % kUnitIndex
             
             
-            
-            alignRightTarg = Data(kDataIndex).rightTarg.(mEpochName).alignTime;
-            alignLeftTarg = Data(kDataIndex).leftTarg.(mEpochName).alignTime;
-            
-            axes(ax(axSig, mEpoch))
-            fillX = [epochRangeAnalysis(1), epochRangeAnalysis(end), epochRangeAnalysis(end), epochRangeAnalysis(1)];
-            fillY = [yLimMin yLimMin yLimMax yLimMax];
-            fillColor = [1 1 .5];
-            h = fill(fillX, fillY, fillColor);
-            set(h, 'edgecolor', 'none');
-            
-            if strcmp(mEpochName, 'targOn')
-                fillX = [baseEpoch(1), baseEpoch(end), baseEpoch(end), baseEpoch(1)];
-                fillY = [yLimMin yLimMin yLimMax yLimMax];
-                fillColor = [.8 .8 .8];
-                b = fill(fillX, fillY, fillColor);
-                set(b, 'edgecolor', 'none');
-            end
-            
-            % Alignemnt line
-            plot(ax(axSig, mEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
-            
-            
-            
-            switch dataType
-                case 'neuron'
-                    % Right SDFs
-                    if ~isempty(alignRightTarg)
-                        sdfRightTarg = Data(kDataIndex).rightTarg.(mEpochName).signalMean;
-                        plot(ax(axSig, mEpoch), epochRangeDisplay, sdfRightTarg(alignRightTarg + epochRangeDisplay), 'color', cMap(2,:), 'linewidth', targLineW)
-                    end
-                    % Left SDFs
-                    if ~isempty(alignLeftTarg)
-                        sdfLeftTarg = Data(kDataIndex).leftTarg.(mEpochName).signalMean;
-                        plot(ax(axSig, mEpoch), epochRangeDisplay, sdfLeftTarg(alignLeftTarg + epochRangeDisplay), 'color', cMap(1,:), 'linewidth', targLineW)
-                    end
-                    
-                    axes(ax(axRas, mEpoch))
-                    colormap([1 1 1; cMap(1,:); cMap(2,:)])
-                    rasRightTarg =  Data(kDataIndex).rightTarg.(mEpochName).raster;
-                    rightTargRas = fat_raster(rasRightTarg, tickWidth);
-                    rightTargRas = rightTargRas .* 2;
-                    %                  colormap([1 1 1; cMap(2,:)])
-                    imagesc(epochRangeDisplay, 1 : size(rasRightTarg, 1), rightTargRas(:, alignRightTarg + epochRangeDisplay))
-                    
-                    rasLeftTarg =  Data(kDataIndex).leftTarg.(mEpochName).raster;
-                    leftTargRas = fat_raster(rasLeftTarg, tickWidth);
-                    %                 colormap([1 1 1; cMap(1,:)])
-                    imagesc(epochRangeDisplay, 1+size(rasRightTarg, 1) : size(rasRightTarg, 1) + size(rasLeftTarg, 1), leftTargRas(:, alignLeftTarg + epochRangeDisplay))
-                    
-                    plot(ax(axRas, mEpoch), [1 1], [0 rasYlim * .9], '-k', 'linewidth', 2)
-                    
-                    
-                case 'lfp'
-                    % Right LFPs
-                    if ~isempty(alignRightTarg)
-                        lfpRightTarg = Data(kDataIndex).rightTarg.(mEpochName).signalMean;
-                        plot(ax(axSig, mEpoch), epochRangeDisplay, lfpRightTarg(alignRightTarg + epochRangeDisplay), 'color', cMap(1,:), 'linewidth', targLineW)
-                    end
-                    % Left LFPs
-                    if ~isempty(alignLeftTarg)
-                        lfpLeftTarg = Data(kDataIndex).leftTarg.(mEpochName).signalMean;
-                        plot(ax(axSig, mEpoch), epochRangeDisplay, lfpLeftTarg(alignLeftTarg + epochRangeDisplay), 'color', cMap(2,:), 'linewidth', targLineW)
-                    end
-                case 'erp'
-                    % Right LFPs
-                    if ~isempty(alignRightTarg)
-                        erpRightTarg = Data(kDataIndex).rightTarg.(mEpochName).signalMean;
-                        plot(ax(axSig, mEpoch), epochRangeDisplay, erpRightTarg(alignRightTarg + epochRangeDisplay), 'color', cMap(1,:), 'linewidth', targLineW)
-                    end
-                    % Left LFPs
-                    if ~isempty(alignLeftTarg)
-                        erpLeftTarg = Data(kDataIndex).leftTarg.(mEpochName).signalMean;
-                        plot(ax(axSig, mEpoch), epochRangeDisplay, erpLeftTarg(alignLeftTarg + epochRangeDisplay), 'color', cMap(2,:), 'linewidth', targLineW)
-                    end
-                    
-            end
-            
-        end % mEpoch
+        end % plotFlag
         
-        %                             legend(ax(axGo, 1), {num2cell(pSignalArray'), num2str(pSignalArray')})
-        
-        %         colorbar('peer', ax(axGo, 1), 'location', 'west')
-        %         colorbar('peer', ax(axStopGo, 1), 'location', 'west')
-        h=axes('Position', [0 0 1 1], 'Visible', 'Off');
-        titleString = sprintf('%s \t %s', sessionID, Data(kDataIndex).name);
-        text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top', 'color', 'k')
-        if printPlot
-            localFigurePath = local_figure_path;
-            %          print(figureHandle,[localFigurePath, sessionID, '_', dataArray{kDataIndex}, '_mem_session_' dataType],'-dpdf', '-r300')
-            print(figureHandle,[localFigurePath, sessionID, '_', dataArray{kDataIndex}, '_mem_session_' dataType],'-djpeg')
-        end
-    end % kUnitIndex
-    
-    
-end % plotFlag
-
+    end
+end

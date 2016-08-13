@@ -1,16 +1,17 @@
 function ccm_concat_sessions_behavior(subjectID, sessionArray)
 %%
-subjectID = 'human';
+% subjectID = 'human';
 % subjectID = 'xena';
-% subjectID = 'broca';
+subjectID = 'broca';
 
 % sessionSet = 'neural2';
-sessionSet = 'behavior1';
+% sessionSet = 'behavior1';
+sessionSet = 'neural3';
 
 task = 'ccm';
-if nargin < 2
+% if nargin < 2
     [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
-end
+% end
 %
 % subjectID = 'pm'
 % sessionSet = 'allsaccade';
@@ -39,13 +40,13 @@ saccToTargIndex = [];
 for iSession = 1 : nSession
     
     % Load the data
-    iSessionID = sessionArray{iSession};
+    iSessionID = sessionArray{iSession}
     iSubjectID = subjectIDArray{iSession};
 %     if strcmp('human',subjectID)
 %         iSessionID = ['hu',iSessionID];
 %     end
     
-    [trialData, SessionData, ExtraVar] = load_data(iSubjectID, strcat(iSubjectID,iSessionID));
+    [trialData, SessionData, ExtraVar] = load_data(iSubjectID, iSessionID);
     
     %     if ~strcmp(SessionData.taskID, 'ccm')
     %         error('Not a choice countermanding session, try again\n')
@@ -92,27 +93,27 @@ trialData.saccToTargIndex  	= saccToTargIndex;
 
 SessionData.taskID = 'ccm';
 
-switch lower(subjectID)
-    case 'human'
-        pSignalArray = [.35 .42 .46 .54 .58 .65];
-    case 'broca'
-        switch sessionSet
-            case 'behavior1'
-                pSignalArray = [.41 .45 .48 .52 .55 .59];
-            case 'neural1'
-                pSignalArray = [.41 .44 .47 .53 .56 .59];
-            case 'neural2'
-                pSignalArray = [.42 .44 .46 .54 .56 .58];
-            otherwise
-                pSignalArray = ExtraVar.pSignalArray;
-        end
-    case 'xena'
-        switch sessionSet
-            case 'behavior'
-                pSignalArray = [.35 .42 .47 .53 .58 .65];
-                trialData.targ1CheckerProp(trialData.targ1CheckerProp == .52) = .53;
-        end
-end
+% switch lower(subjectID)
+%     case 'human'
+%         pSignalArray = [.35 .42 .46 .54 .58 .65];
+%     case 'broca'
+%         switch sessionSet
+%             case 'behavior1'
+%                 pSignalArray = [.41 .45 .48 .52 .55 .59];
+%             case 'neural1'
+%                 pSignalArray = [.41 .44 .47 .53 .56 .59];
+%             case 'neural2'
+%                 pSignalArray = [.42 .44 .46 .54 .56 .58];
+%             otherwise
+%                 pSignalArray = ExtraVar.pSignalArray;
+%         end
+%     case 'xena'
+%         switch sessionSet
+%             case 'behavior'
+%                 pSignalArray = [.35 .42 .47 .53 .58 .65];
+%                 trialData.targ1CheckerProp(trialData.targ1CheckerProp == .52) = .53;
+%         end
+% end
 
 
 

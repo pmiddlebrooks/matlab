@@ -1,22 +1,19 @@
-function sessionList = find_sessions_data(subjectID, taskID, dataIncludeArray, dataExcludeArray)
+function sessionList = ccm_sessions_list(subjectID, taskID, dataIncludeArray)
 
 %%
+subjectID = 'broca';
+dataIncludeArray = 'spike';
 
 % dataIncludeArray: e.g. {'lfp', 'spike'} would only return sessions that
 % have at least lfps and neurons recorded during the session
 % dataExcludeArray: e.g. {'eeg'} would only return sessions that don't
 % have eegs recorded during the session
 
-if nargin < 4
-   dataExcludeArray = {};
-end
-
 sessionList = {};
 
 
 [tebaDataPath, localDataPath] = subject_data_path(subjectID);
 % tebaDataPath = '/Volumes/SchallLab/data/';
-humanDataPath = '/Volumes/middlepg/HumanData/ChoiceStopTask/';
 monkeyDir = [tebaDataPath];
 directory = dir(monkeyDir);
 
@@ -61,16 +58,44 @@ if firstIndex < length(directory)
             strcmp(directory(i).name(end-3:end), '.mat')            % if it's a matlab file
          
          % Load the data
-         [trialData, SessionData] = load_data(subjectID, directory(i).name(1:end-4));
+         iSessionID = directory(i).name(1:end-4);
+         [trialData, SessionData] = load_data(subjectID, iSessionID);
          
          % Is it the right task?
          iTaskID = SessionData.taskID;
          if strcmpi(taskID, iTaskID)
             
             % Reset flags each time
-            eegFlag = 0;
-            lfpFlag = 0;
-            spikeFlag = 0;
+            eegFlag     = 0;
+            lfpFlag     = 0;
+            spikeFlag   = 0;
+       
+            
+            
+            % Are we looking for spike data?
+            if sum(ismember('spike', dataIncludeArray)) || sum(ismember('spike', dataExcludeArray))
+               % Check for spikeData
+               [spikeFlag, b] = ismember('spikeData', trialData.Properties.VariableNames);
+               if spikeFlag
+                  
+                   
+                  iOpt                  = ccm_options;
+                  iOpt.plotFlag         = 0;
+                  iOpt.collapseSignal   = true;
+                  iOpt.doStops          = false;
+                  
+                  iData = ccm_session_data(subjectID, iSessionID, iOpt);
+                  
+                  for j = 1 : length(Data)
+                      jEntry = ccm_categorize_neuron(iData(j));
+                 
+                  
+                  end % j = 1 : length(Data)
+                  
+                  clear iData
+               end
+            end
+            
             
             % Are we looking for eeg data?
             if sum(ismember('eeg', dataIncludeArray)) || sum(ismember('eeg', dataExcludeArray))
@@ -81,6 +106,8 @@ if firstIndex < length(directory)
                end
             end
             
+            
+            
             % Are we looking for lfp data?
             if sum(ismember('lfp', dataIncludeArray)) || sum(ismember('lfp', dataExcludeArray))
                % Check for eegData
@@ -89,16 +116,6 @@ if firstIndex < length(directory)
                   lfpFlag = 1;
                end
             end
-            
-            % Are we looking for eeg data?
-            if sum(ismember('spike', dataIncludeArray)) || sum(ismember('spike', dataExcludeArray))
-               % Check for eegData
-               [a, b] = ismember('spikeData', trialData.Properties.VariableNames);
-               if a
-                  spikeFlag = 1;
-               end
-            end
-            
             
             
             

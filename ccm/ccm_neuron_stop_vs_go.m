@@ -386,7 +386,7 @@ for kUnitIndex = 1 : nUnit
                 iGoTarg      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'goTarg'}, iSignalP);
                 % Get the stop trial data
                 iStopTarg    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'stopTarg'}, iSignalP, iSSD);
-                iStopStop    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'stopCorrect'}, iSignalP, iSSD);
+                iStopStop    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'stopStop'}, iSignalP, iSSD);
                 
                 switch latencyMatchMethod
                     case 'ssrt'

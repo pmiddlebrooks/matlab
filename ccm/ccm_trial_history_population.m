@@ -66,7 +66,7 @@ if plotFlag
     goTargColor = [0 0 0];
     goDistColor = [.5 .5 .5];
     stopIncorrectColor = [1 0 0];
-    stopCorrectColor = [.7 .4 .5];
+    stopStopColor = [.7 .4 .5];
 end
 
 
@@ -135,7 +135,7 @@ goTargGoTargDiff1 = cellfun(@(x,y) x - y, goTargGoTargRT, goTargRTGoTarg, 'unifo
 goTargGoTargDiff = cellfun(@(x,y) x - y, goTargGoTargGoTargRT, goTargRTGoTargGoTarg, 'uniformOutput', false);
 goDistGoTargDiff = cellfun(@(x,y) x - y, goTargGoDistGoTargRT, goTargRTGoDistGoTarg, 'uniformOutput', false);
 stopIncorrectGoTargDiff = cellfun(@(x,y) x - y, goTargStopIncorrectGoTargRT, goTargRTStopIncorrectGoTarg, 'uniformOutput', false);
-stopCorrectGoTargDiff = cellfun(@(x,y) x - y, goTargStopCorrectGoTargRT, goTargRTStopCorrectGoTarg, 'uniformOutput', false);
+stopStopGoTargDiff = cellfun(@(x,y) x - y, goTargStopCorrectGoTargRT, goTargRTStopCorrectGoTarg, 'uniformOutput', false);
 
 
 
@@ -143,7 +143,7 @@ goTargGoTargDiffMean1 = cellfun(@mean, goTargGoTargDiff1);
 goTargGoTargDiffMean = cellfun(@mean, goTargGoTargDiff);
 goDistGoTargDiffMean = cellfun(@mean, goDistGoTargDiff);
 stopIncorrectGoTargDiffMean = cellfun(@mean, stopIncorrectGoTargDiff);
-stopCorrectGoTargDiffMean = cellfun(@mean, stopCorrectGoTargDiff);
+stopStopGoTargDiffMean = cellfun(@mean, stopStopGoTargDiff);
 
 
 
@@ -151,13 +151,13 @@ goTargGoTargDiffCollapse1 = cell(nSession, 1);
 goTargGoTargDiffCollapse = cell(nSession, 1);
 goDistGoTargDiffCollapse = cell(nSession, 1);
 stopIncorrectGoTargDiffCollapse = cell(nSession, 1);
-stopCorrectGoTargDiffCollapse = cell(nSession, 1);
+stopStopGoTargDiffCollapse = cell(nSession, 1);
 for i = 1 : nSession
     goTargGoTargDiffCollapse1{i} = cell2mat(goTargGoTargDiff1(i,:));
     goTargGoTargDiffCollapse{i} = cell2mat(goTargGoTargDiff(i,:));
     goDistGoTargDiffCollapse{i} = cell2mat(goDistGoTargDiff(i,:));
     stopIncorrectGoTargDiffCollapse{i} = cell2mat(stopIncorrectGoTargDiff(i,:));
-    stopCorrectGoTargDiffCollapse{i} = cell2mat(stopCorrectGoTargDiff(i,:));
+    stopStopGoTargDiffCollapse{i} = cell2mat(stopStopGoTargDiff(i,:));
 end
 
 
@@ -165,7 +165,7 @@ goTargGoTargDiffMeanCollapse1 = cellfun(@mean, goTargGoTargDiffCollapse1);
 goTargGoTargDiffMeanCollapse = cellfun(@mean, goTargGoTargDiffCollapse);
 goDistGoTargDiffMeanCollapse = cellfun(@mean, goDistGoTargDiffCollapse);
 stopIncorrectGoTargDiffMeanCollapse = cellfun(@mean, stopIncorrectGoTargDiffCollapse);
-stopCorrectGoTargDiffMeanCollapse = cellfun(@mean, stopCorrectGoTargDiffCollapse);
+stopStopGoTargDiffMeanCollapse = cellfun(@mean, stopStopGoTargDiffCollapse);
 
 
 
@@ -176,9 +176,9 @@ stopCorrectGoTargDiffMeanCollapse = cellfun(@mean, stopCorrectGoTargDiffCollapse
 % ANOVA WITH GOTARG PAIRS
 
 % ANOVA: RT previous trial effects
-anovaData = [goTargGoTargDiffMeanCollapse1; goDistGoTargDiffMeanCollapse; stopCorrectGoTargDiffMeanCollapse; stopIncorrectGoTargDiffMeanCollapse];
-groupTrial = [repmat({'goTarg'}, length(goTargGoTargDiffMeanCollapse1), 1); repmat({'goDist'}, length(goDistGoTargDiffMeanCollapse), 1); repmat({'stopC'}, length(stopCorrectGoTargDiffMeanCollapse), 1); repmat({'stopI'}, length(stopIncorrectGoTargDiffMeanCollapse), 1)];
-% groupInh = [repmat({'go'}, length(goTargGoTargDiffMeanCollapse) + length(goDistGoTargDiffMeanCollapse), 1); repmat({'stop'}, length(stopCorrectGoTargDiffMeanCollapse) + length(stopIncorrectGoTargDiffMeanCollapse), 1)]
+anovaData = [goTargGoTargDiffMeanCollapse1; goDistGoTargDiffMeanCollapse; stopStopGoTargDiffMeanCollapse; stopIncorrectGoTargDiffMeanCollapse];
+groupTrial = [repmat({'goTarg'}, length(goTargGoTargDiffMeanCollapse1), 1); repmat({'goDist'}, length(goDistGoTargDiffMeanCollapse), 1); repmat({'stopC'}, length(stopStopGoTargDiffMeanCollapse), 1); repmat({'stopI'}, length(stopIncorrectGoTargDiffMeanCollapse), 1)];
+% groupInh = [repmat({'go'}, length(goTargGoTargDiffMeanCollapse) + length(goDistGoTargDiffMeanCollapse), 1); repmat({'stop'}, length(stopStopGoTargDiffMeanCollapse) + length(stopIncorrectGoTargDiffMeanCollapse), 1)]
 
 fprintf(' ************ GoTarg PAIRS RT ANOVA ************ \n')
 [p,table,stats] = anovan(anovaData,{groupTrial}, 'varnames', {'Trial'}, 'display', 'off');
@@ -196,7 +196,7 @@ fprintf('\n ************ RT T-tests ************ \n')
 [h,p, ci, stats] = ttest2(goTargGoTargDiffMeanCollapse1, goDistGoTargDiffMeanCollapse);
 % stats
 fprintf('GoTarg PAIRS goDist-goTarg vs goTarg-goTarg t-test: t(%d) = %.2f \tp = %.5f \t CI: %.2f - %.2f\n', stats.df, stats.tstat, p, ci(1), ci(2));
-[h,p, ci, stats] = ttest2(stopIncorrectGoTargDiffMeanCollapse, stopCorrectGoTargDiffMeanCollapse);
+[h,p, ci, stats] = ttest2(stopIncorrectGoTargDiffMeanCollapse, stopStopGoTargDiffMeanCollapse);
 % stats
 fprintf('GoTarg PAIRS stopCorr-goTarg vs stopIncorr-goTarg t-test: t(%d) = %.2f \tp = %.5f \t CI: %.2f - %.2f\n', stats.df, stats.tstat, p, ci(1), ci(2));
 
@@ -206,9 +206,9 @@ fprintf('GoTarg PAIRS stopCorr-goTarg vs stopIncorr-goTarg t-test: t(%d) = %.2f 
 % ANOVA WITH GOTARG TRIPLETS
 
 % ANOVA: RT previous trial effects
-anovaData = [goTargGoTargDiffMeanCollapse; goDistGoTargDiffMeanCollapse; stopCorrectGoTargDiffMeanCollapse; stopIncorrectGoTargDiffMeanCollapse];
-groupTrial = [repmat({'goTarg'}, length(goTargGoTargDiffMeanCollapse), 1); repmat({'goDist'}, length(goDistGoTargDiffMeanCollapse), 1); repmat({'stopC'}, length(stopCorrectGoTargDiffMeanCollapse), 1); repmat({'stopI'}, length(stopIncorrectGoTargDiffMeanCollapse), 1)];
-% groupInh = [repmat({'go'}, length(goTargGoTargDiffMeanCollapse) + length(goDistGoTargDiffMeanCollapse), 1); repmat({'stop'}, length(stopCorrectGoTargDiffMeanCollapse) + length(stopIncorrectGoTargDiffMeanCollapse), 1)]
+anovaData = [goTargGoTargDiffMeanCollapse; goDistGoTargDiffMeanCollapse; stopStopGoTargDiffMeanCollapse; stopIncorrectGoTargDiffMeanCollapse];
+groupTrial = [repmat({'goTarg'}, length(goTargGoTargDiffMeanCollapse), 1); repmat({'goDist'}, length(goDistGoTargDiffMeanCollapse), 1); repmat({'stopC'}, length(stopStopGoTargDiffMeanCollapse), 1); repmat({'stopI'}, length(stopIncorrectGoTargDiffMeanCollapse), 1)];
+% groupInh = [repmat({'go'}, length(goTargGoTargDiffMeanCollapse) + length(goDistGoTargDiffMeanCollapse), 1); repmat({'stop'}, length(stopStopGoTargDiffMeanCollapse) + length(stopIncorrectGoTargDiffMeanCollapse), 1)]
 
 fprintf('\n\n ************ ALL TRIPLET RT ANOVA ************ \n')
 [p,table,stats] = anovan(anovaData,{groupTrial}, 'varnames', {'Trial'}, 'model', 'full', 'display', 'off');
@@ -226,7 +226,7 @@ fprintf('\n\n\n************ ALL TRIPLET RT T-tests ************ \n')
 [h,p, ci, stats] = ttest2(goTargGoTargDiffMeanCollapse, goDistGoTargDiffMeanCollapse);
 % stats
 fprintf('ALL TRIPLET goDist-goTarg vs goTarg-goTarg t-test: t(%d) = %.2f \tp = %.5f \t CI: %.2f - %.2f\n', stats.df, stats.tstat, p, ci(1), ci(2));
-[h,p, ci, stats] = ttest2(stopIncorrectGoTargDiffMeanCollapse, stopCorrectGoTargDiffMeanCollapse);
+[h,p, ci, stats] = ttest2(stopIncorrectGoTargDiffMeanCollapse, stopStopGoTargDiffMeanCollapse);
 % stats
 fprintf('ALL TRIPLET stopCorr-goTarg vs stopIncorr-goTarg t-test: t(%d) = %.2f \tp = %.5f \t CI: %.2f - %.2f\n', stats.df, stats.tstat, p, ci(1), ci(2));
 
@@ -268,7 +268,7 @@ disp(c)
 
 % t-tests: RT previous trial effects
 fprintf('\n\n ************ p(Stop) T-tests ************ \n')
-[h,p, ci, stats] = ttest2(stopCorrectGoTargDiffMeanCollapse, pGoDistStopCorrectCollapse);
+[h,p, ci, stats] = ttest2(stopStopGoTargDiffMeanCollapse, pGoDistStopCorrectCollapse);
 % stats
 fprintf('goTarg vs goDist t-test: t(%d) = %.2f \tp = %.5f \t CI: %.2f - %.2f\n', stats.df, stats.tstat, p, ci(1), ci(2));
 [h,p, ci, stats] = ttest2(pStopCorrectStopCorrectCollapse, pStopIncorrectStopCorrectCollapse);
@@ -290,13 +290,13 @@ gt = plot(ax(axXGoTarg), signalStrength, nanmean(goTargGoTargDiffMean1, 1), '.--
 gt = plot(ax(axXGoTarg), signalStrength, nanmean(goTargGoTargDiffMean, 1), '.-', 'color', goTargColor, 'linewidth', 2);
 gd = plot(ax(axXGoTarg), signalStrength, nanmean(goDistGoTargDiffMean, 1), '.-', 'color', goDistColor, 'linewidth', 2);
 si = plot(ax(axXGoTarg), signalStrength, nanmean(stopIncorrectGoTargDiffMean, 1), '.-', 'color', stopIncorrectColor, 'linewidth', 2);
-sc = plot(ax(axXGoTarg), signalStrength, nanmean(stopCorrectGoTargDiffMean, 1), '.-', 'color', stopCorrectColor, 'linewidth', 2);
+sc = plot(ax(axXGoTarg), signalStrength, nanmean(stopStopGoTargDiffMean, 1), '.-', 'color', stopStopColor, 'linewidth', 2);
 set(ax(axXGoTarg), 'xlim', [signalStrength(1) - choicePlotXMargin signalStrength(end) + choicePlotXMargin])
 plot(ax(axXGoTarg), signalStrength(1) - .02, nanmean(goTargGoTargDiffMeanCollapse1, 1), '*', 'markeredgecolor', goTargColor, 'markerfacecolor', goTargColor)
 plot(ax(axXGoTarg), signalStrength(1) - .02, nanmean(goTargGoTargDiffMeanCollapse, 1), 'd', 'markeredgecolor', goTargColor, 'markerfacecolor', goTargColor)
 plot(ax(axXGoTarg), signalStrength(1) - .02, nanmean(goDistGoTargDiffMeanCollapse, 1), 'd', 'markeredgecolor', goDistColor, 'markerfacecolor', goDistColor)
 plot(ax(axXGoTarg), signalStrength(1) - .02, nanmean(stopIncorrectGoTargDiffMeanCollapse, 1), 'd', 'markeredgecolor', stopIncorrectColor, 'markerfacecolor', stopIncorrectColor)
-plot(ax(axXGoTarg), signalStrength(1) - .02, nanmean(stopCorrectGoTargDiffMeanCollapse, 1), 'd', 'markeredgecolor', stopCorrectColor, 'markerfacecolor', stopCorrectColor)
+plot(ax(axXGoTarg), signalStrength(1) - .02, nanmean(stopStopGoTargDiffMeanCollapse, 1), 'd', 'markeredgecolor', stopStopColor, 'markerfacecolor', stopStopColor)
 plot(ax(axXGoTarg), xlim(ax(axXGoTarg)), [0 0], '--k')
 legend([gt gd si sc], 'GoTarg-GoTarg', 'GoDist-GoTarg', 'StopCorr-GoTarg', 'StopIncorr-GoTarg')
 
@@ -304,7 +304,7 @@ legend([gt gd si sc], 'GoTarg-GoTarg', 'GoDist-GoTarg', 'StopCorr-GoTarg', 'Stop
 plot(ax(axXGoTarg2), 0, nanmean(pGoTargStopCorrectCollapse, 1), 'o', 'markeredgecolor', goTargColor, 'markerfacecolor', goTargColor)
 plot(ax(axXGoTarg2), 0, nanmean(pGoDistStopCorrectCollapse, 1), 'o', 'markeredgecolor', goDistColor, 'markerfacecolor', goDistColor)
 plot(ax(axXGoTarg2), 0, nanmean(pStopCorrectStopCorrectCollapse, 1), 'o', 'markeredgecolor', stopIncorrectColor, 'markerfacecolor', stopIncorrectColor)
-plot(ax(axXGoTarg2), 0, nanmean(pStopIncorrectStopCorrectCollapse, 1), 'o', 'markeredgecolor', stopCorrectColor, 'markerfacecolor', stopCorrectColor)
+plot(ax(axXGoTarg2), 0, nanmean(pStopIncorrectStopCorrectCollapse, 1), 'o', 'markeredgecolor', stopStopColor, 'markerfacecolor', stopStopColor)
 
 % goTargGoTargRTMean = cell2mat(cellfun(@mean, goTargGoTargRT));
 % goTargRTGoTargMean = cell2mat(cellfun(@mean, goTargRTGoTarg));

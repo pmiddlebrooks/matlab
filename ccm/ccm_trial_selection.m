@@ -29,6 +29,8 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 %     selectOpt.rightCheckerPct  = range of checkerboard percentage of right target checkers:
 %           {'collapse', 'right', 'left'
 %           a double array containing the values, e.g. [40 50 60]
+%     selectOpt.allowRtPreSsd    = whether to allow noncanceled stop trials with RTs before SSDs
+%           true (default) or false
 %     selectOpt.ssd    = range of SSDs to include in the trial list:
 %           {'collapse', 'any', 'none', or
 %           a double array containing the values, e.g. [43 86 129]
@@ -47,8 +49,10 @@ if nargin < 2
     selectOpt.choiceAccuracy   	= 'collapse';
     selectOpt.rightCheckerPct   = 'collapse';
     selectOpt.ssd               = 'any';
+    selectOpt.allowRtPreSsd     = true;
     selectOpt.targDir           = 'collapse';
     selectOpt.responseDir       = 'collapse';
+    selectOpt.doStops           = true;
     if nargin < 1
         trialList                   = selectOpt;
         return
@@ -56,7 +60,9 @@ if nargin < 2
 end
 
 
-
+if strcmp(selectOpt.outcome, 'stopStop')
+    error('stopStop is not valid. Use stopCorrect')
+end
 % if ~iscell(outcome)
 %     error('ccm_trial_selection: need to enter the outcomArray as a cell, e.g. {''valid''}')
 % end
@@ -147,24 +153,32 @@ end
 
 
 
-% Trials w.r.t. the SSDs
-if strcmp(selectOpt.ssd, 'none')
-    % take any trials without a stop signal (nan values for selectOpt.ssd)
-    trialLogical = trialLogical & isnan(trialData.ssd);
-elseif strcmp(selectOpt.ssd, 'any')
-    % Do nothing- might want trials without regard to stop/go
-elseif strcmp(selectOpt.ssd, 'collapse')
-    ssd = min(trialData.ssd) : max(trialData.ssd);
-    trialLogical = trialLogical & ismember(trialData.ssd, ssd);
-else
-    %     ssd = [ssd - 1, ssd, ssd + 1];
-    % For now, use range to within an extra frame refresh
-    ssd = [selectOpt.ssd - 13 : selectOpt.ssd + 18];
-    trialLogical = trialLogical & ismember(trialData.ssd, ssd);
+% Trials w.r.t. the SSDs and whether to allow RTs that preceded SSD on noncanceled stop trials
+if selectOpt.doStops
+    if strcmp(selectOpt.ssd, 'none')
+        % take any trials without a stop signal (nan values for selectOpt.ssd)
+        trialLogical = trialLogical & isnan(trialData.ssd);
+    else
+        
+    % Trials w.r.t. whether to allow RTs that preceded SSD on noncanceled stop
+    % trials
+    if ~selectOpt.allowRtPreSsd
+        trialLogical = trialLogical & ~isnan(trialData.ssd)  & ~isnan(trialData.rt) & trialData.rt > trialData.ssd;
+    end
+        
+    if strcmp(selectOpt.ssd, 'any')
+        % Do nothing- might want trials without regard to stop/go
+    elseif strcmp(selectOpt.ssd, 'collapse')
+        ssd = min(trialData.ssd) : max(trialData.ssd);
+        trialLogical = trialLogical & ismember(trialData.ssd, ssd);
+    else
+        %     ssd = [ssd - 1, ssd, ssd + 1];
+        % For now, use range to within an extra frame refresh
+        ssd = [selectOpt.ssd - 13 : selectOpt.ssd + 18];
+        trialLogical = trialLogical & ismember(trialData.ssd, ssd);
+    end
+    end
 end
-
-
-
 
 
 % Trials w.r.t. target angle (useful for 50%
@@ -277,6 +291,7 @@ end
 
 
 trialList = find(trialLogical);
+
 
 % toc
 % disp('angle')

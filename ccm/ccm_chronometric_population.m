@@ -6,7 +6,7 @@ function data = ccm_chronometric_population(subjectID, plotFlag, figureHandle)
 fprintf('\n\n\n\n')
 disp('*******************************************************************************')
 disp('Populaiton chronometric')
-subjectID = 'Human';
+% subjectID = 'Human';
 % subjectID = 'Xena';
 % sessionSet = 'behavior';
 subjectID = 'broca';
@@ -15,12 +15,12 @@ sessionSet = 'behavior2';
 
 task = 'ccm';
 [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
-if nargin < 3
+% if nargin < 3
     plotFlag = 1;
-end
-if nargin < 4
+% end
+% if nargin < 4
     figureHandle = 4950;
-end
+% end
 
 
 

@@ -170,7 +170,7 @@ for kUnitIndex = 1 : nUnit
             
             
             % Get the stop trial data
-            jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, 'fixOn', {'stopCorrect'}, iTarget, kSSD);
+            jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, 'fixOn', {'stopStop'}, iTarget, kSSD);
 %             jStopTargSacc    = cmd_concat_neural_conditions(Unit(kUnitIndex), 'responseOnset', 'targOn', {'stopStop'}, iTarget, kSSD);
             jStopTargTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopStop'}, iTarget, kSSD);
             
@@ -490,7 +490,7 @@ end
 %             end
 %
 %             % Get the stop trial data
-%             jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopCorrect'}, iTarget, kSSD);
+%             jStopStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopStop'}, iTarget, kSSD);
 %             jStopTargTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopStop'}, iTarget, kSSD);
 %
 %             if isempty(jStopTargTarg.sdf) && ~strcmp(latencyMatchMethod, 'ssrt')

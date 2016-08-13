@@ -1,37 +1,44 @@
-function [SessionData] = ccm_session_behavior(subjectID, sessionID, varargin)
+function [Data] = ccm_session_behavior(subjectID, sessionID, options)
 %%
 
-% Set defaults
-plotFlag = 1;
-printPlot = 0;
-collapseTarg = false;
-for i = 1 : 2 : length(varargin)
-   switch varargin{i}
-      case 'plotFlag'
-         plotFlag = varargin{i+1};
-      case 'printPlot'
-         printPlot = varargin{i+1};
-      case 'collapseTarg'
-         collapseTarg = varargin{i+1};
-      otherwise
-   end
+% Set default options or return a default options structure
+if nargin < 3
+    options.collapseSignal   	= false;
+    options.collapseTarg        = false;
+    options.include50           = false;
+    options.doStops             = true;
+    
+    options.plotFlag            = true;
+    options.printPlot           = false;
+    options.figureHandle      	= 400;
+    
+    % Return just the default options struct if no input
+    if nargin == 0
+        Data           = options;
+        return
+    end
 end
+plotFlag = options.plotFlag;
+printPlot = options.printPlot;
+collapseTarg = options.collapseTarg;
 
-DO_STOPS = 1;
+
+
 
 % Load the data
 [trialData, SD, ExtraVar] = load_data(subjectID, sessionID);
-pSignalArray = ExtraVar.pSignalArray;
 ssdArray = ExtraVar.ssdArray;
+pSignalArray = unique(trialData.targ1CheckerProp);
+targAngleArray = unique(trialData.targAngle);
 nTrial = size(trialData, 1);
 
 if ~strcmp(SD.taskID, 'ccm')
-   fprintf('Not a choice countermanding session, try again\n')
-   return
+    fprintf('Not a choice countermanding session, try again\n')
+    return
 end
 
 
-
+clf
 
 
 % axes names
@@ -40,68 +47,54 @@ pRightVsPCorrect = 7;
 
 
 
-if plotFlag
-   %     nRow = 3;
-   %     nColumn = 3;
-   %     screenOrSave = 'save';
-   figureHandle = 9239;
-   %         if printPlot
-   %             [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nColumn, figureHandle);
-   %         else
-   %             [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
-   %         end
-   % %     [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = big_figure(nRow, nColumn, figureHandle, screenOrSave);
-   %     clf
-   %     choicePlotXMargin = .03;
-   %     ssdMargin = 20;
-   %     ylimArray = [];
-   
+figureHandle = 9239;
+
+
+
+
+
+
+
+
+if options.doStops
+    
+    % ***********************************************************************
+    % Inhibition Function:
+    %       &
+    % SSD vs. Proportion of Response trials
+    %       &
+    % SSD vs. Proportion(Correct Choice)
+    % ***********************************************************************
+    
+    
+    disp('Stopping data')
+    optInh                  = ccm_options;
+    optInh.collapseTarg     = collapseTarg;
+    optInh.printPlot        = printPlot;
+    optInh.plotFlag         = plotFlag;
+    optInh.figureHandle     = figureHandle;
+    dataInh                 = ccm_inhibition(subjectID, sessionID, optInh);
+    
+    stopRespondProb     = dataInh.stopRespondProb;
+    nStop               = dataInh.nStop;
+    nStopStop           = dataInh.nStopStop;
+    nStopTarg           = dataInh.nStopTarg;
+    nStopDist           = dataInh.nStopDist;
+    stopTargetProb      = dataInh.stopTargetProb;
+    inhibitionFn        = dataInh.inhibitionFn;
+    ssrtGrand          	= dataInh.ssrtGrand;
+    ssrtMean          	= dataInh.ssrtMean;
+    ssrtIntegration   	= dataInh.ssrtIntegration;
+    ssrtIntegrationWeighted 	= dataInh.ssrtIntegrationWeighted;
+    ssrtIntegrationSimple   	= dataInh.ssrtIntegrationSimple;
+    stopRespondProbGrand        = dataInh.stopRespondProbGrand;
+    inhibitionFnGrand           = dataInh.inhibitionFnGrand;
+    ssrtCollapseGrand           = dataInh.ssrtCollapseGrand;
+    ssrtCollapseIntegrationWeighted 	= dataInh.ssrtCollapseIntegrationWeighted;
+    ssrtCollapseIntegration             = dataInh.ssrtCollapseIntegration;
+    ssrtCollapseMean                    = dataInh.ssrtCollapseMean;
+    
 end
-
-
-
-
-
-
-
-
-
-
-% ***********************************************************************
-% Inhibition Function:
-%       &
-% SSD vs. Proportion of Response trials
-%       &
-% SSD vs. Proportion(Correct Choice)
-% ***********************************************************************
-
-
-disp('Stopping data')
-optInh              = ccm_inhibition;
-optInh.collapseTarg = collapseTarg;
-optInh.printPlot    = printPlot;
-dataInh             = ccm_inhibition(subjectID, sessionID, optInh);
-
-stopRespondProb     = dataInh.stopRespondProb;
-nStop               = dataInh.nStop;
-nStopStop           = dataInh.nStopStop;
-nStopTarg           = dataInh.nStopTarg;
-nStopDist           = dataInh.nStopDist;
-stopTargetProb      = dataInh.stopTargetProb;
-inhibitionFn        = dataInh.inhibitionFn;
-ssrtGrand          	= dataInh.ssrtGrand;
-ssrtMean          	= dataInh.ssrtMean;
-ssrtIntegration   	= dataInh.ssrtIntegration;
-ssrtIntegrationWeighted 	= dataInh.ssrtIntegrationWeighted;
-ssrtIntegrationSimple   	= dataInh.ssrtIntegrationSimple;
-stopRespondProbGrand        = dataInh.stopRespondProbGrand;
-inhibitionFnGrand           = dataInh.inhibitionFnGrand;
-ssrtCollapseGrand           = dataInh.ssrtCollapseGrand;
-ssrtCollapseIntegrationWeighted 	= dataInh.ssrtCollapseIntegrationWeighted;
-ssrtCollapseIntegration             = dataInh.ssrtCollapseIntegration;
-ssrtCollapseMean                    = dataInh.ssrtCollapseMean;
-
-
 
 
 
@@ -122,53 +115,57 @@ nGoDistTotal      = nan(length(pSignalArray), 1);
 selectOpt = ccm_trial_selection;
 
 for iPropIndex = 1 : length(pSignalArray);
-   iPct = pSignalArray(iPropIndex) * 100;
-   selectOpt.rightCheckerPct = iPct;
-   
-   selectOpt.ssd = 'none';
-   selectOpt.outcome     = {'goCorrectDistractor'};
-   goDist = ccm_trial_selection(trialData, selectOpt);
-   iGoDistIndices = zeros(nTrial, 1);
-   iGoDistIndices(goDist) = 1;
-   
-   oddData = find(isnan(trialData.saccToTargIndex) & iGoDistIndices & ismember(trialData.targ1CheckerProp, pSignalArray));
-   if oddData
-      fprintf('%d trials are listed as %s but don''t have valid saccades to target:\n', length(oddData), selectOpt.outcome{:})
-      %         disp(oddData)
-      %         trialData(goDist,:)
-   end
-   iGoDistIndices(oddData) = 0;
-   
-   if sum(iGoDistIndices)
-      iGoDist = find(iGoDistIndices);
-      goDistTotal{iPropIndex} = iGoDist;  % Keep track of totals for grand inhibition fnct
-      nGoDistTotal(iPropIndex) = length(iGoDist);  % Keep track of totals for grand inhibition fnct
-   end
-   
-   
-   selectOpt.outcome     = {'goCorrectTarget'};
-   goTarg = ccm_trial_selection(trialData, selectOpt);
-   iGoTargIndices = zeros(nTrial, 1);
-   iGoTargIndices(goTarg) = 1;
-   
-   oddData = find(isnan(trialData.saccToTargIndex) & iGoTargIndices & ismember(trialData.targ1CheckerProp, pSignalArray));
-   if oddData
-      fprintf('%d trials are listed as %s but don''t have valid saccades to target:\n', length(oddData), selectOpt.outcome{:})
-      %         disp(oddData)
-      %         trialData(goTarg,:)
-   end
-   iGoTargIndices(oddData) = 0;
-   
-   if sum(iGoTargIndices)
-      iGoTarg = find(iGoTargIndices);
-      goTargTotal{iPropIndex} = iGoTarg;  % Keep track of totals for grand inhibition fnct
-      nGoTargTotal(iPropIndex) = length(iGoTarg);  % Keep track of totals for grand inhibition fnct
-   end
+    iPct = pSignalArray(iPropIndex) * 100;
+    selectOpt.rightCheckerPct = iPct;
+    selectOpt.plotFlag    = plotFlag;
+    selectOpt.figureHandle    = figureHandle;
+    
+    selectOpt.ssd = 'none';
+    selectOpt.outcome     = {'goCorrectDistractor'};
+    goDist = ccm_trial_selection(trialData, selectOpt);
+    iGoDistIndices = zeros(nTrial, 1);
+    iGoDistIndices(goDist) = 1;
+    
+    oddData = find(isnan(trialData.saccToTargIndex) & iGoDistIndices & ismember(trialData.targ1CheckerProp, pSignalArray));
+    if oddData
+        fprintf('%d trials are listed as %s but don''t have valid saccades to target:\n', length(oddData), selectOpt.outcome{:})
+        %         disp(oddData)
+        %         trialData(goDist,:)
+    end
+    iGoDistIndices(oddData) = 0;
+    
+    if sum(iGoDistIndices)
+        iGoDist = find(iGoDistIndices);
+        goDistTotal{iPropIndex} = iGoDist;  % Keep track of totals for grand inhibition fnct
+        nGoDistTotal(iPropIndex) = length(iGoDist);  % Keep track of totals for grand inhibition fnct
+    end
+    
+    
+    selectOpt.outcome     = {'goCorrectTarget'};
+    goTarg = ccm_trial_selection(trialData, selectOpt);
+    iGoTargIndices = zeros(nTrial, 1);
+    iGoTargIndices(goTarg) = 1;
+    
+    oddData = find(isnan(trialData.saccToTargIndex) & iGoTargIndices & ismember(trialData.targ1CheckerProp, pSignalArray));
+    if oddData
+        fprintf('%d trials are listed as %s but don''t have valid saccades to target:\n', length(oddData), selectOpt.outcome{:})
+        %         disp(oddData)
+        %         trialData(goTarg,:)
+    end
+    iGoTargIndices(oddData) = 0;
+    
+    if sum(iGoTargIndices)
+        iGoTarg = find(iGoTargIndices);
+        goTargTotal{iPropIndex} = iGoTarg;  % Keep track of totals for grand inhibition fnct
+        nGoTargTotal(iPropIndex) = length(iGoTarg);  % Keep track of totals for grand inhibition fnct
+    end
 end
 
 goTargetProb = nGoTargTotal ./ (nGoTargTotal + nGoDistTotal);
 goTargetProb(isnan(goTargetProb)) = 1;
-%
+
+
+
 % if plotFlag
 %     % p(rightward response) vs p(correct choice)
 %     ax(pRightVsPCorrect) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 3) yAxesPosition(1, 3) axisWidth axisHeight]);
@@ -214,6 +211,10 @@ disp('Psychometric data')
 optPsy = ccm_psychometric;
 optPsy.collapseTarg = collapseTarg;
 optPsy.printPlot = printPlot;
+optPsy.doStops = options.doStops;
+
+optPsy.plotFlag    = plotFlag;
+optPsy.figureHandle    = figureHandle;
 dataPsych = ccm_psychometric(subjectID, sessionID, optPsy);
 % [nGo, nGoRight, nStopIncorrect, nStopIncorrectRight, goRightLogical, goRightSignalStrength, stopRightLogical, stopRightSignalStrength] = ccm_psychometric(subjectID, sessionID, plotFlag);
 nGo                 = dataPsych.nGo;
@@ -224,6 +225,7 @@ goRightLogical      = dataPsych.goRightLogical;
 goRightSignalStrength = dataPsych.goRightSignalStrength;
 stopRightLogical    = dataPsych.stopRightLogical;
 stopRightSignalStrength = dataPsych.stopRightSignalStrength;
+goPsychFn           =   dataPsych.goPsychFn;
 %
 
 
@@ -250,6 +252,9 @@ disp('Chronometric data')
 optChr = ccm_chronometric;
 optChr.collapseTarg = collapseTarg;
 optChr.printPlot = printPlot;
+optChr.plotFlag    = plotFlag;
+optChr.figureHandle    = figureHandle;
+optChr.doStops = options.doStops;
 dataChron = ccm_chronometric(subjectID, sessionID, optChr);
 
 pSignalArrayLeft 	= dataChron.pSignalArrayLeft;
@@ -271,59 +276,61 @@ stopRightToDist    	= dataChron.stopRightToDist;
 
 
 for i = 1 : size(dataChron, 1)
-   
-   SessionData(i).pSignalArray    = pSignalArray;
-SessionData(i).ssdArray        = ssdArray;
-
-
-SessionData(i).stopRespondProb      = dataInh(i).stopRespondProb;
-SessionData(i).nStop                = dataInh(i).nStop;
-SessionData(i).nStopStop            = dataInh(i).nStopStop;
-SessionData(i).nStopTarg            = dataInh(i).nStopTarg;
-SessionData(i).nStopDist            = dataInh(i).nStopDist;
-% SessionData(i).goTargetProb         = dataInh(i).goTargetProb;
-SessionData(i).stopTargetProb       = dataInh(i).stopTargetProb;
-SessionData(i).inhibitionFn         = dataInh(i).inhibitionFn;
-SessionData(i).ssrtGrand            = dataInh(i).ssrtGrand;
-SessionData(i).ssrtMean             = dataInh(i).ssrtMean;
-SessionData(i).ssrtIntegration      = dataInh(i).ssrtIntegration;
-SessionData(i).ssrtIntegrationWeighted = dataInh(i).ssrtIntegrationWeighted;
-SessionData(i).ssrtIntegrationSimple = dataInh(i).ssrtIntegrationSimple;
-SessionData(i).ssrtCollapseGrand   	= dataInh(i).ssrtCollapseGrand;
-SessionData(i).ssrtCollapseIntegrationWeighted     	= dataInh(i).ssrtCollapseIntegrationWeighted;
-SessionData(i).ssrtCollapseIntegration  	= dataInh(i).ssrtCollapseIntegration;
-SessionData(i).ssrtCollapseMean    	= dataInh(i).ssrtCollapseMean;
-SessionData(i).stopRespondProbGrand = dataInh(i).stopRespondProbGrand;
-SessionData(i).inhibitionFnGrand    = dataInh(i).inhibitionFnGrand;
-
-
-SessionData(i).nGo                  = dataPsych(i).nGo;
-SessionData(i).nGoRight             = dataPsych(i).nGoRight;
-SessionData(i).nStopIncorrect       = dataPsych(i).nStopIncorrect;
-SessionData(i).nStopIncorrectRight  = dataPsych(i).nStopIncorrectRight;
-SessionData(i).goRightLogical       = dataPsych(i).goRightLogical;
-SessionData(i).goRightSignalStrength = dataPsych(i).goRightSignalStrength;
-SessionData(i).stopRightLogical     = dataPsych(i).stopRightLogical;
-SessionData(i).stopRightSignalStrength = dataPsych(i).stopRightSignalStrength;
-
-
-SessionData(i).pSignalArrayLeft = dataChron(i).pSignalArrayLeft;
-SessionData(i).pSignalArrayRight = dataChron(i).pSignalArrayRight;
-SessionData(i).goLeftToTarg    = dataChron(i).goLeftToTarg;
-SessionData(i).goRightToTarg   = dataChron(i).goRightToTarg;
-SessionData(i).goLeftToDist    = dataChron(i).goLeftToDist;
-SessionData(i).goRightToDist   = dataChron(i).goRightToDist;
-SessionData(i).stopLeftToTarg  = dataChron(i).stopLeftToTarg;
-SessionData(i).stopRightToTarg = dataChron(i).stopRightToTarg;
-SessionData(i).stopLeftToDist  = dataChron(i).stopLeftToDist;
-SessionData(i).stopRightToDist = dataChron(i).stopRightToDist;
+    
+    Data(i).pSignalArray    = pSignalArray;
+    Data(i).ssdArray        = ssdArray;
+    
+    if options.doStops
+    Data(i).stopRespondProb      = dataInh(i).stopRespondProb;
+    Data(i).nStop                = dataInh(i).nStop;
+    Data(i).nStopStop            = dataInh(i).nStopStop;
+    Data(i).nStopTarg            = dataInh(i).nStopTarg;
+    Data(i).nStopDist            = dataInh(i).nStopDist;
+    % Data(i).goTargetProb         = dataInh(i).goTargetProb;
+    Data(i).stopTargetProb       = dataInh(i).stopTargetProb;
+    Data(i).inhibitionFn         = dataInh(i).inhibitionFn;
+    Data(i).ssrtGrand            = dataInh(i).ssrtGrand;
+    Data(i).ssrtMean             = dataInh(i).ssrtMean;
+    Data(i).ssrtIntegration      = dataInh(i).ssrtIntegration;
+    Data(i).ssrtIntegrationWeighted = dataInh(i).ssrtIntegrationWeighted;
+    Data(i).ssrtIntegrationSimple = dataInh(i).ssrtIntegrationSimple;
+    Data(i).ssrtCollapseGrand   	= dataInh(i).ssrtCollapseGrand;
+    Data(i).ssrtCollapseIntegrationWeighted     	= dataInh(i).ssrtCollapseIntegrationWeighted;
+    Data(i).ssrtCollapseIntegration  	= dataInh(i).ssrtCollapseIntegration;
+    Data(i).ssrtCollapseMean    	= dataInh(i).ssrtCollapseMean;
+    Data(i).stopRespondProbGrand = dataInh(i).stopRespondProbGrand;
+    Data(i).inhibitionFnGrand    = dataInh(i).inhibitionFnGrand;
+    end
+    
+    Data(i).goPsychFn         	= dataPsych(i).goPsychFn;
+    Data(i).nGo                  = dataPsych(i).nGo;
+    Data(i).nGoRight             = dataPsych(i).nGoRight;
+    Data(i).nStopIncorrect       = dataPsych(i).nStopIncorrect;
+    Data(i).nStopIncorrectRight  = dataPsych(i).nStopIncorrectRight;
+    Data(i).goRightLogical       = dataPsych(i).goRightLogical;
+    Data(i).goRightSignalStrength = dataPsych(i).goRightSignalStrength;
+    Data(i).stopRightLogical     = dataPsych(i).stopRightLogical;
+    Data(i).stopRightSignalStrength = dataPsych(i).stopRightSignalStrength;
+    
+    
+    Data(i).pSignalArrayLeft = dataChron(i).pSignalArrayLeft;
+    Data(i).pSignalArrayRight = dataChron(i).pSignalArrayRight;
+    Data(i).goLeftToTarg    = dataChron(i).goLeftToTarg;
+    Data(i).goRightToTarg   = dataChron(i).goRightToTarg;
+    Data(i).goLeftToDist    = dataChron(i).goLeftToDist;
+    Data(i).goRightToDist   = dataChron(i).goRightToDist;
+    Data(i).stopLeftToTarg  = dataChron(i).stopLeftToTarg;
+    Data(i).stopRightToTarg = dataChron(i).stopRightToTarg;
+    Data(i).stopLeftToDist  = dataChron(i).stopLeftToDist;
+    Data(i).stopRightToDist = dataChron(i).stopRightToDist;
 end
 
 
 
-if printPlot
-   localFigurePath = local_figure_path;
-   print(figureHandle,[localFigurePath, sessionID,'_ccm_behavior'],'-dpdf', '-r300')
+if printPlot && plotFlag
+    localFigurePath = local_figure_path;
+    
+    print(figureHandle+1,[localFigurePath, sessionID,'_ccm_behavior'],'-dpdf', '-r300')
 end
 % delete(localDataFile);
 

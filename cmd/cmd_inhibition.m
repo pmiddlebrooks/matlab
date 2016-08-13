@@ -131,16 +131,16 @@ for jSSDIndex = 1 : length(ssdArray)
     
     % stop correct trials
     selectOpt.outcomeArray   = {'stopCorrect'};
-    stopCorrectTrial         = cmd_trial_selection(trialData,  selectOpt);
+    stopStopTrial         = cmd_trial_selection(trialData,  selectOpt);
     
     % stop incorrect trials
     selectOpt.outcomeArray 	= {'targetHoldAbort', 'stopIncorrect', 'stopIncorrectTarget', 'stopIncorrectPreSSDTarget'};
     stopIncorrectTrial       = cmd_trial_selection(trialData,  selectOpt);
     
     % Inhibition function data points:
-    nStopStop(jSSDIndex)        	= length(stopCorrectTrial);
+    nStopStop(jSSDIndex)        	= length(stopStopTrial);
     nStopTarg(jSSDIndex)        	= length(stopIncorrectTrial);
-    nStop(jSSDIndex)        	= length(stopIncorrectTrial) + length(stopCorrectTrial);
+    nStop(jSSDIndex)        	= length(stopIncorrectTrial) + length(stopStopTrial);
     pStopRespond(jSSDIndex) 	= length(stopIncorrectTrial) / nStop(jSSDIndex);
     
 end % iSSDIndex
@@ -240,15 +240,15 @@ if nTarg > 1
             
             % stop correct trials
             selectOpt.outcomeArray   = {'stopCorrect'};
-            stopCorrectTrialAngle    = cmd_trial_selection(trialData,  selectOpt);
+            stopStopTrialAngle    = cmd_trial_selection(trialData,  selectOpt);
             
             % stop incorrect trials
             selectOpt.outcomeArray	= {'targetHoldAbort', 'stopIncorrect', 'stopIncorrectTarget', 'stopIncorrectPreSSDTarget'};
             stopIncorrectTrialAngle  = cmd_trial_selection(trialData,  selectOpt);
             
-            nStopStopAngle(iTarg, jSSDIndex)               = length(stopCorrectTrialAngle);
+            nStopStopAngle(iTarg, jSSDIndex)               = length(stopStopTrialAngle);
             nStopTargAngle(iTarg, jSSDIndex)               = length(stopIncorrectTrialAngle);
-            nStopAngle(iTarg, jSSDIndex)               = length(stopCorrectTrialAngle) + length(stopIncorrectTrialAngle);
+            nStopAngle(iTarg, jSSDIndex)               = length(stopStopTrialAngle) + length(stopIncorrectTrialAngle);
             pStopRespondAngle(iTarg, jSSDIndex)     = length(stopIncorrectTrialAngle) / nStopAngle(iTarg, jSSDIndex);
             
         end % iSSDIndex

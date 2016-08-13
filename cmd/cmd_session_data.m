@@ -31,7 +31,7 @@ function Data = cmd_session_data(subjectID, sessionID, options)%dataType, vararg
 %
 %   Data.angle(x).(condition).ssd(x).(epoch name).(signal)
 
-%   condition can be:  goTarg, goDist, stopTarg, stopDist, stopCorrect
+%   condition can be:  goTarg, goDist, stopTarg, stopDist, stopStop
 %   ssd(x):  only applies for stop trials, else the field is absent
 %   epoch name: fixOn, targOn, checkerOn, etc.
 %   nGo
@@ -327,7 +327,7 @@ for kDataIndex = 1 : nUnit
             alignListStopTarg = trialData.(mEpochName)(jStopTargTrial);
             Data(kDataIndex).angle(iTarg).stopTarg.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListStopTarg;   % Keep track of trial-by-trial alignemnt
             alignListStopCorrect = trialData.(mEpochName)(jStopCorrectTrial);
-            Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListStopCorrect;   % Keep track of trial-by-trial alignemnt
+            Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListStopCorrect;   % Keep track of trial-by-trial alignemnt
             
             
             
@@ -346,13 +346,13 @@ for kDataIndex = 1 : nUnit
                   if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
                      % Stop to Target trials
                      [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(jStopCorrectTrial, kUnit), alignListStopCorrect);
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).alignTime = alignmentIndex;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).alignTime = alignmentIndex;
                      
                      sdf = spike_density_function(alignedRasters, Kernel);
                      if ~isempty(sdf); yMax(mEpoch, iTarg, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).raster = alignedRasters;
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).sdf = sdf;
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).sdfMean = nanmean(sdf, 1);
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).raster = alignedRasters;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).sdf = sdf;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).sdfMean = nanmean(sdf, 1);
                      
                   end
                   
@@ -396,9 +396,9 @@ for kDataIndex = 1 : nUnit
                         stopLFPMean = nanmean(stopLFP, 1);
                      end
                      
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).lfp = stopLFP;
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).lfpMean = stopLFPMean;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).lfp = stopLFP;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).lfpMean = stopLFPMean;
                      if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
                         if ~isempty(stopLFP)
                            yMax(kDataIndex, mEpoch, iTarg, jSSDIndex + 1, 3) = nanmax(nanmean(stopLFP, 1));
@@ -447,9 +447,9 @@ for kDataIndex = 1 : nUnit
                         stopEEGMean = nanmean(stopEEG, 1);
                      end
                      
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).eeg = stopEEG;
-                     Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).erp = stopEEGMean;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).eeg = stopEEG;
+                     Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).erp = stopEEGMean;
                      if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
                         if ~isempty(stopEEG)
                            yMax(mEpoch, iTarg, jSSDIndex + 1, 3) = nanmax(nanmean(stopEEG, 1));
@@ -555,10 +555,10 @@ if normalize
                      if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
                         
                         % Stop Correct trials
-                        Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).sdf = ...
-                           Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).sdf ./ Data(kDataIndex).yMax;
-                        Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).sdfMean = ...
-                           nanmean(Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).sdf, 1);
+                        Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).sdf = ...
+                           Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).sdf ./ Data(kDataIndex).yMax;
+                        Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).sdfMean = ...
+                           nanmean(Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).sdf, 1);
                         
                      end % ~strcmp(mEpochName, 'responseOnset')
                      
@@ -575,10 +575,10 @@ if normalize
                      if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
                         
                         % Stop Correct trials
-                        Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).lfp = ...
-                           Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).lfp ./ Data(kDataIndex).yMax;
-                        Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).lfpMean = ...
-                           nanmean(Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).lfp, 1);
+                        Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).lfp = ...
+                           Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).lfp ./ Data(kDataIndex).yMax;
+                        Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).lfpMean = ...
+                           nanmean(Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).lfp, 1);
                         
                      end % ~strcmp(mEpochName, 'responseOnset')
                      
@@ -594,10 +594,10 @@ if normalize
                      if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
                         
                         % Stop Correct trials
-                        Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).eeg = ...
-                           Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).eeg ./ Data(kDataIndex).yMax;
-                        Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).erp = ...
-                           nanmean(Data(kDataIndex).angle(iTarg).stopCorrect.ssd(jSSDIndex).(mEpochName).eeg, 1);
+                        Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).eeg = ...
+                           Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).eeg ./ Data(kDataIndex).yMax;
+                        Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).erp = ...
+                           nanmean(Data(kDataIndex).angle(iTarg).stopStop.ssd(jSSDIndex).(mEpochName).eeg, 1);
                         
                      end % ~strcmp(mEpochName, 'responseOnset')
                      

@@ -4,24 +4,32 @@ debug = 1;
 testCode = 0;
 if testCode
     %%
-    Unit = ccm_single_neuron('Broca','bp093n02', 'plotFlag', 0);
-    [trialData, SessionData, pSignalArray , ssdArray] = load_data('Broca', 'bp093n02');
+    Opt = ccm_options;
+    Opt.plotFlag = false;
+    
+    Unit = ccm_session_data('Broca','bp093n02', Opt);
+%     [trialData, SessionData] = load_data('Broca', 'bp093n02');
     %%
-    sigInd = 6;
-    opt = ccm_concat_neural_conditions;
+    sigInd          = 5;
+    opt             = ccm_concat_neural_conditions;
+    opt.epochName   = 'responseOnset';
+    opt.eventMarkName = 'checkerOn';
+    opt.colorCohArray = Unit(1).pSignalArray(sigInd);
     
     opt.conditionArray = {'goTarg'};
-    dataGoTarg    = ccm_concat_neural_conditions(Unit(1), opt);
+    dataGoTarg      = ccm_concat_neural_conditions(Unit(1), opt);
     
     opt.conditionArray = {'stopTarg'};
-    dataStopTarg    = ccm_concat_neural_conditions(Unit(1), 'checkerOn', 'responseOnset', {'stopTarg'}, pSignalArray(sigInd), ssdArray);
+    opt.ssdArray = Unit(1).ssdArray;
+    dataStopTarg    = ccm_concat_neural_conditions(Unit(1), opt);
     
-    opt.conditionArray = {'stopCorrect'};
-    opt.eventMarkName = {'checkerOn'};
-    dataStopStop    = ccm_concat_neural_conditions(Unit(1), 'checkerOn', 'checkerOn', {'stopCorrect'}, pSignalArray(sigInd), ssdArray);
+    opt.conditionArray = {'stopStop'};
+    opt.epochName   = 'stopSignalOn';
+    opt.eventMarkName = 'checkerOn';
+    dataStopStop    = ccm_concat_neural_conditions(Unit(1), opt);
     
     %%
-    nStopCorrect = size(dataStopStop.raster, 1);
+%     nStopCorrect = size(dataStopStop.raster, 1);
     
     goRT    = dataGoTarg.eventLatency;
     stopRT  = dataStopTarg.eventLatency;
@@ -43,11 +51,11 @@ goRTSample      = goRT;
 % trial number available
 [goMeshRT, stopMeshRT]      = meshgrid(goRTSample, stopRT);
 [goMeshTrial, stopMeshTrial] = meshgrid(goTrialSample, 1:nStopTarg);
-
+%%
 % Take the difference between each possible pair to find the lowest
 % difference (nearest-neighbor matched RTs)
 [deltaRT, ind] = sort(abs(goMeshRT(:) - stopMeshRT(:)));
-
+%%
 % Sort trials in in same order as sorted deltaRT
 goMeshTrial     = goMeshTrial(ind);
 stopMeshTrial   = stopMeshTrial(ind);

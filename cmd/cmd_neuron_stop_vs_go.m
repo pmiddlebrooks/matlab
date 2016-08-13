@@ -235,7 +235,7 @@ if plotFlag
                     end
                     
                     % Get the stop trial data
-                    jStopStop    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopCorrect'}, iTarget, kSSD);
+                    jStopStop    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopStop'}, iTarget, kSSD);
                     jStopTarg    = cmd_concat_neural_conditions(Unit(kUnitIndex), epochName, eventMarkName, {'stopTarg'}, iTarget, kSSD);
                     
                     if isempty(jStopTarg.sdf) && ~strcmp(latencyMatchMethod, 'ssrt')

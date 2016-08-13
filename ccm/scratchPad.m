@@ -18,7 +18,7 @@ for iPropIndex = 1 : 4
     
     sprintf('stopTarg condiiton %i, %i trials', iPropIndex, size(data(kDataIndex, jTarg).signalStrength(iPropIndex).stopTarg.ssd(iSSD).(mEpochName).raster, 1))
     sprintf('stopDist condiiton %i, %i trials', iPropIndex, size(data(kDataIndex, jTarg).signalStrength(iPropIndex).stopDist.ssd(iSSD).(mEpochName).raster, 1))
-    sprintf('stopStop condiiton %i, %i trials', iPropIndex, size(data(kDataIndex, jTarg).signalStrength(iPropIndex).stopCorrect.ssd(iSSD).(mEpochName).raster, 1))
+    sprintf('stopStop condiiton %i, %i trials', iPropIndex, size(data(kDataIndex, jTarg).signalStrength(iPropIndex).stopStop.ssd(iSSD).(mEpochName).raster, 1))
 
     sumGoTarg = sumGoTarg + nGoTarg;
     sumGoDist = sumGoDist + nGoDist;

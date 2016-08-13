@@ -213,7 +213,7 @@ for kDataIndex = 1 : nUnit
          stopTargAlign = cell(1, length(ssdArray));
          stopDistSig = cell(1, length(ssdArray));
          stopDistAlign = cell(1, length(ssdArray));
-         stopCorrectSig = cell(1, length(ssdArray));
+         stopStop
          stopCorrectAlign = cell(1, length(ssdArray));
          for jSSDIndex = 1 : length(ssdArray)
             stopTargSig{jSSDIndex} = Data(kDataIndex).signalStrength(iPropIndexL).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);
@@ -329,7 +329,7 @@ for kDataIndex = 1 : nUnit
          stopTargAlign = cell(1, length(ssdArray));
          stopDistSig = cell(1, length(ssdArray));
          stopDistAlign = cell(1, length(ssdArray));
-         stopCorrectSig = cell(1, length(ssdArray));
+         stopStop
          stopCorrectAlign = cell(1, length(ssdArray));
          for jSSDIndex = 1 : length(ssdArray)
             stopTargSig{jSSDIndex} = Data(kDataIndex).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);

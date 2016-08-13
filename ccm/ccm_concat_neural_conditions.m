@@ -1,40 +1,32 @@
-function Data = ccm_concat_neural_conditions(Unit, options)
+function Data = ccm_concat_neural_conditions(Unit, Opt)
 
 if nargin < 2;
-   options.dataType         = 'neuron';  % 'lfp' or 'erp'
-   
-%    options.figureHandle     = 674;
-   options.printPlot        = false;
-   options.epochName       	= 'checkerOn';
-   options.eventMarkName   	= 'responseOnset';
-   options.colorCohArray  	= Unit(1).pSignalArray;
-   options.ssdArray       	= Unit(1).ssdArray;
-   options.conditionArray       	= {'goTarg', 'goDist', 'stopTarg', 'stopDist', 'stopCorrect'};
-   
-%    options.collapseSignal   = false;
-%    options.collapseTarg      = false;
-%    options.doStops          = true;
-%    options.filterData       = false;
-%    options.stopHz           = 50;
-%    options.normalize        = false;
-%    options.unitArray        = 'each';
-   
-   if nargin == 1
-      Data = options;
-      return
-   end
+    
+    Opt.dataType         = 'neuron';  % 'lfp' or 'erp'
+    
+    Opt.epochName       	= 'checkerOn';
+    Opt.eventMarkName   	= 'responseOnset';
+    Opt.colorCohArray  	= [];  % Unit(1).pSignalArray;
+    Opt.ssdArray       	= [];  % Unit(1).ssdArray;
+    Opt.conditionArray       	= {'goTarg', 'goDist', 'stopTarg', 'stopDist', 'stopStop'}; % goFast and goSlow also possible inputs
+    
+    if nargin == 0
+        Data = Opt;
+        return
+    end
+    
 end
-dataType        = options.dataType;
-epochName       = options.epochName;
-ssdArray        = options.ssdArray;
-colorCohArray   = options.colorCohArray;
-conditionArray  = options.conditionArray;
-eventMarkName   = options.eventMarkName;
+dataType        = Opt.dataType;
+epochName       = Opt.epochName;
+ssdArray        = Opt.ssdArray;
+colorCohArray   = Opt.colorCohArray;
+conditionArray  = Opt.conditionArray;
+eventMarkName   = Opt.eventMarkName;
 
 % % If singal strength or ssd index vectors are not input, assume user wants to
 % % collapse across all of them
 % if nargin < 4
-%     conditionArray = {'goTarg', 'goDist', 'stopTarg', 'stopDist', 'stopCorrect'};
+%     conditionArray = {'goTarg', 'goDist', 'stopTarg', 'stopDist', 'stopStop'};
 % end
 % if nargin < 5
 %     colorCohArray = Unit(1).pSignalArray;
@@ -69,6 +61,7 @@ for k = 1 : nUnit
             sigIndex = sigIndexArray(i);
             
             
+            % GO TRIAL DATA
             if (strcmp(condition, 'goTarg') || strcmp(condition, 'goDist')) && ...
                     ~strcmp(epochName, 'stopSignalOn') && ...
                     ~strcmp(eventMarkName, 'stopSignalOn')
@@ -92,17 +85,22 @@ for k = 1 : nUnit
                     case 'erp'
                         signalCell = [signalCell; Unit(k).signalStrength(sigIndex).(condition).(epochName).eeg];
                 end
-            elseif strcmp(condition, 'stopTarg') || strcmp(condition, 'stopDist') || strcmp(condition, 'stopCorrect')
+                
+                
+                
+                
+                % STOP TRIAL DATA
+            elseif ismember(condition, {'stopTarg','stopDist','stopStop','goFast','goSlow'})
                 for j = 1 : length(ssdIndexArray)
                     ssdIndex = ssdIndexArray(j);
                     
-                    % Don't include stopCorrect trials if aligning on
+                    % Don't include stopStop trials if aligning on
                     % response onset
-                    if ~(strcmp(epochName, 'responseOnset') && strcmp(condition, 'stopCorrect'))
+                    if ~(strcmp(epochName, 'responseOnset') && strcmp(condition, 'stopStop'))
                         alignList = [alignList; Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex).(epochName).alignTimeList];
                         alignCell = [alignCell; Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex).(epochName).alignTime];
                         % Don't get response onset event marks for stop correct
-                        if ~(strcmp(eventMarkName, 'responseOnset') && strcmp(condition, 'stopCorrect'))
+                        if ~(strcmp(eventMarkName, 'responseOnset') && strcmp(condition, 'stopStop'))
                             jEventLatency = get_event_latency(Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex), epochName, eventMarkName);
                             eventLatency = [eventLatency; jEventLatency];
                         end
@@ -118,13 +116,13 @@ for k = 1 : nUnit
                         end
                     end
                 end % j = 1 : length(ssdIndex)
-            end % if strcmp(condition)
+            end % if ismember(condition, {'stopTarg','stopDist','stopStop','goFast','goSlow'})
         end % i = 1 : length(signalStrengthIndex)
     end % for c = 1 : length(conditionArray)
     
     % Get trial-wise signal (rasters, lfps, eegs, etc) and across-trial function of signal (sdf, or mean, etc) for each set of trials
-            [Data(k).signal, Data(k).align]     = align_raster_sets(signalCell, alignCell);
-            [Data(k).signal, Data(k).eventLatency] = sort_rasters_events(Data(k).signal, eventLatency);
+    [Data(k).signal, Data(k).align]     = align_raster_sets(signalCell, alignCell);
+    [Data(k).signal, Data(k).eventLatency] = sort_rasters_events(Data(k).signal, eventLatency);
     switch dataType
         case 'neuron'
             Data(k).signalFn   = nanmean(spike_density_function(Data(k).signal, Kernel), 1);

@@ -66,7 +66,7 @@ if plotFlag
     StopTarg    = ccm_concat_neural_conditions(Unit, opt);
     opt.conditionArray = {'stopDist'};
     StopDist    = ccm_concat_neural_conditions(Unit, opt);
-    opt.conditionArray = {'stopCorrect'};
+    opt.conditionArray = {'stopStop'};
     StopCorrect = ccm_concat_neural_conditions(Unit, opt);
     
     

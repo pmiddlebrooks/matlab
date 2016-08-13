@@ -66,7 +66,7 @@ nTrial = length(signalMatrix);
 
 % ////////////////////////////////////////////////////////////////////////
 % 2. Align the signals on alignmentTimeList
-% function [aligned] = align_rows_on_indices(rows, alignedindexlist)
+% ////////////////////////////////////////////////////////////////////////
 
 % If user input a single raster trial or the rasters are already
 % aligned, we're done here. Else, we need to align stuff
@@ -120,9 +120,10 @@ else
 end
 
 
+
 % Finally, crop a window of time of the signal to return if desired.
 if ~isempty(window)
-   if window(1) < -alignmentIndex
+   if window(1) <= -alignmentIndex
       alignedSignals = [nan(nTrial, alignmentIndex + window(1)), alignedSignals];
       alignmentIndex = -window(1) + 1;
    end

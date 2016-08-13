@@ -13,9 +13,10 @@ disp('**************************************************************************
 disp('Populaiton SSRT')
 
 % subjectID = 'Human';
-% % subjectID = 'Xena';
-subjectID = 'broca';
-sessionSet = 'behavior2';
+subjectID = 'xena';
+sessionSet = 'behavior1';
+% subjectID = 'broca';
+% sessionSet = 'neural3';
 
    plotFlag = 1;
 
@@ -57,7 +58,8 @@ if plotFlag
    axInh = 2;
    axInhEach = 3;
    axRTSSD = 4;
-   axPred = 5;
+   axInhSess = 5;
+   axPred = 6;
    figureHandle = 9898;
    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
    
@@ -69,7 +71,9 @@ if plotFlag
    hold(ax(axInhEach), 'on')
    ax(axRTSSD) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 2) yAxesPosition(2, 2) axisWidth axisHeight]);
    hold(ax(axRTSSD), 'on')
-   ax(axPred) = axes('units', 'centimeters', 'position', [xAxesPosition(3, 1) yAxesPosition(3, 1) axisWidth axisHeight]);
+   ax(axInhSess) = axes('units', 'centimeters', 'position', [xAxesPosition(3, 1) yAxesPosition(3, 1) axisWidth axisHeight]);
+   hold(ax(axInhSess), 'on')
+   ax(axPred) = axes('units', 'centimeters', 'position', [xAxesPosition(3, 2) yAxesPosition(3, 2) axisWidth axisHeight]);
    hold(ax(axPred), 'on')
    choicePlotXMargin = .03;
    switch subjectID
@@ -103,6 +107,9 @@ inhEach             = cell(1, nSignalStrength);
 inhEachFit             = cell(1, nSignalStrength);
 inhRTSSD            = cell(1, nSignalStrength);
 inhRTSSDFit            = cell(1, nSignalStrength);
+inhSess           = cell(1, nSignalStrength);
+inhSessTime           = cell(1, nSignalStrength);
+inhSessEach           = cell(1, nSignalStrength);
 
 % SSRT ********************************
 ssrtIntWeight = [];
@@ -147,7 +154,10 @@ for iSession = 1 : nSession
       dataStopRespondRT       = [dataStopRespondRT; iData.stopRespondRT(j,:)'];
       dataStopRespondRTPredict = [dataStopRespondRTPredict; iData.stopRespondRTPredict(j,:)'];
       
-      
+      % Individual session inhibition functions
+      inhSess{iSession}    = iData.inhibitionFnGrand;
+      inhSessTime{iSession} = min(cell2mat(iData.ssd)) : max(cell2mat(iData.ssd));
+      inhSessEach{iSession} = iData.inhibitionFn;
    end
    
    
@@ -449,6 +459,18 @@ if plotFlag
    end
    ylim(ax(axRTSSD), [0 1])
    
+   
+   
+   
+   % INDIVIDUAL SESSION INHIBITION FUNCITONS
+   for i = 1 : nSession
+   plot(ax(axInhSess), inhSessTime{i}, inhSess{i}, 'k', 'linewidth', 2)
+    end
+   ylim([0 1])
+         set(ax(axInhSess), 'Xlim', [0 max(ssdArrayGrand)])
+
+         
+         
    
    % OBSERVED VS. PREDICTED RTS  ********************************
    d = stopRespondRT - stopRespondRTPredict;

@@ -1,11 +1,36 @@
 function Opt = ccm_options
 % function Opt = ccm_options
 %
-% Returns default options structure for use as input in muliple choice
-% countermanding analysis functions.
+% Returns default Opt structure for use as input in choice
+% countermanding analyses functions. A structure with various ways to
+% select/organize data:
 %
-% Possible conditions are (default listed first):
-%     selectOpt.outcome  = array of strings indicating the outcomes to include:
+% Opt has the following fields with
+%   possible values (default listed first):
+%
+%    Opt.dataType = 'neuron', 'lfp', 'erp';
+%
+%    Opt.figureHandle   = 1000;
+%    Opt.printPlot      = false, true;
+%    Opt.plotFlag       = true, false;
+%    Opt.collapseSignal = false, true;
+%    Opt.collapseTarg         = false, true;
+%    Opt.doStops        = true, false;
+%    Opt.filterData 	= false, true;
+%    Opt.stopHz         = 50, <any number, above which signal is filtered;
+%    Opt.normalize      = false, true;
+%    Opt.howProcess      = how to step through the list of units
+%                                 'each' to plot all,
+%                                 'step' (default): step through to see one
+%                                 plot at a time, pausing between
+%                                 'print' (default): step through each plot
+%                                 individually, printing each to file
+%    Opt.unitArray      = units you want to analyze (default gets filled
+%                                   with all available).
+%                                 {'spikeUnit17a'}, input a cell of units for a list of individaul units
+%   Opt.baselineCorrect = false, true; Baseline correct analog signals?
+%
+%     Opt.outcome  = array of strings indicating the outcomes to include:
 %           {'collapse',
 %           'valid'
 %           'goCorrectTarget', 'goCorrectDistractor',
@@ -17,25 +42,53 @@ function Opt = ccm_options
 %
 %           valid = any non-aborts
 %
-%     selectOpt.choiceAccuracy  = default is collapse across all choices. Segments
+%     Opt.choiceAccuracy  = default is collapse across all choices. Segments
 %           with respect to weather a choice was correct or error (does not count
 %           if no choice was made.
-%           options: 'collapse' (default), 'correct', 'error'.
+%           Opt: 'collapse' (default), 'correct', 'error'.
 %
-%     selectOpt.rightCheckerPct  = range of checkerboard percentage of right target checkers:
+%     Opt.rightCheckerPct  = range of checkerboard percentage of right target checkers:
 %           {'collapse', 'right', 'left'
 %           a double array containing the values, e.g. [40 50 60]
-%     selectOpt.ssd    = range of SSDs to include in the trial list:
+%     Opt.ssd    = range of SSDs to include in the trial list:
 %           {'collapse', 'any', 'none', or
 %           a double array containing the values, e.g. [43 86 129]
-%     selectOpt.targDir  = the angle of the CORRECT TARGET
+%     Opt.allowRtPreSsd    = whether to allow noncanceled stop trials with RTs before SSDs
+%           true (default) or false
+%     Opt.targDir  = the angle of the CORRECT TARGET
 %           {'collapse','left','right','up','down','upLeft','upRight',downLeft','downRight'<list of possible angels, e.g. [45 -45]
-%     selectOpt.responseDir  = the angle of target to which a response was made
+%     Opt.responseDir  = the angle of target to which a response was made
 %           {'collapse','left','right','up','down','upLeft','upRight',downLeft','downRight'<list of possible angels, e.g. [45 -45]
+
+Opt.dataType = 'neuron';
+
+Opt.howProcess        = 'each';%'print';
+Opt.unitArray        = [];
+
+Opt.figureHandle     = 1000;
+Opt.printPlot        = true;
+Opt.plotFlag         = true;
+
+Opt.collapseSignal   = false;
+Opt.collapseTarg      = false;
+Opt.doStops          = true;
+
+Opt.filterData       = false;
+Opt.stopHz           = 50;
+Opt.normalize        = false;
+Opt.baselineCorrect  = false;
+Opt.epochName       = 'checkerOn';
+Opt.epochWindow     = -299:300;
+
 
 Opt.outcome             = 'valid';
 Opt.choiceAccuracy      = 'collapse';
 Opt.rightCheckerPct     = 'collapse';
 Opt.ssd                 = 'any';
+Opt.allowRtPreSsd     = true;
 Opt.targDir             = 'collapse';
-Opt.responseDir         = 'collapse';
+Opt.responseDir    = {'collapse'}; % {'left', 'right'};
+
+
+ Opt.include50           = false; % include 50% color coherence conditions?
+ Opt.deleteAborts     = true;

@@ -51,6 +51,7 @@ function Data = ccm_psychometric(subjectID, sessionID, options)
 if nargin < 3
    options.collapseTarg        = false;
    options.include50           = false;
+   options.doStops            = true;
    
    options.plotFlag            = true;
    options.printPlot           = false;
@@ -75,12 +76,14 @@ figureHandle    = options.figureHandle;
 % % ***********************************************************************
 %
 %%
-% Load the Data
-[trialData, SessionData, ExtraVar]  = load_data(subjectID, sessionID);
-pSignalArray                        = ExtraVar.pSignalArray;
-ssdArray                            = ExtraVar.ssdArray;
-targAngleArray                      = ExtraVar.targAngleArray;
-distAngleArray                      = ExtraVar.distAngleArray;
+% Load the data
+[trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
+ssdArray = ExtraVar.ssdArray;
+pSignalArray = unique(trialData.targ1CheckerProp);
+targAngleArray = unique(trialData.targAngle);
+distAngleArray = targAngleArray;
+nTarg = length(targAngleArray);
+nTrial = size(trialData, 1);
 
 if ~strcmp(SessionData.taskID, 'ccm')
    fprintf('Not a choice countermanding session, try again\n')
@@ -147,10 +150,7 @@ for kTarg = 1 : nTargPair
    end
    
    
-   
-   
-   DO_STOPS = 1;
-   
+     
    
    
    
@@ -243,7 +243,7 @@ for kTarg = 1 : nTargPair
       
       % Get incorrect stop probabilities rightward
       iStopTrial = [];
-      if ~isempty(ssdArray) && DO_STOPS
+      if ~isempty(ssdArray) && options.doStops
          for jSSDIndex = 1 : length(ssdArray)
             jSSD = ssdArray(jSSDIndex);
             optSelect.ssd       = jSSD;
@@ -330,7 +330,7 @@ for kTarg = 1 : nTargPair
    goPsychFn = weibull_curve(bestFitParams, xData);
    
    
-   if ~isempty(ssdArray) && DO_STOPS
+   if ~isempty(ssdArray) && options.doStops
       [bestFitParams, maxLikelihood] = psychometric_weibull_fit(nanmean(stopRightSignalStrength, 2), nanmean(stopRightLogical, 2));
       stopParams.threshold = bestFitParams(1);
       stopParams.slope = bestFitParams(2);
@@ -339,6 +339,7 @@ for kTarg = 1 : nTargPair
       stopPsychFn = weibull_curve(bestFitParams, xData);
    else
       stopPsychFn = [];
+      stopParams = [];
    end
    
    
@@ -365,7 +366,7 @@ for kTarg = 1 : nTargPair
       
       plot(ax(pRightvSignal), pSignalArray, goRightProb, 'o', 'color', goColor, 'linewidth', 2, 'markerfacecolor', goColor, 'markeredgecolor', goColor)
       plot(ax(pRightvSignal), pSignalArray, goRightProbMatch, 'o', 'color', goColorMatch, 'linewidth', 2, 'markerfacecolor', goColorMatch, 'markeredgecolor', goColorMatch)
-      if ~isempty(ssdArray) && DO_STOPS
+      if ~isempty(ssdArray) && options.doStops
          %         plot(ax(pRightvSignal), propPoints/100, stopPsychometricFn, '-', 'color', stopColor, 'linewidth', 2)
          plot(ax(pRightvSignal), xData, stopPsychFn, '-', 'color', stopColor, 'linewidth', 2)
          plot(ax(pRightvSignal), pSignalArray, stopRightProb, 'o', 'color', stopColor, 'linewidth', 2, 'markerfacecolor', stopColor, 'markeredgecolor', stopColor)
@@ -380,7 +381,7 @@ for kTarg = 1 : nTargPair
       
       
       % ANOVA calculations
-      if ~isempty(ssdArray) && DO_STOPS
+      if ~isempty(ssdArray) && options.doStops
          anovaData = [];
          groupInh = {};
          groupSig = [];

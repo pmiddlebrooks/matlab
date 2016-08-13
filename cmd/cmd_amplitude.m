@@ -104,9 +104,9 @@ for iAmpIndex = 1 : nAmp
         jSSD = ssdArray(jSSDIndex);
         
         % stop correct trials
-        stopCorrectTrialRight{iAmpIndex, jSSDIndex} = intersect(iAmpTrial, cmd_trial_selection(trialData,  {'stopCorrect'}, jSSD, 'right'));
-        stopCorrectTrialLeft{iAmpIndex, jSSDIndex} = intersect(iAmpTrial, cmd_trial_selection(trialData,  {'stopCorrect'}, jSSD, 'left'));
-        stopCorrectTrialBoth{iAmpIndex, jSSDIndex} = [stopCorrectTrialRight{iAmpIndex, jSSDIndex}; stopCorrectTrialLeft{iAmpIndex, jSSDIndex}];
+        stopStopTrialRight{iAmpIndex, jSSDIndex} = intersect(iAmpTrial, cmd_trial_selection(trialData,  {'stopCorrect'}, jSSD, 'right'));
+        stopStopTrialLeft{iAmpIndex, jSSDIndex} = intersect(iAmpTrial, cmd_trial_selection(trialData,  {'stopCorrect'}, jSSD, 'left'));
+        stopStopTrialBoth{iAmpIndex, jSSDIndex} = [stopStopTrialRight{iAmpIndex, jSSDIndex}; stopStopTrialLeft{iAmpIndex, jSSDIndex}];
         
         
         % stop incorrect trials
@@ -120,13 +120,13 @@ for iAmpIndex = 1 : nAmp
         
         
         % Inhibition function data points:
-        stopRespondProbRight(iAmpIndex, jSSDIndex) = length(stopIncorrectTrialRight{iAmpIndex, jSSDIndex}) / (length(stopCorrectTrialRight{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialRight{iAmpIndex, jSSDIndex}));
-        stopRespondProbLeft(iAmpIndex, jSSDIndex) = length(stopIncorrectTrialLeft{iAmpIndex, jSSDIndex}) / (length(stopCorrectTrialLeft{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialLeft{iAmpIndex, jSSDIndex}));
-        stopRespondProbBoth(iAmpIndex, jSSDIndex) = length(stopIncorrectTrialBoth{iAmpIndex, jSSDIndex}) / (length(stopCorrectTrialBoth{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialBoth{iAmpIndex, jSSDIndex}));
+        stopRespondProbRight(iAmpIndex, jSSDIndex) = length(stopIncorrectTrialRight{iAmpIndex, jSSDIndex}) / (length(stopStopTrialRight{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialRight{iAmpIndex, jSSDIndex}));
+        stopRespondProbLeft(iAmpIndex, jSSDIndex) = length(stopIncorrectTrialLeft{iAmpIndex, jSSDIndex}) / (length(stopStopTrialLeft{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialLeft{iAmpIndex, jSSDIndex}));
+        stopRespondProbBoth(iAmpIndex, jSSDIndex) = length(stopIncorrectTrialBoth{iAmpIndex, jSSDIndex}) / (length(stopStopTrialBoth{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialBoth{iAmpIndex, jSSDIndex}));
         
-        nStopRight(iAmpIndex, jSSDIndex) = length(stopCorrectTrialRight{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialRight{iAmpIndex, jSSDIndex});
-        nStopLeft(iAmpIndex, jSSDIndex) = length(stopCorrectTrialLeft{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialLeft{iAmpIndex, jSSDIndex});
-        nStopBoth(iAmpIndex, jSSDIndex) = length(stopCorrectTrialBoth{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialBoth{iAmpIndex, jSSDIndex});
+        nStopRight(iAmpIndex, jSSDIndex) = length(stopStopTrialRight{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialRight{iAmpIndex, jSSDIndex});
+        nStopLeft(iAmpIndex, jSSDIndex) = length(stopStopTrialLeft{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialLeft{iAmpIndex, jSSDIndex});
+        nStopBoth(iAmpIndex, jSSDIndex) = length(stopStopTrialBoth{iAmpIndex, jSSDIndex}) + length(stopIncorrectTrialBoth{iAmpIndex, jSSDIndex});
         
         %     toc
     end % iSSDIndex
@@ -244,7 +244,7 @@ for jSSDIndex = 1 : length(ssdArray)
     jSSD = ssdArray(jSSDIndex);
     
     % stop correct trials
-    stopCorrectTrial{jSSDIndex} = cmd_trial_selection(trialData,  {'stopCorrect'}, jSSD, 'all');
+    stopStopTrial{jSSDIndex} = cmd_trial_selection(trialData,  {'stopCorrect'}, jSSD, 'all');
     
     
     % stop incorrect trials
@@ -253,9 +253,9 @@ for jSSDIndex = 1 : length(ssdArray)
     stopIncorrectTrial{jSSDIndex} = cmd_trial_selection(trialData,  stopTargetOutcome, jSSD, 'all');
     
     % Inhibition function data points:
-    stopRespondProb(jSSDIndex) = length(stopIncorrectTrial{jSSDIndex}) / (length(stopCorrectTrial{jSSDIndex}) + length(stopIncorrectTrial{jSSDIndex}));
+    stopRespondProb(jSSDIndex) = length(stopIncorrectTrial{jSSDIndex}) / (length(stopStopTrial{jSSDIndex}) + length(stopIncorrectTrial{jSSDIndex}));
     
-    nStop(jSSDIndex) = length(stopCorrectTrial{jSSDIndex}) + length(stopIncorrectTrial{jSSDIndex});
+    nStop(jSSDIndex) = length(stopStopTrial{jSSDIndex}) + length(stopIncorrectTrial{jSSDIndex});
     
 end % iSSDIndex
 goTarget = cmd_trial_selection(trialData, goOutcome, 'none', 'all');

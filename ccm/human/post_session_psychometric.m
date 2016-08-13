@@ -87,8 +87,8 @@ end
 %         iPercent = targ1PropArray(iPropIndex) * 100;
 %
 %         % All stop incorrect trials
-%         stopCorrectOutcome = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectDistractor', 'distractorHoldAbort'};
-%         stopIncorrectTrial = ccm_trial_selection(monkey, sessionID,  stopCorrectOutcome, iPercent, 'all', 'all');
+%         stopStopOutcome = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectDistractor', 'distractorHoldAbort'};
+%         stopIncorrectTrial = ccm_trial_selection(monkey, sessionID,  stopStopOutcome, iPercent, 'all', 'all');
 %
 %         % All stop incorrect rightward trials
 %         stopTargetRight = ccm_trial_selection(monkey, sessionID,  {'stopIncorrectTarget', 'targetHoldAbort'}, iPercent, 'all', 'right');

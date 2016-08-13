@@ -362,9 +362,9 @@ for kTarg = 1 : nTargPair
             
             % stop correct trials
             optSelect.outcome       = {'stopCorrect'};
-            stopCorrectTrial = ccm_trial_selection(trialData, optSelect);
-            stopStopTrial{iPropIndex, jSSDIndex} = stopCorrectTrial;  % Keep track of totals for grand inhibition fnct
-            nStopStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial);
+            stopStopTrial = ccm_trial_selection(trialData, optSelect);
+            stopStopTrial{iPropIndex, jSSDIndex} = stopStopTrial;  % Keep track of totals for grand inhibition fnct
+            nStopStop(iPropIndex, jSSDIndex) = length(stopStopTrial);
             
             % stop incorrect target trials
             optSelect.outcome       = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectPreSSDTarget'};
@@ -391,7 +391,7 @@ for kTarg = 1 : nTargPair
 
             if nStopTarg(iPropIndex, jSSDIndex) > 0 || nStopDist(iPropIndex, jSSDIndex) > 0
             stopAccuracy(iPropIndex, jSSDIndex) = length(stopTargTrial) / (length(stopTargTrial) + length(stopDistTrial));
-            elseif ~isempty(stopCorrectTrial) && isempty(stopIncorrectTrial)
+            elseif ~isempty(stopStopTrial) && isempty(stopIncorrectTrial)
             stopAccuracy(iPropIndex, jSSDIndex) = .5;  % Fake number 
             end
             
@@ -403,8 +403,8 @@ for kTarg = 1 : nTargPair
             stopDistRespondTrial{iPropIndex, jSSDIndex} = stopDistTrial;  % Keep track of totals for grand inhibition fnct
             
             % Inhibition function data points:
-            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopCorrectTrial) + length(stopIncorrectTrial));
-            nStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial) + length(stopIncorrectTrial);
+            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopStopTrial) + length(stopIncorrectTrial));
+            nStop(iPropIndex, jSSDIndex) = length(stopStopTrial) + length(stopIncorrectTrial);
             
             % p(Correct choice) vs. SSD data points:
             stopTargetProb(iPropIndex, jSSDIndex) = length(stopTargTrial) / (length(stopTargTrial) + length(stopDistTrial));

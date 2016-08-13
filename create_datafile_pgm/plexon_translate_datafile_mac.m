@@ -1,15 +1,32 @@
-function plexon_translate_datafile_mac(monkey, sessionID)
+function [trialData, SessionData] = plexon_translate_datafile_mac(monkey, sessionID, Opt)
+
+% Translate a plexon file on a mac computer.
+%
+%
+% Opt.whichData =   'all' (default); 
+%                       'behavior': only eye movements, event codes, and trial event timings. No neurophysiology data
+%                       'spike': only spike data
+%                       'lfp': only lfp data
+%                       'eeg': only eeg data
+% 
+
+% note the current directory.
+cdir = pwd;
+
+% switch to translation code directory multiple versions
+cd ~/matlab/create_datafile_pgm/
 
 tic
 if nargin < 3
-    brainArea = nan;
+    Opt.whichData   = 'all';
+    Opt.saveFile    = true;
 end
 
 %__________________________________________________________________________
 %                            CONSTANTS
 %__________________________________________________________________________
-EEG_CHANNELS        = [];
-LFP_CHANNELS        = 1:8;
+EEG_CHANNELS        = [];  % Default assumption not recording EEG
+LFP_CHANNELS        = 1:32;  % Default assumption recording LFP on channels listed
 PD_CHANNEL          = 2;
 STROBE_CHANNEL      = 257;
 STROBE_CHANNEL_INDEX = 17;
@@ -17,7 +34,7 @@ STROBE_CHANNEL_INDEX = 17;
 % For some reason voltage from AD lines in MexPlex (PC translation)
 % 2.4414 times larger than in ReadPLXC (mac translation)
 % Multiply voltage values by this number to obtain real voltage values
-AD_VOLTAGE_FACTOR   = 2.4414; 
+AD_VOLTAGE_FACTOR   = 2.4414;
 
 % Monitor refresh rate- will need to code as rig-specific
 REFRESH_RATE        = 70;
@@ -29,9 +46,10 @@ N_PHOTODIODE_POSSIBLE = 6;
 
 nError = 0;
 
-
+switch Opt.whichData
+    case {'all','lfp','eeg','spike'}
 prompt = 'Are these LFP and EEG channels correct (y or n)? ';
-disp(sprintf('LFP/SPike Channels: %d\n', LFP_CHANNELS))
+disp(sprintf('Spike/LFP Channels: %d\n', LFP_CHANNELS))
 disp(sprintf('EEG Channels: %d\n', EEG_CHANNELS))
 answer = input(prompt, 's');
 
@@ -41,8 +59,19 @@ if strcmp(answer, 'n')
     prompt = 'Enter EEG Channels ';
     EEG_CHANNELS = input(prompt);
 end
-
-
+end
+% LFP_CHANNELS        = 1:8;  % Default assumption recording LFP on channels listed
+LFP_CHANNELS = [];
+% sn = str2num(sessionID(3:5));
+% if sn < 198
+%     LFP_CHANNELS = 17;
+% elseif sn > 197 && sn < 202
+%     LFP_CHANNELS = 1:24;
+% elseif sn > 201 && sn < 228
+%     LFP_CHANNELS = 1:8;
+% elseif sn > 227
+%     LFP_CHANNELS = 1:32;
+% end
 
 %__________________________________________________________________________
 %                      FIND AND LOAD PLEXON FILE
@@ -54,6 +83,8 @@ if regexp('broca', monkey, 'ignorecase')
     monkeyDataPath = 'Broca/';
 elseif regexp('xena', monkey, 'ignorecase')
     monkeyDataPath = 'Xena/Plexon/';
+elseif regexp('joule', monkey, 'ignorecase')
+    monkeyDataPath = 'Joule/';
 else
     disp('Wrong monkey name?')
     return
@@ -69,8 +100,14 @@ SessionData     = struct();
 
 
 tebaFile        = fullfile(tebaDataPath, plexonFile);
-plx             = readPLXFileC(tebaFile,'fullread', 'all');
+% plx             = readPLXFileC(tebaFile,'fullread', 'all');
+plx             = readPLXFileC(tebaFile, 'all');
 
+
+
+% if sum(plx.SpikeTimestampCounts(:)) == 0
+%     return
+% end
 
 
 
@@ -92,6 +129,9 @@ SessionData.duration  	= duration / 1000;
 % make lists for event codes dropped from TEMPO
 % -----------------------------------------------------------------
 eventArray = {'Fixate_';...
+    'Target_';...
+    'Choice_';...
+    'Cue_';...
     'ProFixate_';...
     'DecFixate_';...
     'BetFixate_';...
@@ -108,6 +148,9 @@ eventArray = {'Fixate_';...
     'LowBet_'};
 
 eventNumArray = {'eFixate';...
+    'eTarget';...
+    'eChoice';...
+    'eCue';...
     'eProFixate';...
     'eDecFixate';...
     'eBetFixate';...
@@ -256,6 +299,9 @@ eMaskbetheader 	= 1508;
 eTrialstart		= 1666;
 eTrialEnd 		= 1667;
 eFixate        	= 2660;
+eTarget        	= 2651;
+eChoice        	= 2652;
+eCue        	= 2653;
 eProFixate     	= 2661;
 eDecFixate     	= 2662;
 eBetFixate     	= 2663;
@@ -366,12 +412,12 @@ if length(trialEnd) ~= length(trialStart)
         if iTrial == nTrial && length(trialStart) > length(trialEnd)
             trialStart(iTrial) = [];
             allStarts(iTrial) = [];
-             nTrial = nTrial - 1;
-       elseif trialEnd(iTrial) > trialStart(iTrial + 1)
+            nTrial = nTrial - 1;
+        elseif trialEnd(iTrial) > trialStart(iTrial + 1)
             trialStart(iTrial) = [];
             allStarts(iTrial) = [];
-             nTrial = nTrial - 1;
-       elseif trialStart(iTrial) > trialEnd(iTrial)
+            nTrial = nTrial - 1;
+        elseif trialStart(iTrial) > trialEnd(iTrial)
             trialEnd(iTrial) = [];
             allEnds(iTrial) = [];
         end
@@ -423,8 +469,7 @@ for i = 1 : length(eventArray);
     
 end
 
-fprintf('...done!\n\n')
-toc
+fprintf('...done in %.1f!\n\n', toc)
 
 
 
@@ -507,14 +552,14 @@ if sum(Start_Infos_i) ~= nTrial
     fprintf('Infos_ may be inaccurate.\n')
     Error_{nError+1,1} = 'The number of start Infos_ flags does not equal the number of trials. Infos_ may be inaccurate.';
     nError = nError+1;
-% Check wether the number of infos start codes equals the number of trials.
-% In the case that a trial had to be removed because plexon error, etc,
-% infos may have been thrown twice within one trial (if an extra end trial
-% code was dropped, e.g.)
-if sum(Start_Infos_i) > nTrial
-    infoStartInd = find(Start_Infos_i);
-    Start_Infos_i(infoStartInd(mismatchTrial)) = [];
-end
+    % Check wether the number of infos start codes equals the number of trials.
+    % In the case that a trial had to be removed because plexon error, etc,
+    % infos may have been thrown twice within one trial (if an extra end trial
+    % code was dropped, e.g.)
+    if sum(Start_Infos_i) > nTrial
+        infoStartInd = find(Start_Infos_i);
+        Start_Infos_i(infoStartInd(mismatchTrial)) = [];
+    end
 end
 
 End_Infos_i = eventCodes == end_infos;
@@ -525,14 +570,14 @@ if sum(End_Infos_i) ~= nTrial
     fprintf('Infos_ may be inaccurate.\n')
     Error_{nError+1,1} = 'The number of end Infos_ flags does not equal the number of trials. Infos_ may be inaccurate.';
     nError = nError+1;
-% Check wether the number of infos end codes equals the number of trials.
-% In the case that a trial had to be removed because plexon error, etc,
-% infos may have been thrown twice within one trial (if an extra end trial
-% code was dropped, e.g.)
-if sum(End_Infos_i) > nTrial
-    infoStartInd = find(End_Infos_i);
-    End_Infos_i(infoStartInd(mismatchTrial)) = [];
-end
+    % Check wether the number of infos end codes equals the number of trials.
+    % In the case that a trial had to be removed because plexon error, etc,
+    % infos may have been thrown twice within one trial (if an extra end trial
+    % code was dropped, e.g.)
+    if sum(End_Infos_i) > nTrial
+        infoStartInd = find(End_Infos_i);
+        End_Infos_i(infoStartInd(mismatchTrial)) = [];
+    end
 end
 
 
@@ -626,12 +671,12 @@ for iParam = 1:length(infosArray)
         end
     end % if strcmp(param_name,'targ1Targ2Array')
     
-%     paramValues = paramValues(1:nTrial);  % In case we had to delete a trial
+    %     paramValues = paramValues(1:nTrial);  % In case we had to delete a trial
     if ~(strcmp(paramName,'eyeXGain')          ||...
             strcmp(paramName,'eyeYGain')     ||...
             strcmp(paramName,'eyeXOffset')   ||...
             strcmp(paramName,'eyeYOffset'))
-            eval(sprintf('%s = paramValues;', paramName));
+        eval(sprintf('%s = paramValues;', paramName));
     end
     
 end
@@ -650,6 +695,9 @@ end
 % convert refresh rate to ms
 ssd = round(ssd * (1000/REFRESH_RATE));
 soa = round(soa * (1000/REFRESH_RATE));
+
+% convert go (no-stop) trials to NaN
+ssd(trialType == 0) = nan;
 
 % some fields in Infos_ are better represented as cells with strings
 temp = cell(nTrial,1);
@@ -701,10 +749,14 @@ trialData.trialType = temp;
 
 
 
-
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                       PHOTODIODE EVENTS
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Photodiodes are ordered in a task-specific manner. Consult TEMPO codes
+% for an particular TASK (see TASK_PGS.pro and TASK_TRIAL.pro to determine
+% order
+%
 % fprintf('Loading photodiode triggers from %s...\n', plexonFile)
 % [N_PDs, timeStamps] = plx_event_ts([path, plexonFile], PD_CHANNEL);
 % fprintf('...done!\n\n');
@@ -763,72 +815,85 @@ photodiode = cell2mat(pdCell);
 %     end
 % end
 
+
+
+clear eventCodes timeStamps
+
+
+
 photodiode(photodiode == 0) = nan; % up to this point nans were used for flicker testing
+
+
+
+% Make photodiode events relative to trialStart
+ts          = repmat(trialStart, 1, size(photodiode, 2));
+photodiode  = photodiode - ts;
 
 switch taskName
     case 'Countermanding'
-        trialData.fixOn  = photodiode(:,1) - trialStart;
-        trialData.targOn     = photodiode(:,2) - trialStart;
-        trialData.stopSignalOn = photodiode(:,3) - trialStart;
-        stopTrial = ~isnan(trialData.stopSignalOn);
+        trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
+        trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
+        trialData.stopSignalOn      = photodiode_check(photodiode(:,3), Choice_ + ssd);
+        stopTrial                   = ~isnan(trialData.stopSignalOn);
     case 'ChoiceCountermanding'
-        trialData.fixOn  = photodiode(:,1) - trialStart;
-        trialData.targOn     = photodiode(:,2) - trialStart;
-        trialData.checkerOn     = photodiode(:,3) - trialStart;
+        trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
+        trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
+        trialData.checkerOn         = photodiode_check(photodiode(:,3), Choice_);
         % Differentiate here between the delayed-vs-rt version of ccm
-        if nanmean(soa) == 0
-            trialData.fixOff        = photodiode(:,3) - trialStart;
-            trialData.responseCueOn     = photodiode(:,3) - trialStart;
-            trialData.stopSignalOn = photodiode(:,4) - trialStart;
+        if nanmean(soa) == 0 || isnan(nanmean(soa))
+            trialData.fixOff        = trialData.checkerOn;
+            trialData.responseCueOn = trialData.checkerOn;
+            trialData.stopSignalOn  = photodiode_check(photodiode(:,4), Choice_ + ssd);
         elseif nanmean(soa) > 0
-            trialData.fixOff        = photodiode(:,4) - trialStart;
-            trialData.responseCueOn     = photodiode(:,4) - trialStart;
-            trialData.stopSignalOn = photodiode(:,5) - trialStart;
+            trialData.fixOff        = photodiode_check(photodiode(:,4), Cue_);
+            trialData.responseCueOn = trialData.fixOff;
+            trialData.stopSignalOn  = photodiode_check(photodiode(:,5), Choice_ + ssd);
         end
         stopTrial = ~isnan(trialData.stopSignalOn);
     case 'GoNoGo'
-        trialData.fixOn  = photodiode(:,1) - trialStart;
-        trialData.targOn     = photodiode(:,2) - trialStart;
-        trialData.checkerOn        = photodiode(:,3) - trialStart;
+        trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
+        trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
+        trialData.checkerOn         = photodiode_check(photodiode(:,3), Choice_);
     case 'Memory'
-        trialData.fixOn  = photodiode(:,1) - trialStart;
-        trialData.targOn     = photodiode(:,2) - trialStart;
-        trialData.fixOff = photodiode(:,3) - trialStart;
+        trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
+        trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
+        trialData.fixOff            = photodiode_check(photodiode(:,3), Cue_);
     case 'Delay'
-        trialData.fixOn  = photodiode(:,1) - trialStart;
-        trialData.targOn     = photodiode(:,2) - trialStart;
-        trialData.fixOff = photodiode(:,3) - trialStart;
+        trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
+        trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
+        trialData.fixOff            = photodiode_check(photodiode(:,3), Cue_);
     case 'Visual'
-        trialData.fixOn  = photodiode(:,1) - trialStart;
-        trialData.targOn     = photodiode(:,2) - trialStart;
+        trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
+        trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
     case 'MaskBet'
+        fprintf('Need to implement photodiode_check subfunction for MaskBet tasks sessions \n')
         for iTrial = 1 : nTrial
             % Need a way to tell which typp of trial is being run, to
             % determine the correct order of photodiode events
             switch trialData.trialType{iTrial}
                 case  'mask'
-                    trialData.decFixOn  = photodiode(:,1) - trialStart;
+                    trialData.decFixOn      = photodiode(:,1) - trialStart;
                     trialData.decMaskOn     = photodiode(:,2) - trialStart;
                     trialData.decFixOff     = photodiode(:,3) - trialStart;
                 case  'bet'
-                    trialData.betFixOn  = photodiode(:,1) - trialStart;
+                    trialData.betFixOn      = photodiode(:,1) - trialStart;
                     trialData.betTargOn     = photodiode(:,2) - trialStart;
                     trialData.betFixOff     = trialData.betTargOn;
                 case  'retro'
-                    trialData.decFixOn  = photodiode(:,1) - trialStart;
+                    trialData.decFixOn      = photodiode(:,1) - trialStart;
                     trialData.decMaskOn     = photodiode(:,2) - trialStart;
                     trialData.decFixOff     = photodiode(:,3) - trialStart;
-                    trialData.betFixOn     = photodiode(:,4) - trialStart;
+                    trialData.betFixOn      = photodiode(:,4) - trialStart;
                     trialData.betTargOn     = photodiode(:,5) - trialStart;
                     trialData.betFixOff     = trialData.betTargOn;
                 case  'pro'
-                    trialData.proFixOn  = photodiode(:,1) - trialStart;
+                    trialData.proFixOn      = photodiode(:,1) - trialStart;
                     trialData.proMaskOn     = photodiode(:,2) - trialStart;
                     trialData.betFixOn     = photodiode(:,3) - trialStart;
                     trialData.betTargOn     = photodiode(:,4) - trialStart;
                     trialData.betFixOff     = trialData.betTargOn;
-                    trialData.decFixOn  = photodiode(:,5) - trialStart;
-                    trialData.decMaskOn  = photodiode(:,6) - trialStart;
+                    trialData.decFixOn      = photodiode(:,5) - trialStart;
+                    trialData.decMaskOn     = photodiode(:,6) - trialStart;
                 otherwise
                     disp('Not a valid metacog trial type')
                     return
@@ -838,66 +903,6 @@ end
 
 
 
-
-%
-%
-% %--------------------------------------------------------------------------
-% % now that we have all of the events double check to see if the photodiode
-% % trigger ever failed, and, if so, try to recover.
-% no_pd_trials        = [];
-% unexpected_pd_error = 0;
-%
-% correct_no_StopSig = unique([strmatch('GO',Infos_.trialType);... % these are the trials on which stop signals should not have been presented
-%     strmatch('no fixation',   Infos_.trialOutcome);...
-%     strmatch('broke fixation',Infos_.trialOutcome)]);
-% stop_check(1:nTrial,1) = 1;
-% stop_check(correct_no_StopSig)      = 0;
-% stop_check                          = logical(stop_check);  % 1 if we were supposed to have a stop signal, 0 if we were NOT supposed to have one.
-%
-% if sum(isnan(fixOn_) & ~isnan(fixOn)) > 0 % if we were expecting a fixation pd event but we didn't get one
-%     curr_no_pd_trials              = find(isnan(fixOn_) & ~isnan(fixOn));
-%     fixOn_(curr_no_pd_trials)  = fixOn(curr_no_pd_trials);
-%     test_cell = Infos_.trialOutcome(curr_no_pd_trials); % what types of outcomes are associated with pd failure?
-%     if length(strmatch('broke fixation',test_cell)) > length(test_cell) % if pd failure happened even though animal held fixation
-%         unexpected_pd_error = 1;
-%     end
-%     no_pd_trials                   = [no_pd_trials;curr_no_pd_trials];
-% end
-%
-% if sum(isnan(trialData.targOn) & ~isnan(trialData.fixOff)) > 0 % if we were expecting a target pd event but we didn't get one
-%     curr_no_pd_trials              = find(isnan(trialData.targOn) & ~isnan(trialData.fixOff));
-%     trialData.targOn(curr_no_pd_trials)     = trialData.fixOff(curr_no_pd_trials);
-%     fixOn_(curr_no_pd_trials)  = fixOn(curr_no_pd_trials); % this is b/c we can't tell which pd event in sequence failed
-%     test_cell = Infos_.trialOutcome(curr_no_pd_trials); % what types of outcomes are associated with pd failure?
-%     if length(strmatch('broke fixation',test_cell)) > length(test_cell) % if pd failure happened even though animal held fixation
-%         unexpected_pd_error = 1;
-%     end
-%     no_pd_trials                   = [no_pd_trials;curr_no_pd_trials];
-% end
-%
-% if sum(isnan(trialData.stopSignalOn) & stop_check) > 0 % if we were expecting a stop signal pd event but we didn't get one
-%     curr_no_pd_trials              = find(isnan(trialData.stopSignalOn) & stop_check);
-%     trialData.targOn(curr_no_pd_trials)     = trialData.fixOff(curr_no_pd_trials);  % this is b/c we can't tell which pd event in sequence failed
-%     trialData.stopSignalOn(curr_no_pd_trials) = Infos_.Curr_SSD(curr_no_pd_trials) + trialData.targOn(curr_no_pd_trials);
-%     fixOn_(curr_no_pd_trials)  = fixOn(curr_no_pd_trials); % this is b/c we can't tell which pd event in sequence failed
-%     test_cell = Infos_.trialOutcome(curr_no_pd_trials); % what types of outcomes are associated with pd failure?
-%     if length(strmatch('broke target',test_cell)) > length(test_cell) % if pd failure happened even though animal held gaze on target
-%         unexpected_pd_error = 1;
-%     end
-%     no_pd_trials                   = [no_pd_trials;curr_no_pd_trials];
-% end
-%
-% No_PD_Trials_ = nonzeros(unique(no_pd_trials)); %make it an underscore so that it gets saved
-%
-% if unexpected_pd_error
-%     num_no_pd_trials = num2str(length(no_pd_trials));
-%     per_no_pd_trials = num2str(round(100*(length(no_pd_trials)/nTrial)));
-%     fprintf('ERROR: Photodiode trigger was not recieved on %s trials (%s %%).\n',num_no_pd_trials,per_no_pd_trials)
-%     fprintf('Subbing less accurate tempo timing in for photodiode timing.\n\n')
-%     Error_{error_ct+1,1} = 'ERROR: Photodiode trigger was not recieved on unexpected trials. Subbing less accurate tempo timing in for photodiode timing';
-%     error_ct = error_ct + 1;
-% end
-%
 
 
 
@@ -921,14 +926,14 @@ end
 trialData.trialOnset                = trialStart - trialStart(1);
 trialData.trialDuration             = trialEnd;
 
-trialData.rewardOn               = num2cell(Reward_, 2);  % The odd columns are the reward times
+trialData.rewardOn                  = num2cell(Reward_, 2);  % The odd columns are the reward times
 trialData.rewardDuration            = num2cell(rewardDuration, 2);  % The even columns are the solenoid durations
 trialData.timeoutDuration           = punishDuration;
 
 trialData.abortTime                = Abort_;
 
-trialData.toneOn       = Tone_(:, 1);
-trialData.toneDuration       = toneDuration;
+trialData.toneOn                    = Tone_(:, 1);
+trialData.toneDuration              = toneDuration;
 
 
 
@@ -1140,6 +1145,37 @@ switch taskID
         return
 end
 
+
+
+% Check to make sure we collected plexon data as long as the task was
+% running. Sometimes we stop collecting plexon data before stopping the
+% task in TEMPO on accident, or plexon could freeze before task is over, or
+% we stop.
+% To do this, check the eye channel analog data and determine when it ends
+% relative to TEMPO data. Delete TEMPO trials if necessary
+
+% this is rig and date specific
+% conditional statements may be added
+dateNumber = datenum(SessionData.date);
+if dateNumber < 734597
+    xChannel = 49;
+    yChannel = 50;
+elseif dateNumber >= 734597 % 04-Apr-2011 (moved eye channels to top)
+    xChannel = 63;
+    yChannel = 64;
+end
+adValues    = double(plx.ContinuousChannels(xChannel).Values);
+lastTime   = size(adValues, 1);
+notLastTrial = 1;
+while notLastTrial
+    if lastTime < trialData.trialOnset(end)
+        trialData(end,:) = [];
+    else
+        notLastTrial = 0;
+    end
+end
+
+
 nTrial = size(trialData, 1);
 taskID = SessionData.taskID;
 
@@ -1153,6 +1189,8 @@ taskID = SessionData.taskID;
 
 
 
+switch Opt.whichData
+    case {'all','spike'}
 
 %__________________________________________________________________________
 %                   GET SPIKE TIME DATA.
@@ -1201,14 +1239,14 @@ for iChannel = 1:nSpikeChannel
         
         unitName = sprintf('spikeUnit%s%s', num2str(iChannel, '%02i'), jUnitAppend); %figure out the channel name
         SessionData.spikeUnitArray = [SessionData.spikeUnitArray, unitName];
-
+        
         
         nUnitInd = nUnitInd + 1;
     end  % while addUnit
 end  % for iChannel
 % end
 
-
+end
 
 
 
@@ -1221,22 +1259,12 @@ SessionData.lfpChannel = [];
 iEEG = 1;
 iLFP = 1;
 
-dateNumber = datenum(SessionData.date);
 
-% this is rig and date specific
-% conditional statements may be added
-if dateNumber < 734597
-    xChannel = 49;
-    yChannel = 50;
-elseif dateNumber >= 734597 % 04-Apr-2011 (moved eye channels to top)
-    xChannel = 63;
-    yChannel = 64;
-end
 
 
 % get AD channels
 for iChannel = 1:nADChannel
-    
+
     % If channel has no data, skip to next one.
     if isempty(plx.ContinuousChannels(iChannel).Values)
         continue
@@ -1255,6 +1283,10 @@ for iChannel = 1:nADChannel
         ADname = 'eyeY';
     end
     
+    
+    % Only get data if we called for it in Opt structure
+if ((iChannel == xChannel || iChannel == yChannel) && strcmp(Opt.whichData, 'behavior') || strcmp(Opt.whichData, 'spike')) ||...
+        strcmp(Opt.whichData, 'all') || strcmp(Opt.whichData, 'lfp')
     % Get the raw voltage data
     adValues    = double(plx.ContinuousChannels(iChannel).Values);
     adValues    = adValues ./ plx.ContinuousChannels(iChannel).ADGain;
@@ -1263,64 +1295,66 @@ for iChannel = 1:nADChannel
     
     % Need to shift the AD Values based on when plexon started collecting
     % data (Timestamps value is first timestamp for this channel
-    lagShift    = ceil(plx.ContinuousChannels(iChannel).Timestamps / (plx.ADFrequency / 1000));
+    lagShift    = ceil(plx.ContinuousChannels(iChannel).Timestamps(1) / (plx.ADFrequency / 1000));
     adValues    = [nan(lagShift, 1); adValues];
     
     
+    
+    % if it is an eye channel, do some post processing
+    if strcmp(ADname,'eyeX') ||...
+            strcmp(ADname,'eyeY')
+        % convert the channel from voltage to degrees
+        if iChannel == xChannel
+            %                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
+            adValues = (adValues * eyeXGain) - eyeXOffset; %this may need to be done to take vector into account
+        elseif iChannel == yChannel
+            %                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
+            adValues = (adValues * eyeYGain) - eyeYOffset; %this may need to be done to take vector into account
+            adValues = -adValues;
+        end
         
-        % if it is an eye channel, do some post processing
-        if strcmp(ADname,'eyeX') ||...
-                strcmp(ADname,'eyeY')
-            % convert the channel from voltage to degrees
-            if iChannel == xChannel
-%                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
-                adValues = (adValues * eyeXGain) - eyeXOffset; %this may need to be done to take vector into account
-            elseif iChannel == yChannel
-%                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
-                adValues = (adValues * eyeYGain) - eyeYOffset; %this may need to be done to take vector into account
-                adValues = -adValues;
-            end
-            
-            % gaussian polynomial for convolving eye traces
-            polyWidth = 12;
-            polyn = gaussmf(polyWidth/-2 : polyWidth/2, [polyWidth/4,0]);
-            polyn = polyn/sum(polyn); % now it sums to 1
-            
-            %smooth out analog line noise
-            %     adValues = conv_2009a(adValues, polyn, 'same');
-            adValues = conv(adValues, polyn, 'same');
+        % gaussian polynomial for convolving eye traces
+        polyWidth = 12;
+        polyn = gaussmf(polyWidth/-2 : polyWidth/2, [polyWidth/4,0]);
+        polyn = polyn/sum(polyn); % now it sums to 1
+        
+        %smooth out analog line noise
+        %     adValues = conv_2009a(adValues, polyn, 'same');
+        adValues = conv(adValues, polyn, 'same');
+    end
+    
+end 
+    
+    % Initialize an empty cell to add to trialData dataset
+    iData = cell(nTrial, 1);
+    
+    % In some cases, I've had adValues stop recording before the end of the
+    % task- when tempo or plexon freezes, e.g.
+    % Loop through trials and add the AD data to trialData table
+    for iTrial = 1 : nTrial
+        if iTrial < nTrial
+            iData{iTrial}            = adValues(firstTrialStart + trialData.trialOnset(iTrial) : firstTrialStart + trialData.trialOnset(iTrial+1));
+        elseif iTrial == nTrial
+            iData{iTrial}            = adValues(firstTrialStart + trialData.trialOnset(iTrial) : firstTrialStart + trialData.trialOnset(iTrial) + trialData.trialDuration(iTrial));
         end
         
         
         
-        % Initialize an empty cell to add to trialData dataset
-        iData = cell(nTrial, 1);
-        % Loop through trials and add the AD data to trialData table
-        for iTrial = 1 : nTrial
-            if iTrial < nTrial
-                iData{iTrial}            = adValues(firstTrialStart + trialData.trialOnset(iTrial) : firstTrialStart + trialData.trialOnset(iTrial+1));
-            elseif iTrial == nTrial
-                iData{iTrial}            = adValues(firstTrialStart + trialData.trialOnset(iTrial) : firstTrialStart + trialData.trialOnset(iTrial) + trialData.trialDuration(iTrial));
-            end
-            
-            
-            
-        end
-        if strncmp(ADname, 'eye', 3)
-            % Eye position
-            % ---------------------------------------------------------------
-            trialData.(ADname) = iData;
-        elseif ismember(iChannel, EEG_CHANNELS)
-            trialData.eegData(:,iEEG) = iData;
-            iEEG = iEEG + 1;
-        elseif ismember(iChannel, LFP_CHANNELS)
-            trialData.lfpData(:,iLFP) = iData;
-            SessionData.lfpChannel = [SessionData.lfpChannel; iChannel];
-            iLFP = iLFP + 1;
-        end
+    end
+    if strncmp(ADname, 'eye', 3)
+        % Eye position
+        % ---------------------------------------------------------------
+        trialData.(ADname) = iData;
+    elseif ismember(iChannel, EEG_CHANNELS)
+        trialData.eegData(:,iEEG) = iData;
+        iEEG = iEEG + 1;
+    elseif ismember(iChannel, LFP_CHANNELS)
+        trialData.lfpData(:,iLFP) = iData;
+        SessionData.lfpChannel = [SessionData.lfpChannel; iChannel];
+        iLFP = iLFP + 1;
+    end
 end
-clear adValues %conserve memory
-
+clear adValues iData %conserve memory
 
 
 
@@ -1340,24 +1374,8 @@ clear adValues %conserve memory
 %__________________________________________________________________________
 eyeSampleHz = 1000;
 
-% [SaccBegin,...
-%     SaccEnd,...
-%     SaccAmplitude,...
-%     SaccDirection,...
-%     SaccVelocity,...
-%     SaccDuration,...
-%     SaccsNBlinks, ...
-%     Sacc_of_interest] = saccade_data(EyeX_,...
-%     EyeY_,...
-%     TrialStart_, ...
-%     Target_, ...
-%     Correct_, ...
-%     Eot_, ...
-%     Infos_.Fix_win_size, ...
-%     eyeSampleHz);
 
 trialData = saccade_data(trialData, taskID, eyeSampleHz);
-% trialData = saccade_data(trialData, adData.eyeX, adData.eyeY, eyeSampleHz);
 
 % Calculate RT if there is one to calculate
 if ismember('responseOnset',trialData.Properties.VariableNames)
@@ -1367,12 +1385,78 @@ end
 
 
 
-fprintf('Saving behavioral variables to %s ...\n', sessionID);
+
+
+
+
+%__________________________________________________________________________
+%                   SAVE TRANSLATED DATA FILE
+%__________________________________________________________________________
+if Opt.saveFile
+fprintf('Saving file to %s ...\n', sessionID);
 % Save a copy on teba
-% saveFileName = [tebaDataPath, sessionID];
-% save(saveFileName, 'trialData', 'SessionData')
+saveFileName = [tebaDataPath, sessionID];
+save(saveFileName, 'trialData', 'SessionData','-v7.3')
 % Make a local copy too
 saveLocalName = [localDataPath, sessionID];
-save(saveLocalName, 'trialData', 'SessionData')
-
+save(saveLocalName, 'trialData', 'SessionData','-v7.3')
+end
 toc
+
+
+% cd back to whatever directory you were in
+% cd cdir
+
+end
+
+
+
+
+
+
+
+
+
+%           Calculate trial events based on photodiode triggers
+%           ---------------------------------------------------
+%
+% Also account for photodiode failures. FIll them in with TEMPO-dropped event code data, adjusted
+% by the average difference between TEMPO and the photodiode trigger (20
+% ms)
+function diodeData = photodiode_check(diodeData, backUpData)
+
+% If the photodiode failed (is a NaN) but wasn't supposed to
+noPdTrial = find(isnan(diodeData) & ~isnan(backUpData));
+diodeData(noPdTrial) = backUpData(noPdTrial);
+
+if ~isempty(noPdTrial)
+    fprintf('%d missed photodiode triggers were filled in with TEMPO event code times\n', length(noPdTrial))
+end
+% In some cases a photodiode failure is more than a single miss. For
+% example I've had sessions in which the photodiode BNC line started having
+% regular failures in the middle of a session (why I'm coding this now).
+%
+% In that case, for example: If a "fixation on" photodiode
+% trigger is missed but the "target on" photodiode trigger registers,
+% all the photodiode events will get shifted later. Translation will think
+% the fixaton spot onset was the first photodiode event and will get a
+% value much later than it should, as will all later events (until last
+% event will be a NaN)
+
+% How many ms off can the photodiode be relative to the TEMPO event to be
+% considered a failed photodiode? Average difference between tempo and
+% photodiode triggers is 10 ms (photodiode trigger is later than TEMPO
+% event code due to monitor flicker etc)
+diodeAllowance      = 100; % ms
+diodeAdjust         = 10; % ms
+
+offTrial            = find(abs(diodeData - backUpData) > diodeAllowance);
+diodeData(offTrial) = backUpData(offTrial) + diodeAdjust;
+
+if ~isempty(offTrial)
+    fprintf('%d photodiode triggers were too far off TEMPO event code times and were adjusted\n', length(offTrial))
+end
+
+
+
+end

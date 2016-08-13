@@ -1,4 +1,4 @@
-function Data = ccm_population_data(subjectID, options)
+function Data = ccm_population_neuron(subjectID, Opt)
 
 %
 % function Data = ccm_single_neuron(subjectID, sessionID, plotFlag, unitArray)
@@ -11,23 +11,24 @@ function Data = ccm_population_data(subjectID, options)
 %   subjectID: e.g. 'Broca', 'Xena', 'pm', etc
 %   sessionID: e.g. 'bp111n01', 'Allsaccade'
 %
-%   options: A structure with various ways to select/organize data: If
+%   opt: A structure with various ways to select/organize data: If
 %   ccm_session_data.m is called without input arguments, the default
-%   options structure is returned. options has the following fields with
+%   opt structure is returned. opt has the following fields with
 %   possible values (default listed first):
 %
-%    options.dataType = 'neuron', 'lfp', 'erp';
+%    opt.dataType = 'neuron', 'lfp', 'erp';
 %
-%    options.figureHandle   = 1000;
-%    options.printPlot      = false, true;
-%    options.plotFlag       = true, false;
-%    options.collapseSignal = false, true;
-%     options.collapseTarg         = false, true;
-%    options.doStops        = true, false;
-%    options.filterData 	= false, true;
-%    options.stopHz         = 50, <any number, above which signal is filtered;
-%    options.normalize      = false, true;
-%    options.unitArray      = {'spikeUnit17a'},'each', units want to analyze
+%    opt.figureHandle   = 1000;
+%    opt.printPlot      = false, true;
+%    opt.plotFlag       = true, false;
+%    opt.plotError       = true, false;
+%    opt.collapseSignal = false, true;
+%     opt.collapseTarg         = false, true;
+%    opt.doStops        = true, false;
+%    opt.filterData 	= false, true;
+%    opt.stopHz         = 50, <any number, above which signal is filtered;
+%    opt.normalize      = false, true;
+%    opt.unitArray      = {'spikeUnit17a'},'each', units want to analyze
 %
 %
 % Returns Data structure with fields:
@@ -66,75 +67,48 @@ function Data = ccm_population_data(subjectID, options)
 task = 'ccm';
 
 if nargin < 2
-    options.dataType = 'neuron';
-    options.sessionSet       = 'neural1';
-    options.sessionArray       = [];
-    options.unitArray        = 'each';
+    Opt.dataType = 'neuron';
+    Opt.sessionSet       = 'neural1';
+    Opt.sessionArray       = [];
+    Opt.unitArray        = 'each';
     
-    options.figureHandle     = 4950;
-    options.printPlot        = false;
-    options.plotFlag         = false;
-    options.collapseSignal   = false;
-    options.collapseTarg      = true;
-    options.doStops          = true;
-    options.filterData       = false;
-    options.stopHz           = 50;
-    options.normalize        = false;
-    options.howProcess        = 'each';
+    Opt.figureHandle     = 4950;
+    Opt.printPlot        = false;
+    Opt.plotFlag         = false;
+    Opt.plotError        = false;
+    Opt.collapseSignal   = false;
+    Opt.collapseTarg   	 = true;
+    Opt.doStops          = true;
+    Opt.filterData       = false;
+    Opt.stopHz           = 50;
+    Opt.normalize        = false;
+    Opt.howProcess        = 'each';
     
     if nargin == 0
-        Data = options;
+        Data = Opt;
         return
     end
 end
-options.dataType = 'erp';
 
-sessionSet      = options.sessionSet;
-sessionArray    = options.sessionArray;
-dataType        = options.dataType;
+sessionSet      = Opt.sessionSet;
+sessionArray    = Opt.sessionArray;
+dataType        = Opt.dataType;
 
-% options.unitArray = {'fcz','o1','o2'};
-unitArray = options.unitArray;
+% opt.unitArray = {'fcz','o1','o2'};
+unitArray = Opt.unitArray;
+sdfWindow = -299:300;
 
-
-if isempty(options.sessionArray)
-[sessionArray, ~] = task_session_array(subjectID, task, sessionSet);
+if isempty(Opt.sessionArray)
+    [sessionArray, ~] = task_session_array(subjectID, task, sessionSet);
 end
 subjectIDArray = repmat({subjectID}, length(sessionArray), 1);
 
 
-switch lower(subjectID)
-    case 'human'
-        pSignalArray = [.35 .42 .46 .5 .54 .58 .65];
-    case 'broca'
-        switch sessionSet
-            case 'behavior1'
-                pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
-            case 'neural1'
-                pSignalArray = [.41 .44 .47 .53 .56 .59];
-            case 'neural2'
-                pSignalArray = [.42 .44 .46 .54 .56 .58];
-            otherwise
-                [td, S, E] =load_data(subjectID, sessionArray{1});
-                pSignalArray = E.pSignalArray;
-        end
-    case 'xena'
-        switch sessionSet
-            case 'behavior'
-                pSignalArray = [.35 .42 .47 .5 .53 .58 .65];
-            otherwise
-                [td, S, E] =load_data(subjectID, sessionArray{1});
-                pSignalArray = E.pSignalArray;
-        end
-    case 'joule'
-                [td, S, E] =load_data(subjectID, sessionArray{1});
-                pSignalArray = E.pSignalArray;
-end
-nSignal = length(pSignalArray);
 
 
 nSession = length(sessionArray);
-
+nUnit = length(sessionArray);
+totalSSD = [];
 
 
 % if plotFlag
@@ -165,67 +139,147 @@ nSession = length(sessionArray);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-exData = ccm_session_data(subjectIDArray{1}, sessionArray{1}, options);
-nSSD = length(exData(1).ssdArray);
-
-
 % For now, assume there was only one target per hemisphere or we're
 % collapsing across targets
 jTarg = 1;
-epochArrayStop = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
-epochArrayGo = {'fixWindowEntered', 'targOn', 'checkerOn', 'responseOnset', 'rewardOn'};
-switch dataType
-    case {'neruon', 'lfp'}
-        nUnit = 1;
-    case 'erp'
-        nUnit = length(unitArray);
-end
-clear exData;
+epochArrayStop      = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
+epochArrayGo        = {'fixWindowEntered', 'targOn', 'checkerOn', 'responseOnset', 'rewardOn'};
+outcomeArrayGo      = {'goTarg', 'goDist'};
+outcomeArrayStop    = {'stopTarg', 'stopStop','goFast', 'goSlow'};
+colorCohArray       = {'easyIn', 'easyOut', 'hardIn', 'hardOut'};
 
 
-for i = 1 : nUnit
-    for k = 1 : nSignal
-% Intialize Data structure for go trials
-        for m = 1 : length(epochArrayGo)
-            Data(i).signalStrength(k).goTarg.(epochArrayGo{m}).(dataType) = [];
-            Data(i).signalStrength(k).goDist.(epochArrayGo{m}).(dataType) = [];
-        end
-    % Intialize Data structure for stop trials
-        for m = 1 : length(epochArrayStop)
-            for n = 1 : nSSD
-                Data(i).signalStrength(k).stopTarg.ssd(n).(epochArrayStop{m}).(dataType) = [];
-            end
-        end
+
+% Figure out which SSDs to collapse for go/stop comparison:
+% Implement latency matching in ccm_session_data and send it here
+
+% for i = 1 : nUnit
+%     % Intialize Data structure for go trials
+for k = 1 : length(colorCohArray)
+    for m = 1 : length(epochArrayGo)
+        Data.(colorCohArray{k}).goTarg.(epochArrayGo{m}).sdf = [];
+        Data.(colorCohArray{k}).goDist.(epochArrayGo{m}).sdf = [];
+    end
+    %     % Intialize Data structure for stop trials
+    for m = 1 : length(epochArrayStop)
+        Data.(colorCohArray{k}).stopTarg.(epochArrayStop{m}).sdf = [];
+        Data.(colorCohArray{k}).stopStop.(epochArrayStop{m}).sdf = [];
+        Data.(colorCohArray{k}).goFast.(epochArrayStop{m}).sdf = [];
+        Data.(colorCohArray{k}).goSlow.(epochArrayStop{m}).sdf = [];
     end
 end
+% end
 
-
-for iSession = 1 : nSession
+iData = [];
+iOpt = Opt;
+for iUnit = 1 : nUnit
     
-    fprintf('Session: %s\n', sessionArray{iSession})
-    iData = ccm_session_data(subjectIDArray{iSession}, sessionArray{iSession}, options);
+    fprintf('Unit: %s\t%s\n', sessionArray{iUnit}, unitArray{iUnit})
+    iOpt.unitArray = Opt.unitArray(iUnit);
+    iData = ccm_session_data(subjectIDArray{iUnit}, sessionArray{iUnit}, iOpt);
     
+    % Figure out the indices of hardest and easiest left and right color
+    % coherence proportions.
+    pSignalArray = iData(1).pSignalArray;
+    pSignalArray(pSignalArray == .5) = [];
     
-    ssd(iSession).array = iData(1).ssdArray;
+    % If there's no RF, use the contralateral direction relative to the
+    % recorded hemisphere
+    if strcmp(Opt.rfList{iUnit}, 'none')
+        switch lower(Opt.hemisphereList{iUnit})
+            case 'left'
+                Opt.rfList{iUnit} = 'right';
+            case 'right'
+                Opt.rfList{iUnit} = 'left';
+        end
+    end
+    switch lower(Opt.rfList{iUnit})
+        case 'left'
+            easyInInd     = 1;
+            easyOutInd    = length(pSignalArray);
+            hardInInd     = length(pSignalArray)/2;
+            hardOutInd    = hardInInd + 1;
+        case 'right'
+            easyInInd     = length(pSignalArray);
+            easyOutInd    = 1;
+            hardOutInd    = length(pSignalArray)/2;
+            hardInInd     = hardOutInd + 1;
+        case 'none'
+            
+    end
+    iRFList = [easyInInd, easyOutInd, hardInInd, hardOutInd]; % Make sure this same order as colorCohArray
+    
+    ssd(iUnit).array = iData(1).ssdArray;
     totalSSD = unique([totalSSD; iData(1).ssdArray]);
     
     
     switch dataType
         case 'neuron'
             
-            % loop through the different units on the electrode
-            % (or specify which units to include)
+            for k = 1 : length(colorCohArray)
+                
+                % Collect Go Data
+                for m = 1 : length(epochArrayGo)
+                    mEpoch = epochArrayGo{m};
+                    for n = 1 : length(outcomeArrayGo)
+                        nOutcome = outcomeArrayGo{n};
+                        
+                        if ~isempty(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf)
+                            alignTime = iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).alignTime;
+                            
+                            % Might need to pad the sdf if aligntime is before the sdf window beginning
+                            if alignTime <  -sdfWindow(1)
+                                iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf = ...
+                                    [nan(size(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf, 1), -sdfWindow(1) - alignTime),...
+                                    iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf];
+                                alignTime = alignTime - sdfWindow(1);
+                            end
+                            
+                            Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf = ...
+                                [Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf;...
+                                nanmean(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf(:,alignTime + sdfWindow), 1)];
+                        end
+                    end
+                end
+                
+                % Collect Stop Data
+                if Opt.doStops
+                    for m = 1 : length(epochArrayStop)
+                        mEpoch = epochArrayStop{m};
+                        for n = 1 : length(outcomeArrayStop)
+                            nOutcome = outcomeArrayStop{n};
+                            
+                            % concatenate all SSDs
+                            cOpt                = ccm_concat_neural_conditions;
+                            cOpt.epochName      = mEpoch;
+                            cOpt.colorCohArray  = iData.pSignalArray(iRFList(k));
+                            cOpt.ssdArray       = iData.ssdArray;
+                            cOpt.conditionArray = {nOutcome};
+                            iConcat             = ccm_concat_neural_conditions(iData, cOpt);
+                            
+                            if ~isempty(iConcat.signal)
+                                alignTime = iConcat.align;
+                                
+                                % Might need to pad the sdf if aligntime is before the sdf window beginning
+                                if alignTime <  -sdfWindow(1)
+                                    iConcat.signal = ...
+                                        [nan(1, -sdfWindow(1) - alignTime),...
+                                        iConcat.signalFn];
+                                    alignTime = alignTime - sdfWindow(1);
+                                end
+                                
+                                Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf = ...
+                                    [Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf;...
+                                    nanmean(iConcat.signalFn(:,alignTime + sdfWindow), 1)];
+                            end
+                        end
+                        
+                        
+                    end
+                end % if opt.doStops
+                
+                
+            end % for k = 1 : length(colorCohArray)
             
         case 'lfp'
             
@@ -234,54 +288,51 @@ for iSession = 1 : nSession
             % accordingly
             for j = 1 : nUnit
                 Data(j).name = unitArray{j};
-                for k = 1 : nSignal
+                
+                % Loop through go trials
+                for m = 1 : length(epochArrayGo)
+                    mEpoch = epochArrayGo{m};
                     
-                    % Loop through go trials
-                    for m = 1 : length(epochArrayGo)
-                        mEpochName = epochArrayGo{m};
-                        
-                        Data(j).signalStrength(k).goTarg.(mEpochName).alignTime = ...
-                            iData(j, jTarg).signalStrength(k).goTarg.(mEpochName).alignTime;
-                        Data(j).signalStrength(k).goDist.(mEpochName).alignTime = ...
-                            iData(j, jTarg).signalStrength(k).goDist.(mEpochName).alignTime;
-                        
-                        % Go to Target Trials
-                        Data(j).signalStrength(k).goTarg.(mEpochName).erp = ...
-                            [Data(j).signalStrength(k).goTarg.(mEpochName).erp;...
-                            iData(j, jTarg).signalStrength(k).goTarg.(mEpochName).erp];
-                        
-                        % Go to Distractor Trials
-                        Data(j).signalStrength(k).goDist.(mEpochName).erp = ...
-                            [Data(j).signalStrength(k).goDist.(mEpochName).erp;...
-                            iData(j, jTarg).signalStrength(k).goDist.(mEpochName).erp];
-                        
+                    Data(j).signalStrength(k).goTarg.(mEpoch).alignTime = ...
+                        iData(j, jTarg).signalStrength(k).goTarg.(mEpoch).alignTime;
+                    Data(j).signalStrength(k).goDist.(mEpoch).alignTime = ...
+                        iData(j, jTarg).signalStrength(k).goDist.(mEpoch).alignTime;
+                    
+                    % Go to Target Trials
+                    Data(j).signalStrength(k).goTarg.(mEpoch).erp = ...
+                        [Data(j).signalStrength(k).goTarg.(mEpoch).erp;...
+                        iData(j, jTarg).signalStrength(k).goTarg.(mEpoch).erp];
+                    
+                    % Go to Distractor Trials
+                    Data(j).signalStrength(k).goDist.(mEpoch).erp = ...
+                        [Data(j).signalStrength(k).goDist.(mEpoch).erp;...
+                        iData(j, jTarg).signalStrength(k).goDist.(mEpoch).erp];
+                    
+                end %for m = 1 ; length(epochArray)
+                
+                
+                if Opt.doStops
+                    % Loop through stop trials
+                    for m = 1 : length(epochArrayStop)
+                        for n = 1 : nSSD
+                            %                                 Data(j).ssd(
+                            mEpoch = epochArrayStop{m};
+                            Data(j).signalStrength(k).stopTarg.ssd(n).(mEpoch).alignTime = ...
+                                iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpoch).alignTime;
+                            
+                            % Stop to Target Trials
+                            Data(j).signalStrength(k).stopTarg.ssd(n).(mEpoch).erp = ...
+                                [Data(j).signalStrength(k).stopTarg.ssd(n).(mEpoch).erp;...
+                                iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpoch).erp];
+                        end % for n = 1 : nSSD
                     end %for m = 1 ; length(epochArray)
-                    
-                    
-                    if options.doStops
-                        % Loop through stop trials
-                        for m = 1 : length(epochArrayStop)
-                            for n = 1 : nSSD
-%                                 Data(j).ssd(
-                                mEpochName = epochArrayStop{m};
-                                Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime = ...
-                                    iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).alignTime;
-                                
-                                % Stop to Target Trials
-                                Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp = ...
-                                    [Data(j).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp;...
-                                    iData(j, jTarg).signalStrength(k).stopTarg.ssd(n).(mEpochName).erp];
-                            end % for n = 1 : nSSD
-                        end %for m = 1 ; length(epochArray)
-                    end % if options.doStoips
-                end % for k = 1 : nSignal
+                end % if opt.doStoips
             end %  for j = 1 : nUnit
     end % swtich dataType
     
     
-    
-    
-end % for iSession = 1 : nSession
+    clear iData
+end % for iUnit = 1 : nSession
 
 
 % Loop back through all the stop trial SSDs to collect and average signals
@@ -289,17 +340,18 @@ end % for iSession = 1 : nSession
 % (the SSDs) across sessions may vary.
 
 
-Data(1).ssd = ssd;
-Data(1).ssdArray       = iData(j, jTarg).ssdArray;
-Data(1).dataArray       = iData(j, jTarg).dataArray;
-Data(1).pSignalArray    = iData(j, jTarg).pSignalArray;
-% Data(1).targAngleArray = iData(j, jTarg).targAngleArray;
-% Data(1).ssdArray    	= iData(j, jTarg).ssdArray;
-Data(1).subjectID       = iData(j, jTarg).subjectID;
-Data(1).sessionID       = 'Population';
+% Data(1).ssd = ssd;
+% Data(1).ssdArray       = iData(j, jTarg).ssdArray;
+% Data(1).dataArray       = iData(j, jTarg).dataArray;
+% Data(1).pSignalArray    = iData(j, jTarg).pSignalArray;
+% % Data(1).targAngleArray = iData(j, jTarg).targAngleArray;
+% % Data(1).ssdArray    	= iData(j, jTarg).ssdArray;
+% Data(1).subjectID       = iData(j, jTarg).subjectID;
+% Data(1).sessionID       = 'Population';
+return
 
-if options.plotFlag
-    ccm_population_data_plot(Data, options)
+if Opt.plotFlag
+    ccm_population_neuron_plot(Data, opt)
 end
 
 return
@@ -521,23 +573,23 @@ fprintf('GoDist: %.0f (%.0f) --vs-- stopDist: %.0f (%.0f) \tt-test: t(%.2f) = %.
 rtDataSession = [];
 groupSession = [];
 session = [];
-for iSession = 1 : nSession
+for iUnit = 1 : nSession
     rtData = [];
     group = [];
     for i = 1 : size(goTarg, 2)
-        rtData = [rtData, goTarg(iSession,i)];
+        rtData = [rtData, goTarg(iUnit,i)];
         group = [group, {['goTarg',num2str(i)]}];
     end
     for i = 1 : size(goDist, 2)
-        rtData = [rtData, goDist(iSession,i)];
+        rtData = [rtData, goDist(iUnit,i)];
         group = [group, {['goDist',num2str(i)]}];
     end
     for i = 1 : size(stopTarg, 2)
-        rtData = [rtData, stopTarg(iSession,i)];
+        rtData = [rtData, stopTarg(iUnit,i)];
         group = [group, {['stopTarg',num2str(i)]}];
     end
     for i = 1 : size(stopDist, 2)
-        rtData = [rtData, stopDist(iSession,i)];
+        rtData = [rtData, stopDist(iUnit,i)];
         group = [group, {['stopDist',num2str(i)]}];
     end
     rtDataSession = [rtDataSession; rtData];

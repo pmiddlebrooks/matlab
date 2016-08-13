@@ -63,7 +63,7 @@ if plotFlag
       
     GoTarg      = cmd_concat_neural_conditions(Unit(k), epochName, eventMarkName, {'goTarg'}, angleArray(iTarg), ssdArray);
     StopTarg    = cmd_concat_neural_conditions(Unit(k), epochName, eventMarkName, {'stopTarg'}, angleArray(iTarg), ssdArray);
-    StopCorrect = cmd_concat_neural_conditions(Unit(k), epochName, eventMarkName, {'stopCorrect'}, angleArray(iTarg), ssdArray);
+    StopCorrect = cmd_concat_neural_conditions(Unit(k), epochName, eventMarkName, {'stopStop'}, angleArray(iTarg), ssdArray);
 
     nGoTargTrial    = size(GoTarg.raster, 1);
         nStopTargTrial  = size(StopTarg.raster, 1);

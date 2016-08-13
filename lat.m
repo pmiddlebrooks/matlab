@@ -1,4 +1,4 @@
-function data = lat(goRT, stopRT, nStopCorrect)
+stopStop
 
 debug = 1;
 

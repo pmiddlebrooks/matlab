@@ -364,8 +364,8 @@ for kUnitIndex = 1 : nUnit
                 
                 
                 % Get stop trial data
-                iStopStop1    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEpoch, 'targOn', {'stopCorrect'}, iSignalP, mSSD, dataType);
-%                 iStopStop2    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEpoch, 'targOn', {'stopCorrect'}, iSignalP, mSSD, dataType);
+                iStopStop1    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEpoch, 'targOn', {'stopStop'}, iSignalP, mSSD, dataType);
+%                 iStopStop2    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEpoch, 'targOn', {'stopStop'}, iSignalP, mSSD, dataType);
 
                 iStopTarg1       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), alignEpoch, markEvent, {'stopTarg'}, iSignalP, mSSD, dataType);
                 iStopTarg2       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'stopTarg'}, iSignalP, mSSD, dataType);

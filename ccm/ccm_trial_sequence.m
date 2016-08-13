@@ -13,7 +13,7 @@ function [trialList] = ccm_trial_sequence(trialData, seqOpt)
 % seqOpt(1).ssd = 'none';
 % 
 % seqOpt(2) = selectOpt;
-% seqOpt(2).outcome = {'stopCorrect'};
+% seqOpt(2).outcome = {'stopStop'};
 % 
 % seqOpt(3) = selectOpt;
 % seqOpt(3).outcome = {'goCorrectTarget'};

@@ -1,7 +1,7 @@
 function [tebDataFile, localDataPath, localDataFile] = data_file_path(subjectID, sessionID, monkeyOrHuman)
 
 if nargin < 3
-if ismember(lower(subjectID), {'broca', 'xena', 'chase', 'hoagie', 'norm', 'andy','shuffles','nebby'})
+if ismember(lower(subjectID), {'joule', 'broca', 'xena', 'chase', 'hoagie', 'norm', 'andy','shuffles','nebby'})
    monkeyOrHuman = 'monkey';
 else
       monkeyOrHuman = 'human';
@@ -28,6 +28,9 @@ switch monkeyOrHuman
          case 'work'
             
             switch lower(subjectID)
+               case 'joule'
+                  fileName = [sessionID, '.mat'];
+                  tebDataFile = [tebaDataPath, 'Joule/', fileName];
                case 'broca'
                   fileName = [sessionID, '.mat'];
                   tebDataFile = [tebaDataPath, 'Broca/', fileName];
@@ -54,6 +57,8 @@ switch monkeyOrHuman
          case 'home'
             tebDataFile = [];
             switch lower(subjectID)
+               case 'joule'
+                  fileName = [sessionID, '.mat'];
                case 'broca'
                   fileName = [sessionID, '.mat'];
                case 'xena'

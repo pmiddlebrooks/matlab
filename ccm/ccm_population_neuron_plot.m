@@ -1,27 +1,27 @@
-function ccm_session_data_plot(Data, Opt)
+function ccm_population_neuron_plot(Data, opt)
 
 %%
+% Copied and modified from ccm_session_data_plot
 % Set defaults
 
 
 
-pSignalArray = Data(1).pSignalArray;
-ssdArray    = Data(1).ssdArray;
-sessionID   = Data(1).sessionID;
+pSignalArray    = Data(1).pSignalArray;
+ssdArray        = Data(1).ssdArray;
+sessionID       = Data(1).sessionID;
 
 
-dataType    = Opt.dataType;
-printPlot   = Opt.printPlot;
-filterData  = Opt.filterData;
-stopHz      = Opt.stopHz;
-figureHandle = Opt.figureHandle;
-collapseSignal  = Opt.collapseSignal;
-doStops     = Opt.doStops;
+dataType        = opt.dataType;
+printPlot       = opt.printPlot;
+filterData      = opt.filterData;
+stopHz          = opt.stopHz;
+figureHandle    = opt.figureHandle;
+collapseSignal  = opt.collapseSignal;
+doStops         = opt.doStops;
+plotError       = opt.plotError;
 
-PLOT_ERROR  = false;
 
 epochArray = {'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
-epochArray = {'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn'};
 
 [nUnit, nTargPair] = size(Data);
 
@@ -44,9 +44,7 @@ for kDataIndex = 1 : nUnit
       nRow = 3;
       nEpoch = length(epochArray);
       nColumn = nEpoch * 2 + 1;
-      if ~strcmp(Opt.howProcess, 'step') && ~strcmp(Opt.howProcess,'print')
       figureHandle = figureHandle + 1;
-      end
       if printPlot
          [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nColumn, figureHandle);
       else
@@ -56,16 +54,15 @@ for kDataIndex = 1 : nUnit
       
       switch dataType
           case 'neuron'
-      yLimMax = max(1, Data(kDataIndex, jTarg).yMax * 1.1);
+      yLimMax = Data(kDataIndex, jTarg).yMax * 1.1;
       yLimMin = min(Data(kDataIndex, jTarg).yMin * 1.1);
-      
           case {'erp','lfp'}
-              yLimMax = .1;
-              yLimMin = -.1;
+              yLimMax = .04;
+              yLimMin = -.04;
       end
       
-%          yLimMin = 0;
-%          yLimMax = 65;
+      %    yLimMin = 0;
+      %    yLimMax = 65;
       for mEpoch = 1 : nEpoch
          mEpochName = epochArray{mEpoch};
          epochRange = ccm_epoch_range(mEpochName, 'plot');
@@ -180,12 +177,12 @@ for kDataIndex = 1 : nUnit
                alignGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goDist.(mEpochName).alignTime;
                
                if ~isempty(alignGoTarg)
-                  sigGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goTarg.(mEpochName).(dataSignal);
+                  sigGoTarg = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goTarg.(mEpochName).(dataSignal));
                   %                         plot(ax(axGo, mEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', goC(iPropIndex,:), 'linewidth', targLineW)
                   plot(ax(axGo, mEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', cMap(iPropIndexL,:), 'linewidth', targLineW)
                end
-               if ~isempty(alignGoDist) && PLOT_ERROR
-                  sigGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goDist.(mEpochName).(dataSignal);
+               if ~isempty(alignGoDist) && plotError
+                  sigGoDist = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goDist.(mEpochName).(dataSignal));
                   plot(ax(axGo, mEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', cMap(iPropIndexL,:), 'linewidth', distLineW)
                end
             end
@@ -199,7 +196,7 @@ for kDataIndex = 1 : nUnit
                case 'lfp'
                   dataSignal = 'lfp';
                case 'erp'
-                  dataSignal = 'eeg';
+                  dataSignal = 'erp';
             end
             stopTargSig = cell(1, length(ssdArray));
             stopTargAlign = cell(1, length(ssdArray));
@@ -260,7 +257,7 @@ for kDataIndex = 1 : nUnit
             if ~isempty(sigStopTarg)
                plot(ax(axStopGo, mEpoch), epochRange, sigStopTarg(alignStopTarg + epochRange), 'color', cMap(iPropIndexL,:), 'linewidth', targLineW)
             end
-            if PLOT_ERROR && ~isempty(sigStopDist)
+            if plotError && ~isempty(sigStopDist)
                plot(ax(axStopGo, mEpoch), epochRange, sigStopDist(alignStopDist + epochRange), '--', 'color', cMap(iPropIndexL,:), 'linewidth', distLineW)
             end
             
@@ -295,12 +292,12 @@ for kDataIndex = 1 : nUnit
                alignGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goDist.(mEpochName).alignTime;
                
                if ~isempty(alignGoTarg)
-                  sigGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goTarg.(mEpochName).(dataSignal);
+                  sigGoTarg = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goTarg.(mEpochName).(dataSignal));
                   %                         plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', goC(iPropIndexR,:), 'linewidth', targLineW)
                   plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', cMap(iPropIndexR,:), 'linewidth', targLineW)
                end
-               if PLOT_ERROR && ~isempty(alignGoDist)
-                  sigGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goDist.(mEpochName).(dataSignal);
+               if plotError && ~isempty(alignGoDist)
+                  sigGoDist = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goDist.(mEpochName).(dataSignal));
                   %                         plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', goC(iPropIndexR,:), 'linewidth', distLineW)
                   plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', cMap(iPropIndexR,:), 'linewidth', distLineW)
                end
@@ -328,7 +325,7 @@ for kDataIndex = 1 : nUnit
                stopTargSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);
                stopTargAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime;
                
-               if PLOT_ERROR
+               if plotError
                   stopDistSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopDist.ssd(jSSDIndex).(mEpochName).(dataSignal);
                   stopDistAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopDist.ssd(jSSDIndex).(mEpochName).alignTime;
                end
@@ -380,7 +377,7 @@ for kDataIndex = 1 : nUnit
             if ~isempty(sigStopTarg)
                plot(ax(axStopGo, mEpoch + nEpoch), epochRange, sigStopTarg(alignStopTarg + epochRange), 'color', cMap(iPropIndexR,:), 'linewidth', targLineW)
             end
-            if PLOT_ERROR && ~isempty(sigStopDist)
+            if plotError && ~isempty(sigStopDist)
                plot(ax(axStopGo, mEpoch + nEpoch), epochRange, sigStopDist(alignStopDist + epochRange), '--', 'color', cMap(iPropIndexR,:), 'linewidth', distLineW)
             end
             if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
@@ -402,11 +399,9 @@ for kDataIndex = 1 : nUnit
       titleString = sprintf('%s \t %s', sessionID, Data(kDataIndex, jTarg).name);
       text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top')
       if printPlot && ~collapseSignal
-         print(figureHandle,[local_figure_path, sessionID, '_ccm_', Data(kDataIndex, jTarg).name, '_',dataType,'.pdf'],'-dpdf', '-r300')
+         print(figureHandle,[local_figure_path, sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'.pdf'],'-dpdf', '-r300')
       elseif printPlot && collapseSignal
-%          print(figureHandle,[local_figure_path, sessionID, '_ccm_', Data(kDataIndex, jTarg).name, '_',dataType,'_collapse.pdf'],'-dpdf', '-r300')
-micalaFolder = '/Volumes/SchallLab/Users/Paul/micala/';
-print(figureHandle,[micalaFolder, sessionID, '_ccm_', Data(kDataIndex, jTarg).name, '_',dataType,'_collapse.pdf'],'-dpdf', '-r300')
+         print(figureHandle,[local_figure_path, sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'_collapse.pdf'],'-dpdf', '-r300')
       end
    end % jTargPair
    

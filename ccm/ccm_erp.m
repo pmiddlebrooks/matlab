@@ -21,7 +21,7 @@ function Data = ccm_erp(subjectID, sessionID, epochArray, varargin)
 %
 %   Unit.signalStrength(x).(condition).ssd(x).(epoch name)
 %
-%   condition can be:  goTarg, goDist, stopTarg, stopDist, stopCorrect
+%   condition can be:  goTarg, goDist, stopTarg, stopDist, stopStop
 %   ssd(x):  only applies for stop trials, else the field is absent
 %   epoch name: fixOn, targOn, checkerOn, etc.
 %   nGo
@@ -321,14 +321,14 @@ for kChanIndex = 1 : nElectrode
                stopEEGMean = nanmean(stopEEG, 1);
             end
                
-               Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).alignTime = alignIndex;
+               Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).alignTime = alignIndex;
                if ~isempty(stopEEG)
-                  Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).eeg = stopEEG;
-                  Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).erp = stopEEGMean;
+                  Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).eeg = stopEEG;
+                  Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).erp = stopEEGMean;
                else
-                  Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).eeg = [];
-                  Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).erp = [];
-                  Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).alignTime = [];
+                  Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).eeg = [];
+                  Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).erp = [];
+                  Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).alignTime = [];
                end
                
             end % jSSD
@@ -508,8 +508,8 @@ if plotFlag
             stopTargAlign       = cell(1, length(ssdArray));
             stopDistEeg         = cell(1, length(ssdArray));
             stopDistAlign       = cell(1, length(ssdArray));
-            stopCorrectEeg      = cell(1, length(ssdArray));
-            stopCorrectAlign    = cell(1, length(ssdArray));
+            stopStopEeg      = cell(1, length(ssdArray));
+            stopStopAlign    = cell(1, length(ssdArray));
             for jSSDIndex = 1 : length(ssdArray)
                stopTargEeg{jSSDIndex}   = Data(kChanIndex).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(alignEvent).eeg;
                stopTargAlign{jSSDIndex} = Data(kChanIndex).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(alignEvent).alignTime;
@@ -518,8 +518,8 @@ if plotFlag
                stopDistAlign{jSSDIndex} = Data(kChanIndex).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(alignEvent).alignTime;
                
                if ~strcmp(alignEvent, 'responseOnset')  % No stop signals on go trials
-                  stopCorrectEeg{jSSDIndex} = Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).eeg;
-                  stopCorrectAlign{jSSDIndex} = Data(kChanIndex).signalStrength(iPropIndex).stopCorrect.ssd(jSSDIndex).(alignEvent).alignTime;
+                  stopStopEeg{jSSDIndex} = Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).eeg;
+                  stopStopAlign{jSSDIndex} = Data(kChanIndex).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(alignEvent).alignTime;
                end
                
             end  % jSSDIndex = 1 : length(ssdArray)
@@ -541,7 +541,7 @@ if plotFlag
             if size(erpStopDist, 2) == 1, erpStopDist = []; end;
             
             if ~strcmp(alignEvent, 'responseOnset')  % No stop signals on go trials
-               [eegStopCorrect, alignStopCorrect] = align_raster_sets(stopCorrectEeg, stopCorrectAlign);
+               [eegStopCorrect, alignStopCorrect] = align_raster_sets(stopStopEeg, stopStopAlign);
              if filterData
                erpStopCorrect = lowpass(nanmean(eegStopCorrect, 1)', stopHz)';
             else
@@ -601,8 +601,8 @@ if plotFlag
             stopTargAlign   = cell(1, length(ssdArray));
             stopDistEeg     = cell(1, length(ssdArray));
             stopDistAlign   = cell(1, length(ssdArray));
-            stopCorrectEeg  = cell(1, length(ssdArray));
-            stopCorrectAlign = cell(1, length(ssdArray));
+            stopStopEeg  = cell(1, length(ssdArray));
+            stopStopAlign = cell(1, length(ssdArray));
             for jSSDIndex = 1 : length(ssdArray)
                stopTargEeg{jSSDIndex}   = Data(kChanIndex).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(alignEvent).eeg;
                stopTargAlign{jSSDIndex} = Data(kChanIndex).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(alignEvent).alignTime;
@@ -613,9 +613,9 @@ if plotFlag
                end
                
                if ~strcmp(alignEvent, 'responseOnset')  % No stop signals on go trials
-                  stopCorrectEeg{jSSDIndex}         = Data(kChanIndex).signalStrength(iPropIndexR).stopCorrect.ssd(jSSDIndex).(alignEvent).eeg;
-                  stopCorrectAlign{jSSDIndex}       = Data(kChanIndex).signalStrength(iPropIndexR).stopCorrect.ssd(jSSDIndex).(alignEvent).alignTime;
-                  [eegStopCorrect, alignStopCorrect] = align_raster_sets(stopCorrectEeg, stopCorrectAlign);
+                  stopStopEeg{jSSDIndex}         = Data(kChanIndex).signalStrength(iPropIndexR).stopStop.ssd(jSSDIndex).(alignEvent).eeg;
+                  stopStopAlign{jSSDIndex}       = Data(kChanIndex).signalStrength(iPropIndexR).stopStop.ssd(jSSDIndex).(alignEvent).alignTime;
+                  [eegStopCorrect, alignStopCorrect] = align_raster_sets(stopStopEeg, stopStopAlign);
                   erpStopCorrect                    = nanmean(eegStopCorrect, 1);
                end
                
@@ -639,7 +639,7 @@ if plotFlag
             if size(erpStopDist, 2) == 1, erpStopDist = []; end;
             
             if ~strcmp(alignEvent, 'responseOnset')  % No stop signals on go trials
-               [eegStopCorrect, alignStopCorrect]   = align_raster_sets(stopCorrectEeg, stopCorrectAlign);
+               [eegStopCorrect, alignStopCorrect]   = align_raster_sets(stopStopEeg, stopStopAlign);
              if filterData
                erpStopCorrect = lowpass(nanmean(eegStopCorrect, 1)', stopHz)';
             else

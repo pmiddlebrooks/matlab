@@ -66,6 +66,8 @@ figureHandle    = options.figureHandle;
 
 usePreSSD = true;
 useCorrectOrAll = 'correct';
+plotSurface = false;
+
 % ***********************************************************************
 % Inhibition Function:
 %       &
@@ -77,9 +79,8 @@ useCorrectOrAll = 'correct';
 % Load the data
 [trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
 ssdArray = ExtraVar.ssdArray;
-pSignalArray = ExtraVar.pSignalArray;
-targAngleArray = ExtraVar.targAngleArray;
-nTarg = length(targAngleArray);
+pSignalArray = unique(trialData.targ1CheckerProp);
+targAngleArray = unique(trialData.targAngle);
 nTrial = size(trialData, 1);
 
 
@@ -101,7 +102,7 @@ ssdArrayRaw = trialData.stopSignalOn - trialData.responseCueOn;
 % If there weren't stop trials, skip all stop-related analyses
 if isempty(ssdArray)
     Data = [];
-    disp('ccm_inhibition.m: No stop trials or stop trial analyses not requested');
+%     disp('ccm_inhibition.m: No stop trials or stop trial analyses not requested');
     return
 end
 
@@ -199,8 +200,8 @@ for kTarg = 1 : nTargPair
     conditionSSD        = cell(nSignal, 1);
     
     
-    % Get default trial selection options
-    optSelect = ccm_trial_selection;
+    % Get default ccm options
+    optSelect = ccm_options;
     
     
     if plotFlag
@@ -297,7 +298,7 @@ for kTarg = 1 : nTargPair
                 kAngle = rightTargArray(kTarg);
             elseif iPct(1) < 50
                 leftTargArray = targAngleArray(leftTargInd);
-                kAngle = leftTargArray(kTarg)
+                kAngle = leftTargArray(kTarg);
             end
         end
         optSelect.targDir = kAngle;
@@ -340,6 +341,8 @@ for kTarg = 1 : nTargPair
             iGoTrialRTDist = allRT(iGoTrialDist);
             goDistRT{iPropIndex} = iGoTrialRTDist;
             goDistRTMean(iPropIndex) = nanmean(iGoTrialRTDist);
+        else
+            iGoTrialDist = [];
         end
         %         iRTCumDist = 1/length(iGoTrial):1/length(iGoTrialDist):1; %y-axis of a cumulative prob dist
         %         iRTSortDist = sort(iGoTrialRTDist);
@@ -411,8 +414,8 @@ for kTarg = 1 : nTargPair
             
             
             % Inhibition function data points:
-            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopCorrectTrial) + length(stopIncorrectTrial));
-            nStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial) + length(stopIncorrectTrial);
+            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopStopTrial) + length(stopIncorrectTrial));
+            nStop(iPropIndex, jSSDIndex) = length(stopStopTrial) + length(stopIncorrectTrial);
             
             % p(Correct choice) vs. SSD data points:
             stopTargetProb(iPropIndex, jSSDIndex) = length(stopTargTrial) / (length(stopTargTrial) + length(stopDistTrial));
@@ -532,7 +535,7 @@ for kTarg = 1 : nTargPair
         [p, s] = polyfit(flipPropArray, ssrtGrand, 1);
         [y, delta] = polyval(p, flipPropArray, s);
         stats = regstats(flipPropArray, ssrtGrand);
-        fprintf('p-value for regression: %.4f\n', stats.tstat.pval(2))
+%         fprintf('p-value for regression: %.4f\n', stats.tstat.pval(2))
         R = corrcoef(flipPropArray, ssrtGrand);
         Rsqrd = R(1, 2)^2;
         cov(flipPropArray, ssrtGrand);
@@ -591,6 +594,7 @@ for kTarg = 1 : nTargPair
         
         
         
+        if plotSurface
         figure(64)
         clf
         %      surf(ax(axPred), stopRespondRT)
@@ -599,6 +603,7 @@ for kTarg = 1 : nTargPair
         %      surf(ssdArray, signalStrength, stopRespondRT)
         surface(stopRespondRT)
         hold on
+        end
     end % if plotflag
     
     

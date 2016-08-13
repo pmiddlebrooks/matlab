@@ -121,7 +121,7 @@ if ~isempty(ssdArray) && DO_STOPS
         hold(ax(SSDvPCorrect))
     end
     
-    stopCorrectTotal    = cell(length(target1ProportionArray), length(ssdArray));
+    stopStopTotal    = cell(length(target1ProportionArray), length(ssdArray));
     stopIncorrectTotal  = cell(length(target1ProportionArray), length(ssdArray));
     goCorrectTargTotal  = cell(length(target1ProportionArray), 1);
     goCorrectTotalRT    = cell(length(target1ProportionArray), 1);
@@ -160,8 +160,8 @@ if ~isempty(ssdArray) && DO_STOPS
             jSSD = ssdArray(jSSDIndex);
             
             % stop correct trials
-            stopCorrectTrial = ccm_trial_selection(subjectID, sessionID,  {'stopCorrect'}, iPercent, jSSD, 'all');
-            stopCorrectTotal{iPropIndex, jSSDIndex} = stopCorrectTrial;  % Keep track of totals for grand inhibition fnct
+            stopStopTrial = ccm_trial_selection(subjectID, sessionID,  {'stopCorrect'}, iPercent, jSSD, 'all');
+            stopStopTotal{iPropIndex, jSSDIndex} = stopStopTrial;  % Keep track of totals for grand inhibition fnct
             
             % stop incorrect trials
             stopIncorrectTargetOutcome = {'targetHoldAbort', 'stopIncorrectTarget'};
@@ -176,8 +176,8 @@ if ~isempty(ssdArray) && DO_STOPS
             stopIncorrectTotal{iPropIndex, jSSDIndex} = stopIncorrectTrial;  % Keep track of totals for grand inhibition fnct
             
             % Inhibition function data points:
-            stopProbRespond(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopCorrectTrial) + length(stopIncorrectTrial));
-            nStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial) + length(stopIncorrectTrial);
+            stopProbRespond(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopStopTrial) + length(stopIncorrectTrial));
+            nStop(iPropIndex, jSSDIndex) = length(stopStopTrial) + length(stopIncorrectTrial);
             
             % p(Correct choice) vs. SSD data points:
             stopProbTarget(iPropIndex, jSSDIndex) = length(stopIncorrectTargTrial) / (length(stopIncorrectTargTrial) + length(stopIncorrectDistTrial));
@@ -286,7 +286,7 @@ if ~isempty(ssdArray) && DO_STOPS
     for iSSDIndex = 1 : length(ssdArray)
         for jPropIndex = 1 : length(target1ProportionArray);
             nStopIncorrectGrand(iSSDIndex) = nStopIncorrectGrand(iSSDIndex) + length(stopIncorrectTotal{jPropIndex, iSSDIndex});
-            nStopCorrectGrand(iSSDIndex) = nStopCorrectGrand(iSSDIndex) + length(stopCorrectTotal{jPropIndex, iSSDIndex});
+            nStopCorrectGrand(iSSDIndex) = nStopCorrectGrand(iSSDIndex) + length(stopStopTotal{jPropIndex, iSSDIndex});
         end
         nStopGrand(iSSDIndex) = nStopIncorrectGrand(iSSDIndex) + nStopCorrectGrand(iSSDIndex);
         % Inhibition function data points
@@ -318,7 +318,7 @@ if ~isempty(ssdArray) && DO_STOPS
     %     SSRT_r
     %     meanSSD
     %     stopIncorrectTotal
-    %     stopCorrectTotal
+    %     stopStopTotal
     %     goCorrectTargTotal
     
 end % if ~isempty(ssdArray)
@@ -457,8 +457,8 @@ if ~isempty(ssdArray) && DO_STOPS
         iPercent = target1ProportionArray(iPropIndex) * 100;
         
         % All stop incorrect trials
-        stopCorrectOutcome = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectDistractor', 'distractorHoldAbort'};
-        stopIncorrectTrial = ccm_trial_selection(subjectID, sessionID,  stopCorrectOutcome, iPercent, 'all', 'all');
+        stopStopOutcome = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectDistractor', 'distractorHoldAbort'};
+        stopIncorrectTrial = ccm_trial_selection(subjectID, sessionID,  stopStopOutcome, iPercent, 'all', 'all');
         
         % All stop incorrect rightward trials
         stopTargetRight = ccm_trial_selection(subjectID, sessionID,  {'stopIncorrectTarget', 'targetHoldAbort'}, iPercent, 'all', 'right');
