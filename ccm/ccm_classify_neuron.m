@@ -1,4 +1,4 @@
-function unitInfo = ccm_categorize_neuron(Data)
+function unitInfo = ccm_classify_neuron(Data)
 %
 %
 % function neuronTable = ccm_categorize_neuron(Data);
@@ -88,6 +88,7 @@ fixNeuron           = 0;
 visNeuron           = 0;
 checkerNeuron       = 0;
 preSaccNeuron       = 0;
+ddmNeuron           = 0;
 preSaccRampNeuron  	= 0;
 postSaccNeuron      = 0;
 rewardNeuron        = 0;
@@ -141,6 +142,15 @@ if mean(fixRate) < 50
     end
     
     
+     % Drift diffusion-like activity?
+    if preSaccNeuron
+        ddmLike = ccm_ddm_like(Data.subjectID, Data.sessionID, 'plotFlag', 0, 'unitArray', Data.name);
+        if ddmLike
+            ddmNeuron = 1;
+        end
+    end
+    
+    
     % Presaccadic ramping activity?
     % A more "pure" saccadic neuron, one that ramps up and isn't dominated
     % by postsaccadic activity
@@ -187,6 +197,7 @@ unitInfo.fix        = fixNeuron;
 unitInfo.vis        = visNeuron;
 unitInfo.checker    = checkerNeuron;
 unitInfo.presacc    = preSaccNeuron;
+unitInfo.ddm        = ddmNeuron;
 unitInfo.presaccRamp = preSaccRampNeuron; 
 unitInfo.postsacc   = postSaccNeuron;
 unitInfo.reward     = rewardNeuron;

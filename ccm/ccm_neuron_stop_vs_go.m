@@ -84,7 +84,7 @@ spikeWindow = -20 : 20;
 
 
 epochName       = 'checkerOn';
-eventMarkName   = 'responseOnset';
+markEvent   = 'responseOnset';
 encodeTime      = 10;
 
 
@@ -92,7 +92,7 @@ encodeTime      = 10;
 %%   Get neural data from the session/unit:
 
 if isempty(options.Unit)
-    optSess             = ccm_session_data;
+    optSess             = ccm_options;
     optSess.plotFlag    = 0;
     optSess.collapseTarg = options.collapseTarg;
     optSess.unitArray   = options.unitArray;
@@ -237,10 +237,10 @@ for kUnitIndex = 1 : nUnit
                 axisHeight = axisHeight * .9;
                 clf
                 
-                opt = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+                opt = ccm_concat_neural_conditions; % Get default options structure
                 
                 opt.epochName = epochName;
-                opt.eventMarkName = eventMarkName;
+                opt.markEvent = markEvent;
                 opt.conditionArray = {'goTarg'};
                 opt.colorCohArray = pSignalArray(leftSigInd);
                 opt.ssdArray = ssdArray;
@@ -250,8 +250,8 @@ for kUnitIndex = 1 : nUnit
                 opt.colorCohArray = pSignalArray(rightSigInd);
                 dataR           = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
                 
-                sdfAllL         = nanmean(spike_density_function(dataL.raster(:,:), Kernel), 1);
-                sdfAllR         = nanmean(spike_density_function(dataR.raster(:,:), Kernel), 1);
+                sdfAllL         = nanmean(spike_density_function(dataL.signal(:,:), Kernel), 1);
+                sdfAllR         = nanmean(spike_density_function(dataR.signal(:,:), Kernel), 1);
                 sdfMax          = max([sdfAllL, sdfAllR] .* 1.2);
                 epochName       = 'checkerOn';
                 epochRange      = ccm_epoch_range(epochName, 'plot');
@@ -284,10 +284,10 @@ for kUnitIndex = 1 : nUnit
                 
                 % Get the go trial data: these need to be split to latency-match with
                 % the stop trial data
-                iGoTarg      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'goTarg'}, iSignalP);
+                iGoTarg      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, markEvent, {'goTarg'}, iSignalP);
                 iGoTargSacc      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'goTarg'}, iSignalP);
                 % Get the stop trial data
-                iStopTarg    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'stopTarg'}, iSignalP, iSSD);
+                iStopTarg    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, markEvent, {'stopTarg'}, iSignalP, iSSD);
                 iStopTargSacc    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), 'responseOnset', 'checkerOn', {'stopTarg'}, iSignalP, iSSD);
                 
                 switch latencyMatchMethod
@@ -306,31 +306,31 @@ for kUnitIndex = 1 : nUnit
                     case 'match'
                         % Use nearest neighbor method to get rt-matched
                         % trials
-                        nStopCorrect = size(iStopStop.raster, 1);
+                        nStopCorrect = size(iStopStop.signal, 1);
                         data = ccm_match_rt(iGoTarg.eventLatency, iStopTarg.eventLatency, nStopCorrect);
                         iGoFastTrial = data.goFastTrial;
                 end
-                iGoFastSDF   = nanmean(spike_density_function(iGoTarg.raster(iGoFastTrial,:), Kernel), 1);
-                iStopTargSDF   = nanmean(spike_density_function(iStopTarg.raster(iStopTargTrial,:), Kernel), 1);
+                iGoFastSDF   = nanmean(spike_density_function(iGoTarg.signal(iGoFastTrial,:), Kernel), 1);
+                iStopTargSDF   = nanmean(spike_density_function(iStopTarg.signal(iStopTargTrial,:), Kernel), 1);
                 
                 
                 % Hanes et al 1998 t-test of spike rates 40 ms surrounding estimated ssrt
-                stopTargSpike = sum(iStopTarg.raster(iStopTargTrial, spikeWindow + iStopTarg.align + iSSD + ssrt), 2);
-                goTargFastSpike = sum(iGoTarg.raster(iGoFastTrial, spikeWindow + iGoTarg.align + iSSD + ssrt), 2);
+                stopTargSpike = sum(iStopTarg.signal(iStopTargTrial, spikeWindow + iStopTarg.align + iSSD + ssrt), 2);
+                goTargFastSpike = sum(iGoTarg.signal(iGoFastTrial, spikeWindow + iGoTarg.align + iSSD + ssrt), 2);
                 [h,p,ci,stats] = ttest2(stopTargSpike, goTargFastSpike);
                 
                 
                 % Collect the dat for later analyses
                 Data(kUnitIndex).targ(jTarg).stopTarg(i).ssd = iSSD;
                 Data(kUnitIndex).targ(jTarg).stopTarg(i).pSignal = iSignalP;
-                Data(kUnitIndex).targ(jTarg).stopTarg(i).raster = iStopTarg.raster(iStopTargTrial,:);
+                Data(kUnitIndex).targ(jTarg).stopTarg(i).raster = iStopTarg.signal(iStopTargTrial,:);
                 Data(kUnitIndex).targ(jTarg).stopTarg(i).spike = stopTargSpike;
                 Data(kUnitIndex).targ(jTarg).stopTarg(i).tTest.p = p;
                 Data(kUnitIndex).targ(jTarg).stopTarg(i).tTest.stats = stats;
                 
                 Data(kUnitIndex).targ(jTarg).goTargFast(i).ssd = iSSD;
                 Data(kUnitIndex).targ(jTarg).goTargFast(i).pSignal = iSignalP;
-                Data(kUnitIndex).targ(jTarg).goTargFast(i).raster = iGoTarg.raster(iGoFastTrial,:);
+                Data(kUnitIndex).targ(jTarg).goTargFast(i).raster = iGoTarg.signal(iGoFastTrial,:);
                 Data(kUnitIndex).targ(jTarg).goTargFast(i).spike = goTargFastSpike;
                 Data(kUnitIndex).targ(jTarg).goTargFast(i).tTest.p = p;
                 Data(kUnitIndex).targ(jTarg).goTargFast(i).tTest.stats = stats;
@@ -383,10 +383,10 @@ for kUnitIndex = 1 : nUnit
                 
                 % Get the go trial data: these need to be split to latency-match with
                 % the stop trial data
-                iGoTarg      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'goTarg'}, iSignalP);
+                iGoTarg      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, markEvent, {'goTarg'}, iSignalP);
                 % Get the stop trial data
-                iStopTarg    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'stopTarg'}, iSignalP, iSSD);
-                iStopStop    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, eventMarkName, {'stopStop'}, iSignalP, iSSD);
+                iStopTarg    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, markEvent, {'stopTarg'}, iSignalP, iSSD);
+                iStopStop    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), epochName, markEvent, {'stopStop'}, iSignalP, iSSD);
                 
                 switch latencyMatchMethod
                     case 'ssrt'
@@ -405,13 +405,13 @@ for kUnitIndex = 1 : nUnit
                     case 'match'
                         % Use nearest neighbor method to get rt-matched
                         % trials
-                        nStopCorrect = size(iStopStop.raster, 1);
+                        nStopCorrect = size(iStopStop.signal, 1);
                         data = ccm_match_rt(iGoTarg.eventLatency, iStopTarg.eventLatency, nStopCorrect);
                         iGoFastTrial = data.goFastTrial;
                         iGoSlowTrial = data.goSlowTrial;
                 end
                 
-                iGoSlowSDF   = nanmean(spike_density_function(iGoTarg.raster(iGoSlowTrial,:), Kernel), 1);
+                iGoSlowSDF   = nanmean(spike_density_function(iGoTarg.signal(iGoSlowTrial,:), Kernel), 1);
                 
                 
                 
@@ -420,8 +420,8 @@ for kUnitIndex = 1 : nUnit
                 % TEST #1:
                 % Hanes et al 1998 (p.822) t-test of spike rates 40 ms surrounding estimated ssrt
                 % ------------------------------------------------------------------------
-                stopStopSpike = sum(iStopStop.raster(:, spikeWindow + iStopStop.align + iSSD + ssrt), 2);
-                goTargSlowSpike = sum(iGoTarg.raster(iGoSlowTrial, spikeWindow + iGoTarg.align + iSSD + ssrt), 2);
+                stopStopSpike = sum(iStopStop.signal(:, spikeWindow + iStopStop.align + iSSD + ssrt), 2);
+                goTargSlowSpike = sum(iGoTarg.signal(iGoSlowTrial, spikeWindow + iGoTarg.align + iSSD + ssrt), 2);
                 [h,p,ci,stats] = ttest2(stopStopSpike, goTargSlowSpike);
                 
                 
@@ -509,14 +509,14 @@ for kUnitIndex = 1 : nUnit
                 % Collect the dat for later analyses
                 Data(kUnitIndex).targ(jTarg).stopStop(i).ssd        = iSSD;
                 Data(kUnitIndex).targ(jTarg).stopStop(i).pSignal    = iSignalP;
-                Data(kUnitIndex).targ(jTarg).stopStop(i).raster     = iStopStop.raster;
+                Data(kUnitIndex).targ(jTarg).stopStop(i).raster     = iStopStop.signal;
                 Data(kUnitIndex).targ(jTarg).stopStop(i).spike      = stopStopSpike;
                 Data(kUnitIndex).targ(jTarg).stopStop(i).tTest.p    = p;
                 Data(kUnitIndex).targ(jTarg).stopStop(i).tTest.stats = stats;
                 
                 Data(kUnitIndex).targ(jTarg).goTargSlow(i).ssd      = iSSD;
                 Data(kUnitIndex).targ(jTarg).goTargSlow(i).pSignal  = iSignalP;
-                Data(kUnitIndex).targ(jTarg).goTargSlow(i).raster   = iGoTarg.raster(iGoSlowTrial,:);
+                Data(kUnitIndex).targ(jTarg).goTargSlow(i).raster   = iGoTarg.signal(iGoSlowTrial,:);
                 Data(kUnitIndex).targ(jTarg).goTargSlow(i).spike    = goTargSlowSpike;
                 Data(kUnitIndex).targ(jTarg).goTargSlow(i).tTest.p  = p;
                 Data(kUnitIndex).targ(jTarg).goTargSlow(i).tTest.stats = stats;

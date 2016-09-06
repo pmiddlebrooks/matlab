@@ -96,7 +96,6 @@ dataType        = Opt.dataType;
 
 % opt.unitArray = {'fcz','o1','o2'};
 unitArray = Opt.unitArray;
-sdfWindow = -299:300;
 
 if isempty(Opt.sessionArray)
     [sessionArray, ~] = task_session_array(subjectID, task, sessionSet);
@@ -145,7 +144,7 @@ jTarg = 1;
 epochArrayStop      = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
 epochArrayGo        = {'fixWindowEntered', 'targOn', 'checkerOn', 'responseOnset', 'rewardOn'};
 outcomeArrayGo      = {'goTarg', 'goDist'};
-outcomeArrayStop    = {'stopTarg', 'stopStop','goFast', 'goSlow'};
+outcomeArrayStop    = {'stopTarg', 'stopDist', 'stopStop','goFast', 'goSlow'};
 colorCohArray       = {'easyIn', 'easyOut', 'hardIn', 'hardOut'};
 
 
@@ -160,13 +159,20 @@ for k = 1 : length(colorCohArray)
         Data.(colorCohArray{k}).goTarg.(epochArrayGo{m}).sdf = [];
         Data.(colorCohArray{k}).goDist.(epochArrayGo{m}).sdf = [];
     end
+    Data.(colorCohArray{k}).goTarg.rt = [];
+    Data.(colorCohArray{k}).goDist.rt = [];
     %     % Intialize Data structure for stop trials
     for m = 1 : length(epochArrayStop)
         Data.(colorCohArray{k}).stopTarg.(epochArrayStop{m}).sdf = [];
+        Data.(colorCohArray{k}).stopDist.(epochArrayStop{m}).sdf = [];
         Data.(colorCohArray{k}).stopStop.(epochArrayStop{m}).sdf = [];
         Data.(colorCohArray{k}).goFast.(epochArrayStop{m}).sdf = [];
         Data.(colorCohArray{k}).goSlow.(epochArrayStop{m}).sdf = [];
     end
+    Data.(colorCohArray{k}).stopTarg.rt = [];
+    Data.(colorCohArray{k}).stopDist.rt = [];
+    Data.(colorCohArray{k}).goFast.rt = [];
+    Data.(colorCohArray{k}).goSlow.rt = [];
 end
 % end
 
@@ -219,10 +225,11 @@ for iUnit = 1 : nUnit
             for k = 1 : length(colorCohArray)
                 
                 % Collect Go Data
-                for m = 1 : length(epochArrayGo)
-                    mEpoch = epochArrayGo{m};
-                    for n = 1 : length(outcomeArrayGo)
-                        nOutcome = outcomeArrayGo{n};
+                for n = 1 : length(outcomeArrayGo)
+                    nOutcome = outcomeArrayGo{n};
+                    for m = 1 : length(epochArrayGo)
+                        mEpoch = epochArrayGo{m};
+                        sdfWindow = ccm_epoch_range(mEpoch, 'analyze');
                         
                         if ~isempty(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf)
                             alignTime = iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).alignTime;
@@ -238,17 +245,24 @@ for iUnit = 1 : nUnit
                             Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf = ...
                                 [Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf;...
                                 nanmean(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf(:,alignTime + sdfWindow), 1)];
+                            Data.(colorCohArray{k}).(nOutcome).(mEpoch).align = -sdfWindow(1);
+                            
                         end
                     end
+                    Data.(colorCohArray{k}).(nOutcome).rt = ...
+                        [Data.(colorCohArray{k}).(nOutcome).rt;...
+                        nanmean(iData.signalStrength(iRFList(k)).(nOutcome).rt)];
+                    
                 end
                 
                 % Collect Stop Data
                 if Opt.doStops
-                    for m = 1 : length(epochArrayStop)
-                        mEpoch = epochArrayStop{m};
-                        for n = 1 : length(outcomeArrayStop)
-                            nOutcome = outcomeArrayStop{n};
-                            
+                    for n = 1 : length(outcomeArrayStop)
+                        nOutcome = outcomeArrayStop{n};
+                        
+                        for m = 1 : length(epochArrayStop)
+                            mEpoch = epochArrayStop{m};
+                            sdfWindow = ccm_epoch_range(mEpoch, 'analyze');
                             % concatenate all SSDs
                             cOpt                = ccm_concat_neural_conditions;
                             cOpt.epochName      = mEpoch;
@@ -262,19 +276,26 @@ for iUnit = 1 : nUnit
                                 
                                 % Might need to pad the sdf if aligntime is before the sdf window beginning
                                 if alignTime <  -sdfWindow(1)
-                                    iConcat.signal = ...
-                                        [nan(1, -sdfWindow(1) - alignTime),...
+                                    iConcat.signalFn = ...
+                                        [nan(1, -sdfWindow(1)+1 - alignTime),...
                                         iConcat.signalFn];
-                                    alignTime = alignTime - sdfWindow(1);
+                                    alignTime = alignTime - sdfWindow(1)+1;
                                 end
                                 
                                 Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf = ...
                                     [Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf;...
                                     nanmean(iConcat.signalFn(:,alignTime + sdfWindow), 1)];
+                            Data.(colorCohArray{k}).(nOutcome).(mEpoch).align = -sdfWindow(1);
+                                
                             end
+                        if strcmp(mEpoch, 'checkerOn') && ~strcmp(nOutcome, 'stopStop')
+                            Data.(colorCohArray{k}).(nOutcome).rt = ...
+                                [Data.(colorCohArray{k}).(nOutcome).rt;...
+                                nanmean(iConcat.eventLatency)];
                         end
                         
-                        
+                            
+                        end
                     end
                 end % if opt.doStops
                 
@@ -353,6 +374,8 @@ return
 if Opt.plotFlag
     ccm_population_neuron_plot(Data, opt)
 end
+
+
 
 return
 

@@ -9,8 +9,8 @@ disp('Populaiton chronometric')
 % subjectID = 'Human';
 % subjectID = 'Xena';
 % sessionSet = 'behavior';
-subjectID = 'broca';
-sessionSet = 'behavior2';
+subjectID = 'xena';
+sessionSet = 'behavior1';
 
 
 task = 'ccm';

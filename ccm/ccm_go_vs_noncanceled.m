@@ -49,8 +49,6 @@ if nargin < 3
     options.minTrialPerCond     = 8;
     options.cellType            =      'move';
     options.ssrt            =      [];
-    options.Unit            =      [];
-    options.Inh            =      [];
     options.filterData       = false;
     
     options.plotFlag            = true;
@@ -64,13 +62,11 @@ if nargin < 3
     end
 end
 
+usePreSSD = false;
 
 dataType            = options.dataType;
-filterData          = options.filterData;
 collapseSignal      = options.collapseSignal;
-collapseTarg    	= options.collapseTarg;
 latencyMatchMethod  = options.latencyMatchMethod;
-minTrialPerCond     = options.minTrialPerCond;
 
 plotFlag            = options.plotFlag;
 printPlot           = options.printPlot;
@@ -94,15 +90,11 @@ epochRangeSacc      = -199 : 200;
 
 %%   Get neural data from the session/unit:
 
-if isempty(options.Unit)
-    optSess             = ccm_session_data;
+    optSess             = options;
     optSess.plotFlag    = 0;
     optSess.collapseTarg = options.collapseTarg;
     optSess.unitArray   = options.unitArray;
     Unit                = ccm_session_data(subjectID, sessionID, optSess);
-else
-    Unit = options.Unit;
-end
 
 if isempty(Unit)
     fprintf('Session %s does not contain spike data \n', sessionID)
@@ -130,14 +122,9 @@ nAngle              = length(targAngleArray);
 
 
 %%   Get inhibition data from the session (unless user input in options):
-if isempty(options.Inh)
-    optInh              = ccm_inhibition;
-    optInh.collapseTarg = options.collapseTarg;
+    optInh              = options;
     optInh.plotFlag     = false;
     dataInh             = ccm_inhibition(subjectID, sessionID, optInh);
-else
-    dataInh = options.Inh;
-end
 
 
 
@@ -181,11 +168,7 @@ for kUnitIndex = 1 : nUnit
             case 'erp'
         end
         % For now, use the grand SSRT via integratin method
-        if isempty(options.ssrt)
             ssrt = round(mean(dataInh(jTarg).ssrtIntegrationWeighted));
-        else
-            ssrt = options.ssrt;
-        end
         
         
         
@@ -213,12 +196,13 @@ for kUnitIndex = 1 : nUnit
             
             % Get the go trial data: these need to be split to latency-match with
             % the stop trial data
-            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            opt                 = options; % Get default options structure
             
             opt.epochName       = alignEvent;
             opt.eventMarkName   = markEvent;
             opt.conditionArray  = {'goTarg'};
             opt.colorCohArray   = iSignalP;
+            opt.ssdArray        = [];
             iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
             
             opt.epochName       = 'responseOnset';
@@ -237,7 +221,7 @@ for kUnitIndex = 1 : nUnit
                 opt.ssdArray        = mSSD;
                 iStopTargChecker    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
                 
-                opt.conditionArray  = {'stopCorrect'};
+                opt.conditionArray  = {'stopStop'};
                 iStopStopChecker       = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
                 
                 opt.epochName       = 'responseOnset';
@@ -249,7 +233,9 @@ for kUnitIndex = 1 : nUnit
                 
                 % Use a subsample of the noncanceled stop RTs that are
                 % later than the SSD plus some time to encode the stimulus
+                if ~usePreSSD
                 iStopTargTrial = iStopTargChecker.eventLatency > mSSD + encodeTime;
+                end
                 
                 % Continue processing this condition if there were any noncanceled stop trials
                 if sum(iStopTargTrial)
@@ -403,7 +389,7 @@ for kUnitIndex = 1 : nUnit
             leftSigInd = pSignalArray < .5;
             rightSigInd = pSignalArray > .5;
             
-            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            opt                 = options; % Get default options structure
             
             opt.epochName       = 'responseOnset';
             opt.eventMarkName   = 'checkerOn';

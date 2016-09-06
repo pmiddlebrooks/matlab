@@ -117,10 +117,11 @@ end
 
 % If there was not a custom set of units or channels input to process, do
 % them all
-if strcmp(Opt.howProcess, 'each') || strcmp(Opt.howProcess, 'step')% || strcmp(Opt.howProcess, 'print')
+if isempty(Opt.unitArray)
+if strcmp(Opt.howProcess, 'each') || strcmp(Opt.howProcess, 'step') || strcmp(Opt.howProcess, 'print')
     Opt.unitArray     = dataArray;
 end
-
+end
 
 
 % Make sure user input a dataType that was recorded during the session

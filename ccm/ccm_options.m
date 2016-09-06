@@ -78,6 +78,7 @@ Opt.stopHz           = 50;
 Opt.normalize        = false;
 Opt.baselineCorrect  = false;
 Opt.epochName       = 'checkerOn';
+Opt.eventMarkName       = 'responseOnset';
 Opt.epochWindow     = -299:300;
 
 
@@ -90,5 +91,9 @@ Opt.targDir             = 'collapse';
 Opt.responseDir    = {'collapse'}; % {'left', 'right'};
 
 
- Opt.include50           = false; % include 50% color coherence conditions?
- Opt.deleteAborts     = true;
+Opt.include50           = false; % include 50% color coherence conditions?
+Opt.deleteAborts     = true;
+
+Opt.latencyMatchMethod 	= 'ssrt';
+Opt.minTrialPerCond     = 15;
+Opt.cellType            =      'presacc';

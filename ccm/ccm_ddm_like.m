@@ -82,6 +82,7 @@ STD_MULTIPLE = 3;
 [allRT, rtOutlierTrial] = truncate_rt(trialData.rt, MIN_RT, MAX_RT, STD_MULTIPLE);
 % rtOutlierTrial = [];
 trialData(rtOutlierTrial,:) = [];
+trialData(isnan(trialData.rt),:) = [];
 
 signalLeftP = pSignalArray(pSignalArray < .5);
 signalRightP = pSignalArray(pSignalArray > .5);
@@ -159,7 +160,7 @@ for iUnit = 1 : length(spikeUnit)
    coherenceDependent(iUnit) = ddmData.coherenceDependent;
    ddmLike(iUnit) = ddmData.ddmLike;
    
-   
+   clear data alignedRasters
    
    
    

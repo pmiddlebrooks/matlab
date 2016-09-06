@@ -47,9 +47,8 @@ if nargin < 3
     options.collapseTarg        = false;
     options.latencyMatchMethod 	= 'ssrt';
     options.minTrialPerCond     = 15;
-    options.cellType            =      'move';
+    options.cellType            =      'presacc';
     options.ssrt            =      [];
-    options.Unit            =      [];
     options.Inh            =      [];
     options.filterData       = false;
     
@@ -97,16 +96,12 @@ epochRangeSacc      = -199 : 200;
 
 %%   Get neural data from the session/unit:
 
-if isempty(options.Unit)
-    optSess             = ccm_session_data;
+    optSess             = options;
     optSess.plotFlag    = 0;
     optSess.collapseTarg = options.collapseTarg;
     optSess.unitArray   = options.unitArray;
     optSess.dataType   = options.dataType;
     Unit                = ccm_session_data(subjectID, sessionID, optSess);
-else
-    Unit = options.Unit;
-end
 
 if isempty(Unit)
     fprintf('Session %s does not contain spike data \n', sessionID)
@@ -134,14 +129,9 @@ nAngle              = length(targAngleArray);
 
 
 %%   Get inhibition data from the session (unless user input in options):
-if isempty(options.Inh)
-    optInh              = ccm_inhibition;
-    optInh.collapseTarg = options.collapseTarg;
+    optInh              = options;
     optInh.plotFlag     = false;
     dataInh             = ccm_inhibition(subjectID, sessionID, optInh);
-else
-    dataInh = options.Inh;
-end
 
 
 
@@ -158,7 +148,7 @@ for kUnitIndex = 1 : nUnit
         % Initialize the cell arrays to be used for analyses:
         
         %       ****** Decscriptions ******
-        % stopStopCheckerData: canceled stop trials (stopStop = stop trial the monkey stopped on), CheckerData = rasters aligned on checker onset
+        % stopStopCheckerData: canceled stop trials (markEvent = stop trial the monkey stopped on), CheckerData = rasters aligned on checker onset
         % stopStopCheckerAlign: where the rasters are aligned (the checker onset time)
         % stopStopCheckerEventaLat: Latency of some event (usually saccade, but can be defined as some other event) with respect to aligned data
         %
@@ -190,11 +180,7 @@ for kUnitIndex = 1 : nUnit
             case 'erp'
         end
         % For now, use the grand SSRT via integratin method
-        if isempty(options.ssrt)
             ssrt = round(mean(dataInh(jTarg).ssrtIntegrationWeighted));
-        else
-            ssrt = options.ssrt;
-        end
         
         
         
@@ -222,12 +208,13 @@ for kUnitIndex = 1 : nUnit
             
             % Get the go trial data: these need to be split to latency-match with
             % the stop trial data
-            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            opt                 = options; % Get default options structure
             
             opt.epochName       = alignEvent;
             opt.eventMarkName   = markEvent;
             opt.conditionArray  = {'goTarg'};
             opt.colorCohArray   = iSignalP;
+            opt.ssdArray        = [];
             iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
             
             opt.epochName       = 'responseOnset';
@@ -242,7 +229,7 @@ for kUnitIndex = 1 : nUnit
                 % Get the stop trial data
                 opt.epochName       = alignEvent;
                 opt.eventMarkName   = 'targOn';
-                opt.conditionArray  = {'stopCorrect'};
+                opt.conditionArray  = {'stopStop'};
                 opt.ssdArray        = mSSD;
                 iStopStopChecker    = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg), opt);
                 
@@ -416,7 +403,7 @@ for kUnitIndex = 1 : nUnit
                         
                         
                         
-                        
+                        size(iStopStopChecker.eventLatency, 1)
                         % Mark the data for later display if there were enough trials in both conditions
                         if sum(iGoSlowTrial) >= options.minTrialPerCond && size(iStopStopChecker.eventLatency, 1) >= options.minTrialPerCond
                             usableCondition(iSigInd, mSSDInd) = 1;
@@ -492,7 +479,7 @@ for kUnitIndex = 1 : nUnit
             leftSigInd = pSignalArray < .5;
             rightSigInd = pSignalArray > .5;
             
-            opt                 = ccm_concat_neural_conditions(Unit(kUnitIndex, jTarg)); % Get default options structure
+            opt                 = options; % Get default options structure
             
             opt.epochName       = 'responseOnset';
             opt.eventMarkName   = 'checkerOn';
@@ -588,7 +575,7 @@ for kUnitIndex = 1 : nUnit
         
         if printPlot
             localFigurePath = local_figure_path;
-            print(figureHandle-1,[localFigurePath, sessionID, '_',Unit(kUnitIndex, jTarg).name, '_ccm_go_vs_canceled.pdf'],'-dpdf', '-r300')
+            print(figureHandle,[localFigurePath, sessionID, '_',Unit(kUnitIndex, jTarg).name, '_ccm_go_vs_canceled.pdf'],'-dpdf', '-r300')
         end
         
         

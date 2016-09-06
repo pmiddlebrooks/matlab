@@ -414,8 +414,8 @@ for kTarg = 1 : nTargPair
             
             
             % Inhibition function data points:
-            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopStopTrial) + length(stopIncorrectTrial));
-            nStop(iPropIndex, jSSDIndex) = length(stopStopTrial) + length(stopIncorrectTrial);
+            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopCorrectTrial) + length(stopIncorrectTrial));
+            nStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial) + length(stopIncorrectTrial);
             
             % p(Correct choice) vs. SSD data points:
             stopTargetProb(iPropIndex, jSSDIndex) = length(stopTargTrial) / (length(stopTargTrial) + length(stopDistTrial));

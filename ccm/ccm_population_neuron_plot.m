@@ -2,9 +2,7 @@ function ccm_population_neuron_plot(Data, opt)
 
 %%
 % Copied and modified from ccm_session_data_plot
-% Set defaults
-
-
+% Set defaults    
 
 pSignalArray    = Data(1).pSignalArray;
 ssdArray        = Data(1).ssdArray;
@@ -19,8 +17,16 @@ figureHandle    = opt.figureHandle;
 collapseSignal  = opt.collapseSignal;
 doStops         = opt.doStops;
 plotError       = opt.plotError;
+plotSEM         = opt.plotSEM;
+epochArrayStop 	= opt.epochArrayStop; % {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
+epochArrayGo   	= opt.epochArrayGo; % {'fixWindowEntered', 'targOn', 'checkerOn', 'responseOnset', 'rewardOn'};
+outcomeArrayGo 	= opt.outcomeArrayGo; % {'goTarg', 'goDist'};
+outcomeArrayStop  = opt.outcomeArrayStop; % {'stopTarg', 'stopStop','goFast', 'goSlow'};
+colorCohArray  	= opt.colorCohArray; % {'easyIn', 'easyOut', 'hardIn', 'hardOut'};
 
 
+
+% ____________________ CONSTANTS AND VARIABLES ____________________
 epochArray = {'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
 
 [nUnit, nTargPair] = size(Data);
@@ -31,11 +37,14 @@ if collapseSignal
    nSignal = 2;
 end
 
+
+%   ____________________ SET UP PLOTS  ____________________
 if collapseSignal
    cMap = ccm_colormap([0 1]);
 else
    cMap = ccm_colormap(pSignalArray);
 end
+
 
 targLineW = 2;
 distLineW = 1;

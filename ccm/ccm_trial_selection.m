@@ -174,7 +174,7 @@ if selectOpt.doStops
     else
         %     ssd = [ssd - 1, ssd, ssd + 1];
         % For now, use range to within an extra frame refresh
-        ssd = [selectOpt.ssd - 13 : selectOpt.ssd + 18];
+        ssd = [selectOpt.ssd - 5 : selectOpt.ssd + 5];
         trialLogical = trialLogical & ismember(trialData.ssd, ssd);
     end
     end

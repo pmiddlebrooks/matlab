@@ -729,7 +729,7 @@ for i = 1 : length(sessionList)
         
         for j = 1 : length(iData)
             iData(j).hemisphere = opt.hemisphere;
-            jUnit = ccm_categorize_neuron(iData(j));
+            jUnit = ccm_classify_neuron(iData(j));
             
             neuronTypes = [neuronTypes; jUnit];
         end
@@ -745,12 +745,14 @@ end
 brocaPath = [local_data_path, '/broca/'];
 save([brocaPath, 'ccm_neuronTypes'], 'neuronTypes')
 %%
-
-brocaPath = [local_data_path, '/broca/'];
-load([brocaPath, 'ccm_neuronTypes'])
-subjectID = 'broca';
+subject = 'broca';
+subjectPath = fullfile(local_data_path,subject);
+load([subjectPath, 'ccm_neuronTypes'])
 
 ind = neuronTypes.presacc & neuronTypes.vis; % & ~neuronTypes.postsacc;
+fileName = 'neuronPresaccNotVis';
+
+
 
 sum(ind)
 sessionArray = neuronTypes.sessionID(ind);
@@ -770,14 +772,13 @@ opt.dataType    = 'neuron';
 opt.collapseTarg 	= true;
 opt.doStops 	= true;
 
-Data = ccm_population_neuron(subjectID, opt)
+Data = ccm_population_neuron(subject, opt)
 
 
-Data.neuronTypes = 'visPresacc';
-brocaPath = [local_data_path, '/broca/'];
+Data.neuronTypes = fileName;
 
 neuronTypes = neuronTypes(ind, :);
-save([brocaPath, 'neuronPresaccNotVis'], 'Data', 'neuronTypes')
+% save(fullfile(subjectPath,fileName), 'Data', 'neuronTypes')
 
 %%
 [sessionArray, unitArray, rfList, hemList]
@@ -815,8 +816,8 @@ for i = startInd : size(neuronTypes, 1)
     fprintf('%02d\t%s\t%s\n',i,sessionArray{i},unitArray{i})
     fprintf('Hem: %s\tRF: %s\n',hemList{i},rfList{i})
     
-    opt.unitArray = unitInfo.unit;
     
+    opt.unitArray = unitInfo.unit;   
     opt.hemisphere = neuronTypes.hemisphere{i};
     iData = ccm_session_data(subjectID, neuronTypes.sessionID{i}, opt);
     
@@ -854,11 +855,11 @@ Data = ccm_population_neuron(subjectID, opt)
 %%
 epoch = 'fixWindowEntered';
 epoch = 'targOn';
-% epoch = 'checkerOn';
-epoch = 'responseOnset';
+epoch = 'checkerOn';
+% epoch = 'responseOnset';
 % epoch = 'rewardOn';
 close all
-figure()
+figure(43)
 hold all
 plot(mean(Data.easyIn.stopTarg.(epoch).sdf), '--k')
 % plot(mean(Data.easyIn.stopStop.(epoch).sdf), 'r')
@@ -872,12 +873,31 @@ plot(mean(Data.easyIn.goTarg.(epoch).sdf), 'k')
 ylim([0 60])
 plot([300 300], [0 60])
 %%
+epoch = 'checkerOn';
+
+easyInStyle = '-';
+hardInStyle = '--';
+easyInColor = [0 1 1];
+hardInColor = [0 .6 .6];
+
+easyIn = mean(Data.easyIn.goTarg.(epoch).sdf);
+hardIn = mean(Data.hardIn.goTarg.(epoch).sdf);
+
+easyInSem = std(Data.easyIn.goTarg.(epoch).sdf) ./ sqrt(size(Data.easyIn.goTarg.(epoch).sdf, 1));
+hardInSem = std(Data.hardIn.goTarg.(epoch).sdf) ./ sqrt(size(Data.hardIn.goTarg.(epoch).sdf, 1));
+
 figure(44)
+clf
 hold all
-plot(mean(Data.easyIn.goTarg.(epoch).sdf), 'k')
-plot(mean(Data.easyIn.stopTarg.(epoch).sdf), 'r')
-plot(mean(Data.hardIn.goTarg.(epoch).sdf), '--k')
-plot(mean(Data.hardIn.stopTarg.(epoch).sdf), '--r')
+% easySEM = fill([1:length(easyIn) length(easyIn):-1:1], [(easyIn - easyInSem) easyIn(end:-1:1) + easyInSem(end:-1:1)], easyInColor);
+% set(easySEM, 'edgecolor', 'none');
+plot(easyIn, easyInStyle, 'color', easyInColor)
+
+% plot(mean(Data.easyIn.stopTarg.(epoch).sdf), 'r')
+% hardSEM = fill([1:length(hardIn) length(hardIn):-1:1], [(hardIn - hardInSem) hardIn(end:-1:1) + hardInSem(end:-1:1)], hardInColor);
+% set(hardSEM, 'edgecolor', 'none');
+plot(hardIn, 'lineStyle', hardInStyle, 'color', hardInColor)
+% plot(mean(Data.hardIn.stopTarg.(epoch).sdf), '--r')
 ylim([0 60])
 plot([300 300], [0 60])
 
@@ -920,3 +940,7 @@ parfor i = 1 : length(sList)
     Data = ccm_session_data('broca',sList{i});
 end
 delete(poolID)
+
+%%
+
+opt.popDataSet
