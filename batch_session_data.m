@@ -817,7 +817,7 @@ for i = startInd : size(neuronTypes, 1)
     fprintf('Hem: %s\tRF: %s\n',hemList{i},rfList{i})
     
     
-    opt.unitArray = unitInfo.unit;   
+    opt.unitArray = unitInfo.unit;
     opt.hemisphere = neuronTypes.hemisphere{i};
     iData = ccm_session_data(subjectID, neuronTypes.sessionID{i}, opt);
     
@@ -943,4 +943,63 @@ delete(poolID)
 
 %%
 
-opt.popDataSet
+%%matlab
+subject = 'broca';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+projectDate = '2016-08-12';
+
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+load(fullfile(dataPath, 'ccm_neuronTypes'))
+
+[C,ia,ic] = unique(neuronTypes.sessionID);
+
+sessionList = neuronTypes.sessionID(ia);
+rfList = neuronTypes.rf(ia);
+hemList = neuronTypes.hemisphere(ia);
+
+localDataPath = ['/Volumes/HD-1/Users/paulmiddlebrooks/matlab/local_data/',subject,'/'];
+tebaDataPath = ['/Volumes/SchallLab/data/',subject,'/'];
+
+% poolID = parpool(5)
+
+for i = 65 : 65% length(sessionList)
+tic
+    disp(i)
+    disp(sessionList{i})
+    saveLocalName = [localDataPath, sessionList{i}];
+    m = matfile(saveLocalName,'Writable',true);
+    SessionData = m.SessionData;
+%     [~, SessionData] = load_data(subject,sessionList{i});
+    SessionData.hemisphere = hemList{i};
+    m.SessionData = SessionData;
+    
+    
+    saveTebaName = [tebaDataPath, sessionList{i}];
+    n = matfile(saveTebaName,'Writable',true);
+    SessionData = n.SessionData;
+%     [~, SessionData] = load_data(subject,sessionList{i});
+    SessionData.hemisphere = hemList{i};
+    n.SessionData = SessionData;
+clear m n
+    
+%     % Save a copy on teba
+%     tic
+%     sprintf('Saving to teba/n')
+%     saveTebaName = [tebaDataPath, sessionList{i}];
+%     save(saveTebaName, 'SessionData', '-append')
+%     sprintf('Done in %d s/n', round(toc))
+%     
+%     % Make a local copy too
+%     tic
+%         sprintf('Saving to local/n')
+% 
+%     save(saveLocalName, 'SessionData', '-append')
+        sprintf('Done in %d s/n', round(toc))
+
+end
+% delete(poolID)
+
+%%
+find(strcmp(sessionList, 'bp229n02-mm'))
+
+

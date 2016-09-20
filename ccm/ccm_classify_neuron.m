@@ -5,10 +5,9 @@ function unitInfo = ccm_classify_neuron(Data)
 %
 %
 
+
 %%
-
 % unitInfo = Data(1)
-
 % Constants
 
 
@@ -19,8 +18,8 @@ preCheckerWindow    = -99 : 0;
 postCheckerWindow   = 51 : 150;
 saccEarlyWindow       = -49 : -35;
 saccLateWindow       = -14 : 0;
-preSaccWindow       = -49 : 0;
-postSaccWindow      = 41 : 140;
+presaccWindow       = -49 : 0;
+postsaccWindow      = 41 : 140;
 rewardWindow        = 51 : 250;
 intertrialWindow    = 251 : 500;
 
@@ -37,7 +36,7 @@ unitInfo.hemisphere       = {Data.hemisphere};
 
 % Figure out which direction to use to categorize the neuron
 % Does this neuron have a saccade response field?
-unitInfo.rf = ccm_find_saccade_rf(Data);
+unitInfo.rf = {ccm_find_saccade_rf(Data)};
 
 
 if strcmp(unitInfo.rf, 'left')
@@ -69,14 +68,14 @@ preCheckerRate     = nansum(Data.signalStrength(sigInd).goTarg.checkerOn.raster(
 postCheckerAlign    = Data.signalStrength(sigInd).goTarg.checkerOn.alignTime;
 postCheckerRate     = nansum(Data.signalStrength(sigInd).goTarg.checkerOn.raster(:,postCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
 
-preSaccAlign       = Data.signalStrength(sigInd).goTarg.responseOnset.alignTime;
-preSaccRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,preSaccAlign + preSaccWindow), 2)  .* 1000 ./ length(preSaccWindow);
+presaccAlign       = Data.signalStrength(sigInd).goTarg.responseOnset.alignTime;
+presaccRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + presaccWindow), 2)  .* 1000 ./ length(presaccWindow);
 
-preSaccEarlyRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,preSaccAlign + saccEarlyWindow), 2)  .* 1000 ./ length(saccEarlyWindow);
-preSaccLateRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,preSaccAlign + saccLateWindow), 2)  .* 1000 ./ length(saccLateWindow);
+presaccEarlyRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + saccEarlyWindow), 2)  .* 1000 ./ length(saccEarlyWindow);
+presaccLateRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + saccLateWindow), 2)  .* 1000 ./ length(saccLateWindow);
 
-postSaccAlign       = Data.signalStrength(sigInd).goTarg.responseOnset.alignTime;
-postSaccRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,postSaccAlign + postSaccWindow), 2)  .* 1000 ./ length(postSaccWindow);
+postsaccAlign       = Data.signalStrength(sigInd).goTarg.responseOnset.alignTime;
+postsaccRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,postsaccAlign + postsaccWindow), 2)  .* 1000 ./ length(postsaccWindow);
 
 rewardAlign       = Data.signalStrength(sigInd).goTarg.rewardOn.alignTime;
 rewardRate        = nansum(Data.signalStrength(sigInd).goTarg.rewardOn.raster(:,rewardAlign + rewardWindow), 2)  .* 1000 ./ length(rewardWindow);
@@ -87,10 +86,10 @@ intertrialRate        = nansum(Data.signalStrength(sigInd).goTarg.rewardOn.raste
 fixNeuron           = 0;
 visNeuron           = 0;
 checkerNeuron       = 0;
-preSaccNeuron       = 0;
+presaccNeuron       = 0;
 ddmNeuron           = 0;
-preSaccRampNeuron  	= 0;
-postSaccNeuron      = 0;
+presaccRampNeuron  	= 0;
+postsaccNeuron      = 0;
 rewardNeuron        = 0;
 intertrialNeuron	= 0;
 
@@ -98,9 +97,9 @@ intertrialNeuron	= 0;
 if mean(fixRate) < 50
     
     % Fixation activity?
-    if sum([fixRate; preSaccRate])
-        [h , p]     = ttest2(fixRate , preSaccRate , .05);
-        if h && mean(fixRate) > mean(preSaccRate)
+    if sum([fixRate; presaccRate])
+        [h , p]     = ttest2(fixRate , presaccRate , .05);
+        if h && mean(fixRate) > mean(presaccRate)
             fixNeuron = 1;
         end
     end
@@ -124,26 +123,28 @@ if mean(fixRate) < 50
     end
     
     
-    % Presaccadic activity?
-    if sum([fixRate; preSaccRate])
+    % presaccadic activity?
+    if sum([fixRate; presaccRate])
         if max(Data.signalStrength(sigInd).goTarg.responseOnset.sdfMean) > 10
-%             if mean(preSaccRate) > mean(fixRate) + 3 * std(fixRate)
-                    [h , p] = ttest2(fixRate , preSaccRate , .05);
-                    if h && mean(preSaccRate) > mean(fixRate)
-                [h , p] = ttest2(postCheckerRate , preSaccRate , .05);
-                if h && mean(preSaccRate) > mean(postCheckerRate)
-%                     if mean(preSaccRate) > mean(postSaccRate)
-                        preSaccNeuron = 1;
-%                     end
+            %             if mean(presaccRate) > mean(fixRate) + 3 * std(fixRate)
+            [h , p] = ttest2(fixRate , presaccRate , .05);
+            if h && mean(presaccRate) > mean(fixRate)
+%                 [h , p] = ttest2(postCheckerRate , presaccRate , .05);
+                if mean(presaccRate) > mean(postCheckerRate) && ...
+                        mean(presaccRate) > mean(targRate) && ...
+                        mean(presaccRate) > mean(rewardRate)
+                    %                     if mean(presaccRate) > mean(postsaccRate)
+                    presaccNeuron = 1;
+                    %                     end
                 end
-                    end
-%             end
+            end
+            %             end
         end
     end
     
     
-     % Drift diffusion-like activity?
-    if preSaccNeuron
+    % Drift diffusion-like activity?
+    if presaccNeuron
         ddmLike = ccm_ddm_like(Data.subjectID, Data.sessionID, 'plotFlag', 0, 'unitArray', Data.name);
         if ddmLike
             ddmNeuron = 1;
@@ -151,24 +152,24 @@ if mean(fixRate) < 50
     end
     
     
-    % Presaccadic ramping activity?
+    % presaccadic ramping activity?
     % A more "pure" saccadic neuron, one that ramps up and isn't dominated
     % by postsaccadic activity
-    if preSaccNeuron
-        if mean(preSaccLateRate) > mean(preSaccEarlyRate) * 1.25 &&...
-                mean(preSaccLateRate) * 1.25 > mean(postSaccRate)
-            preSaccRampNeuron = 1;
+    if presaccNeuron
+        if mean(presaccLateRate) > mean(presaccEarlyRate) * 1.25 &&...
+                mean(presaccLateRate) * 1.25 > mean(postsaccRate)
+            presaccRampNeuron = 1;
         end
     end
     
     
     % Postaccadic activity?
-    if sum([fixRate; postSaccRate])
-        [h , p] = ttest2(fixRate , postSaccRate , .05);
-        if h && mean(postSaccRate) > mean(fixRate)
-            [h , p] = ttest2(preSaccRate , postSaccRate , .05);
-            if h && mean(postSaccRate) > mean(preSaccRate)
-                postSaccNeuron = 1;
+    if sum([fixRate; postsaccRate])
+        [h , p] = ttest2(fixRate , postsaccRate , .05);
+        if h && mean(postsaccRate) > mean(fixRate)
+            [h , p] = ttest2(presaccRate , postsaccRate , .05);
+            if h && mean(postsaccRate) > mean(presaccRate)
+                postsaccNeuron = 1;
             end
         end
     end
@@ -196,10 +197,10 @@ end
 unitInfo.fix        = fixNeuron;
 unitInfo.vis        = visNeuron;
 unitInfo.checker    = checkerNeuron;
-unitInfo.presacc    = preSaccNeuron;
+unitInfo.presacc    = presaccNeuron;
 unitInfo.ddm        = ddmNeuron;
-unitInfo.presaccRamp = preSaccRampNeuron; 
-unitInfo.postsacc   = postSaccNeuron;
+unitInfo.presaccRamp = presaccRampNeuron;
+unitInfo.postsacc   = postsaccNeuron;
 unitInfo.reward     = rewardNeuron;
 unitInfo.intertrial = intertrialNeuron;
 

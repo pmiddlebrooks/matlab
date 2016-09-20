@@ -10,8 +10,11 @@ end
 % sessionSet = 'neural1';
 task = 'ccm';
 
-
+if iscell(sessionSet)
+    sessionArray = sessionSet;
+else
 [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
+end
 nSession = length(sessionArray);
 
 switch lower(subjectID)
@@ -37,6 +40,7 @@ ssrtIntW = nan(length(sessionArray), nSignal);
 
 optInh              = ccm_inhibition;
 optInh.plotFlag     = 0;
+optInh.printPlot     = 0;
 optInh.collapseTarg     = 1;
 
 % Determine whether there is a 50% condition

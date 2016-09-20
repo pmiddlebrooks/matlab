@@ -8,7 +8,7 @@ function ccm_session_data_plot(Data, Opt)
 pSignalArray = Data(1).pSignalArray;
 ssdArray    = Data(1).ssdArray;
 sessionID   = Data(1).sessionID;
-
+subjectID   = Data(1).subjectID;
 
 dataType    = Opt.dataType;
 printPlot   = Opt.printPlot;
@@ -402,9 +402,9 @@ for kDataIndex = 1 : nUnit
       titleString = sprintf('%s \t %s', sessionID, Data(kDataIndex, jTarg).name);
       text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top')
       if printPlot && ~collapseSignal
-         print(figureHandle,[local_figure_path, sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'.pdf'],'-dpdf', '-r300')
+         print(figureHandle,fullfile(local_figure_path, subjectID, [sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'.pdf']),'-dpdf', '-r300')
       elseif printPlot && collapseSignal
-         print(figureHandle,[local_figure_path, sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'_collapse.pdf'],'-dpdf', '-r300')
+         print(figureHandle,fullfile(local_figure_path, subjectID, [sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'_collapse.pdf']),'-dpdf', '-r300')
 % micalaFolder = '/Volumes/SchallLab/Users/Paul/micala/';
 % print(figureHandle,[micalaFolder, sessionID, '_ccm_', Data(kDataIndex, jTarg).name, '_',dataType,'_collapse.pdf'],'-dpdf', '-r300')
       end

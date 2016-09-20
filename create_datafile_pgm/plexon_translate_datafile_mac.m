@@ -46,6 +46,9 @@ N_PHOTODIODE_POSSIBLE = 6;
 
 nError = 0;
 
+prompt = 'Which hemisphere was recording from (right, left, both)? ';
+hemisphere = input(prompt, 's');
+
 switch Opt.whichData
     case {'all','lfp','eeg','spike'}
 prompt = 'Are these LFP and EEG channels correct (y or n)? ';
@@ -58,6 +61,7 @@ if strcmp(answer, 'n')
     LFP_CHANNELS = input(prompt);
     prompt = 'Enter EEG Channels ';
     EEG_CHANNELS = input(prompt);
+   
 end
 end
 % LFP_CHANNELS        = 1:8;  % Default assumption recording LFP on channels listed
@@ -97,6 +101,7 @@ tebaDataPath = ['/Volumes/SchallLab/data/',monkeyDataPath];
 trialData       = table();
 % Create a struct for session information
 SessionData     = struct();
+SessionData.hemisphere = hemisphere;
 
 
 tebaFile        = fullfile(tebaDataPath, plexonFile);

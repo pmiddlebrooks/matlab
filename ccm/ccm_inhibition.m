@@ -41,11 +41,12 @@ function Data = ccm_inhibition(subjectID, sessionID, options)
 %   stopRightLogical
 %   stopRightSignalStrength
 
-
+%%
+% sessionID = 'bp093n02';
 % Set default options or return a default options structure
 if nargin < 3
     options.collapseSignal   	= false;
-    options.collapseTarg        = false;
+    options.collapseTarg        = true;
     options.include50           = false;
     
     options.plotFlag            = true;

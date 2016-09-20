@@ -62,6 +62,7 @@ function Opt = ccm_options
 
 Opt.dataType = 'neuron';
 
+Opt.trialData           = [];
 Opt.howProcess        = 'each';%'print';
 Opt.unitArray        = [];
 
@@ -70,7 +71,7 @@ Opt.printPlot        = true;
 Opt.plotFlag         = true;
 
 Opt.collapseSignal   = false;
-Opt.collapseTarg      = false;
+Opt.collapseTarg     = true;
 Opt.doStops          = true;
 
 Opt.filterData       = false;

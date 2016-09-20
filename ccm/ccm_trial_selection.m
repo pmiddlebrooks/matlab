@@ -20,6 +20,7 @@ function  [trialList] = ccm_trial_selection(trialData, selectOpt)
 %           'goIncorrect',
 %           'stopCorrect',
 %           'stopIncorrectTarget', 'stopIncorrectDistractor',
+%           'stopIncorrectTarget', 'stopIncorrectDistractor',
 %           'targetHoldAbort', 'distractorHoldAbort',
 %           'fixationAbort', 'saccadeAbort', 'checkerStimulusAbort'}
 %     selectOpt.choiceAccuracy  = default is collapse across all choices. Segments
@@ -127,7 +128,6 @@ else
     end
 end
 trialLogical = trialLogical & outcomeLogical;
-
 
 
 
@@ -257,7 +257,6 @@ if isfield(selectOpt, 'responseDir') && ~strcmp(selectOpt.responseDir, 'collapse
         trialLogical = trialLogical & responseTrial;
     end
 end
-
 
 % If there was supposed to be an RT but there wasn't (if there is a NaN for
 % RT, get rid of those trials

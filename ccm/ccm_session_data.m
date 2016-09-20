@@ -14,6 +14,9 @@ function Data = ccm_session_data(subjectID, sessionID, Opt)
 %   The following fields of Opt are relevant for ccm_session_data, with
 %   possible values (default listed first):
 %
+%    Opt.trialData: if Options structure contains trialData and
+%    SessionData, don't need to load the data
+%   Opt.SessionData: ditto
 %    Opt.dataType = 'neuron', 'lfp', 'erp';
 %
 %    Opt.figureHandle   = 1000;
@@ -61,11 +64,18 @@ clear Data
 
 if nargin < 3
     Opt = ccm_options;
+    Opt.trialData = [];
 end
 
 
-% Load the data
+if isempty(Opt.trialData)
+    % Load the data
 [trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
+else
+    trialData = Opt.trialData;
+    SessionData = Opt.SessionData;
+    ExtraVar = Opt.ExtraVar;
+end
 pSignalArray    = ExtraVar.pSignalArray;
 targAngleArray	= ExtraVar.targAngleArray;
 ssdArray        = ExtraVar.ssdArray;
@@ -359,7 +369,7 @@ for kDataInd = 1 : nUnit
                     alignListGoDist = trialData.(mEpochName)(iGoDistTrial);
                     Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).alignTimeList = alignListGoDist;   % Keep track of trial-by-trial alignemnt
                     
-                    
+                        
                     
                     switch dataType
                         
@@ -1021,7 +1031,8 @@ Data(1).targAngleArray  = targAngleArray;
 Data(1).ssdArray        = ssdArray;
 Data(1).sessionID       = sessionID;
 Data(1).subjectID       = subjectID;
-Data(1).Opt         = Opt;
+Data(1).hemisphere       = SessionData.hemisphere;
+Data(1).Opt             = Opt;
 
 
 if Opt.plotFlag && ~strcmp(Opt.howProcess, 'step') && ~strcmp(Opt.howProcess, 'each') && ~strcmp(Opt.howProcess, 'print')

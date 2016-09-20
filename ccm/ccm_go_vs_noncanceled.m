@@ -114,7 +114,6 @@ nSignal             = length(pSignalArray);
 if collapseSignal
     nSignal = 2;
 end
-nAngle              = length(targAngleArray);
 
 
 
