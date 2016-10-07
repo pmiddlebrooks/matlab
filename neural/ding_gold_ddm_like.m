@@ -87,24 +87,24 @@ end
 
 
 % compute the linear regression of spikeRate on signalStrength
-[pIn, sIn]          = polyfit(signalP(inTrial), trialMetric(inTrial), 1);
-[yPredIn, deltaIn]  = polyval(pIn, signalP(inTrial), sIn);
+[coeffIn, sIn]          = polyfit(signalP(inTrial), trialMetric(inTrial), 1);
+[yPredIn, deltaIn]  = polyval(coeffIn, signalP(inTrial), sIn);
 statsIn             = regstats(signalP(inTrial), trialMetric(inTrial));
 rIn                 = corr(signalP(inTrial), trialMetric(inTrial));
 
-slopeIn     = pIn(1);
+slopeIn     = coeffIn(1);
 signSlopeIn = sign(slopeIn);
 fTestIn     = statsIn.fstat.f;
 pValIn      = statsIn.fstat.pval;
 
 
 % compute the linear regression of spikeRate on signalStrength
-[pOut, sOut]        = polyfit(signalP(outTrial), trialMetric(outTrial), 1);
-[yPredOut, deltaOut] = polyval(pOut, signalP(outTrial), sOut);
+[coeffOut, sOut]        = polyfit(signalP(outTrial), trialMetric(outTrial), 1);
+[yPredOut, deltaOut] = polyval(coeffOut, signalP(outTrial), sOut);
 statsOut            = regstats(signalP(outTrial), trialMetric(outTrial));
 rOut                = corr(signalP(outTrial), trialMetric(outTrial));
 
-slopeOut    = pOut(1);
+slopeOut    = coeffOut(1);
 signSlopeOut = -sign(slopeOut);  % NOTE THIS IS NEGATED BECAUSE IF IN CONDITION GOES HARD TO EASY, OUT GOES EASY TO HARD, VICE VERSA
 fTestOut    = statsOut.fstat.f;
 pValOut     = statsOut.fstat.pval;
@@ -165,7 +165,9 @@ if ddmLike
       epochDuration = iEpochEnd - iEpochBegin;
       
       
-      
+      if iEpochEnd(1) > length(alignedRasters{1})
+          break
+      end
       switch dataType
          case 'spikes'
             nSpike = cellfun(@(x,y,z) sum(x(y:z)), alignedRasters, num2cell(iEpochBegin), num2cell(iEpochEnd), 'uniformoutput', false);
@@ -207,5 +209,5 @@ ddmData.coherenceDependent  = coherenceDependent;
 ddmData.ddmLike             = ddmLike;
 ddmData.tChoice              = tChoice;
 ddmData.leftIsIn            = leftIsIn;
-ddmData.pIn                 = pIn;
-ddmData.pOut                = pOut;
+ddmData.coeffIn                 = coeffIn;
+ddmData.coeffOut                = coeffOut;

@@ -41,7 +41,7 @@ end
 
 % These will determine the trial-to-trial epochs used for analyses:
 epochOffset = 80;  % When to begin spike rate analysis after stimulus (checkerboard) onset
-preSaccadeBuffer = 50; % When to cut off spike rate analysis before saccade onset
+preSaccadeBuffer = 30; % When to cut off spike rate analysis before saccade onset
 minEpochDuration = 20; % Only include trials for which the determined epoch is this long
 
 
@@ -104,6 +104,24 @@ rightTrial = 1 + length(leftTrial) : nTrial;
 
 
 
+  % Ding and Gold use the median RT for their end-of-epoch, and truncate
+   % the epochs on a trial-to-trial basis when a trial RT is shorter than the
+   % median RT. 
+
+   % Get trials of easiest left and right color coherence, to define trial by
+% trial epoch end during the STIM period of Ding and Gold
+selectOpt.rightCheckerPct = pSignalArray(1) * 100;
+easyLeftTrial = ccm_trial_selection(trialData, selectOpt);
+medianLeftRT = nanmedian(trialData.rt(easyLeftTrial));
+
+selectOpt.rightCheckerPct = pSignalArray(end) * 100;
+easyRightTrial = ccm_trial_selection(trialData, selectOpt);
+medianRightRT = nanmedian(trialData.rt(easyRightTrial));
+
+
+
+
+
 for iUnit = 1 : length(spikeUnit)
    % Go to Target trials
    alignmentTimeList = trialData.checkerOn;
@@ -113,26 +131,15 @@ for iUnit = 1 : length(spikeUnit)
    alignedRasters = num2cell(alignedRasters, 2);
    
    
-   medianLeftRT = round(nanmedian(trialData.rt(leftTrial)));
-   medianRightRT = round(nanmedian(trialData.rt(rightTrial)));
    
-   
-   
-   
-   % Ding and Gold use the median RT for their end-of-epoch, and truncate
-   % the epochs on a trial-to-trial basis when a trial RT is shorter than the
-   % median RT. My RTs are pretty quick as is, though, so I will define an
-   % epoch ending on every trial based on the RT of that trial (and thus
-   % skip the first pass of using median RT).
-   
-   %    epochEnd = [medianLeftRT * ones(length(leftTrial), 1); medianRightRT * ones(length(rightTrial), 1)];
-   epochEnd = [nan(length(leftTrial), 1); nan(length(rightTrial), 1)];
-   %    epochEnd = epochEnd - preSaccadeBuffer;
-   % replace epoch-cutoffs for trials with rts shorter than the median RT
-   %    epochEnd(leftTrial) = alignmentIndex + min(trialData.rt(leftTrial) - preSaccadeBuffer, epochEnd(leftTrial));
-   %    epochEnd(rightTrial) = alignmentIndex + min(trialData.rt(rightTrial) - preSaccadeBuffer, epochEnd(rightTrial));
-   epochEnd(leftTrial) = alignmentIndex + trialData.rt(leftTrial) - preSaccadeBuffer;
-   epochEnd(rightTrial) = alignmentIndex + trialData.rt(rightTrial) - preSaccadeBuffer;
+    
+   % Initialize end of epoch as median RTs from easiect choice
+   % conditions
+   epochEnd = [medianLeftRT * ones(length(leftTrial), 1); medianRightRT * ones(length(rightTrial), 1)];
+   % Replace epoch-cutoffs for trials with rts shorter than the median RT
+   earlyRTTrial = trialData.rt < epochEnd;
+   epochEnd(earlyRTTrial) = trialData.rt(earlyRTTrial);
+   epochEnd = epochEnd + alignmentIndex - preSaccadeBuffer;
    epochBegin = alignmentIndex + epochOffset * ones(nTrial, 1);
    epochDuration = epochEnd - epochBegin;
    
@@ -330,11 +337,11 @@ for iUnit = 1 : length(spikeUnit)
       xRight = (signalRightP(1) : .01 : signalRightP(end));
       switch ddmData.leftIsIn
          case true
-            yLeft = ddmData.pIn(1) .* xLeft + ddmData.pIn(2);
-            yRight = ddmData.pOut(1) .* xRight + ddmData.pOut(2);
+            yLeft = ddmData.coeffIn(1) .* xLeft + ddmData.coeffIn(2);
+            yRight = ddmData.coeffOut(1) .* xRight + ddmData.coeffOut(2);
          case false
-            yRight = ddmData.pIn(1) .* xRight + ddmData.pIn(2);
-            yLeft = ddmData.pOut(1) .* xLeft + ddmData.pOut(2);
+            yRight = ddmData.coeffIn(1) .* xRight + ddmData.coeffIn(2);
+            yLeft = ddmData.coeffOut(1) .* xLeft + ddmData.coeffOut(2);
       end
       plot(ax(axCoh), xLeft, yLeft, '-k', 'lineWidth', lineW)
       plot(ax(axCoh), xRight, yRight, '-k', 'lineWidth', lineW)

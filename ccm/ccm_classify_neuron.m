@@ -67,9 +67,11 @@ preCheckerRate     = nansum(Data.signalStrength(sigInd).goTarg.checkerOn.raster(
 
 postCheckerAlign    = Data.signalStrength(sigInd).goTarg.checkerOn.alignTime;
 postCheckerRate     = nansum(Data.signalStrength(sigInd).goTarg.checkerOn.raster(:,postCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
+postCheckerSDF     = nanmean(Data.signalStrength(sigInd).goTarg.checkerOn.sdf(:,postCheckerAlign + postCheckerWindow), 1);
 
 presaccAlign       = Data.signalStrength(sigInd).goTarg.responseOnset.alignTime;
 presaccRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + presaccWindow), 2)  .* 1000 ./ length(presaccWindow);
+presaccSDF        = nanmean(Data.signalStrength(sigInd).goTarg.responseOnset.sdf(:,presaccAlign + presaccWindow), 1);
 
 presaccEarlyRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + saccEarlyWindow), 2)  .* 1000 ./ length(saccEarlyWindow);
 presaccLateRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + saccLateWindow), 2)  .* 1000 ./ length(saccLateWindow);
@@ -87,23 +89,30 @@ fixNeuron           = 0;
 visNeuron           = 0;
 checkerNeuron       = 0;
 presaccNeuron       = 0;
+presaccMaxNeuron       = 0;
 ddmNeuron           = 0;
 presaccRampNeuron  	= 0;
 postsaccNeuron      = 0;
 rewardNeuron        = 0;
 intertrialNeuron	= 0;
 
-% Get rid of multiunit activity
-if mean(fixRate) < 50
-    
-    % Fixation activity?
-    if sum([fixRate; presaccRate])
-        [h , p]     = ttest2(fixRate , presaccRate , .05);
-        if h && mean(fixRate) > mean(presaccRate)
+
+% Fixation activity?
+if sum([fixRate; presaccRate])
+    [h , p]     = ttest2(fixRate , presaccRate , .05);
+    if h && mean(fixRate) > mean(presaccRate)
+        % spike rate should dip just before saccade (don't include
+        % neurons that reduce activity during trial in general)
+        [h , p]     = ttest2(preCheckerRate , presaccRate , .05);
+        if h && mean(preCheckerRate) > mean(presaccRate)
             fixNeuron = 1;
         end
     end
-    
+end
+
+
+% Get rid of multiunit activity
+if mean(fixRate) < 50
     
     % Visual activity?
     if sum([fixRate; targRate])
@@ -128,20 +137,23 @@ if mean(fixRate) < 50
         if max(Data.signalStrength(sigInd).goTarg.responseOnset.sdfMean) > 10
             %             if mean(presaccRate) > mean(fixRate) + 3 * std(fixRate)
             [h , p] = ttest2(fixRate , presaccRate , .05);
-            if h && mean(presaccRate) > mean(fixRate)
-%                 [h , p] = ttest2(postCheckerRate , presaccRate , .05);
-                if mean(presaccRate) > mean(postCheckerRate) && ...
-                        mean(presaccRate) > mean(targRate) && ...
-                        mean(presaccRate) > mean(rewardRate)
+            if h && mean(presaccRate) > mean(fixRate) && ...
+                mean(presaccLateRate)  > mean(presaccEarlyRate)
+                %                 [h , p] = ttest2(postCheckerRate , presaccRate , .05);
                     %                     if mean(presaccRate) > mean(postsaccRate)
                     presaccNeuron = 1;
                     %                     end
-                end
             end
             %             end
         end
     end
     
+    % presaccadic activity that's at least 20% greater than visual activity?
+    if presaccNeuron
+        if max(Data.signalStrength(sigInd).goTarg.responseOnset.sdfMean) > 1.2 * max(Data.signalStrength(sigInd).goTarg.targOn.sdfMean)
+            presaccMaxNeuron = 1;
+        end
+    end
     
     % Drift diffusion-like activity?
     if presaccNeuron
@@ -198,6 +210,7 @@ unitInfo.fix        = fixNeuron;
 unitInfo.vis        = visNeuron;
 unitInfo.checker    = checkerNeuron;
 unitInfo.presacc    = presaccNeuron;
+unitInfo.presaccMax    = presaccMaxNeuron;
 unitInfo.ddm        = ddmNeuron;
 unitInfo.presaccRamp = presaccRampNeuron;
 unitInfo.postsacc   = postsaccNeuron;

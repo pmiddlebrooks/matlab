@@ -48,10 +48,12 @@ if nargin < 3
     options.collapseSignal   	= false;
     options.collapseTarg        = true;
     options.include50           = false;
+    options.USE_PRE_SSD         = true;
+    options.USE_TWO_COLORS         = false;
     
     options.plotFlag            = true;
     options.printPlot           = false;
-    options.figureHandle      	= 400;
+    options.figureHandle      	= 402;
     
     % Return just the default options struct if no input
     if nargin == 0
@@ -65,7 +67,6 @@ plotFlag        = options.plotFlag;
 printPlot       = options.printPlot;
 figureHandle    = options.figureHandle;
 
-usePreSSD = true;
 useCorrectOrAll = 'correct';
 plotSurface = false;
 
@@ -77,10 +78,17 @@ plotSurface = false;
 % SSD vs. Proportion(Correct Choice)
 % ***********************************************************************
 
-% Load the data
-[trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
+% Load the behavior-only version of the data
+[trialData, SessionData, ExtraVar] = ccm_load_data_behavior(subjectID, sessionID);
 ssdArray = ExtraVar.ssdArray;
 pSignalArray = unique(trialData.targ1CheckerProp);
+if options.USE_TWO_COLORS
+    if length(pSignalArray) == 6
+        pSignalArray([2 5]) = [];
+    elseif length(pSignalArray) == 7
+        pSignalArray([2 4 6]) = [];
+    end
+end
 targAngleArray = unique(trialData.targAngle);
 nTrial = size(trialData, 1);
 
@@ -103,7 +111,7 @@ ssdArrayRaw = trialData.stopSignalOn - trialData.responseCueOn;
 % If there weren't stop trials, skip all stop-related analyses
 if isempty(ssdArray)
     Data = [];
-%     disp('ccm_inhibition.m: No stop trials or stop trial analyses not requested');
+    %     disp('ccm_inhibition.m: No stop trials or stop trial analyses not requested');
     return
 end
 
@@ -130,7 +138,7 @@ switch options.collapseSignal
     case false
         nSignal = length(pSignalArray);
 end
-
+nSSD = length(ssdArray);
 
 % If collapsing into all left and all right need to note here that there are "2" angles to deal with
 % (important for calling ccm_trial_selection.m)
@@ -166,32 +174,29 @@ for kTarg = 1 : nTargPair
     
     
     ssd                 = cell(nSignal, 1);
-    stopStopTrial       = cell(nSignal, length(ssdArray));
-    stopRespondTrial       = cell(nSignal, length(ssdArray));
-    stopRespondTrialTarg       = cell(nSignal, length(ssdArray));
-    stopRespondTrialDist       = cell(nSignal, length(ssdArray));
-    goTrialTotal        = cell(nSignal, 1);
-    goTrialTarg        = cell(nSignal, 1);
-    goTrialDist        = cell(nSignal, 1);
-    goTotalRT           = cell(nSignal, 1);
-    goTargRT           = cell(nSignal, 1);
-    goDistRT           = cell(nSignal, 1);
-    goRTMean            = nan(nSignal, 1);
-    goTargRTMean            = nan(nSignal, 1);
-    goDistRTMean            = nan(nSignal, 1);
-    stopTargRT          = cell(nSignal, length(ssdArray));
-    stopDistRT          = cell(nSignal, length(ssdArray));
-    stopRespondRT       = nan(nSignal, length(ssdArray));
-    stopRespondRTPredict = nan(nSignal, length(ssdArray));
-    stopRespondProb     = nan(nSignal, length(ssdArray));
-    stopTargetProb      = nan(nSignal, length(ssdArray));
+    stopStopTrial       = cell(nSignal, nSSD);
+    stopRespondTrial  	= cell(nSignal, nSSD);
+    stopTargTrial       = cell(nSignal, nSSD);
+    stopDistTrial       = cell(nSignal, nSSD);
+    
+    goTotalRT           = cell(nSignal, nSSD);
+    goTargRT           = cell(nSignal, nSSD);
+    goDistRT           = cell(nSignal, nSSD);
+    goRTMean            = nan(nSignal, nSSD);
+    
+    stopTargRT          = cell(nSignal, nSSD);
+    stopDistRT          = cell(nSignal, nSSD);
+    stopRespondRT       = nan(nSignal, nSSD);
+    stopRespondRTPredict = nan(nSignal, nSSD);
+    stopRespondProb     = nan(nSignal, nSSD);
+    stopTargetProb      = nan(nSignal, nSSD);
     inhibitionFn        = cell(nSignal, 1);
     inhFnGoMinusSSD     = cell(nSignal, 1);
     goRTMinusSSD        = cell(nSignal, 1);
-    nStop               = nan(nSignal, length(ssdArray));
-    nStopStop           = nan(nSignal, length(ssdArray));
-    nStopTarg           = nan(nSignal, length(ssdArray));
-    nStopDist           = nan(nSignal, length(ssdArray));
+    nStop               = nan(nSignal, nSSD);
+    nStopStop           = nan(nSignal, nSSD);
+    nStopTarg           = nan(nSignal, nSSD);
+    nStopDist           = nan(nSignal, nSSD);
     ssrtGrand           = nan(nSignal, 1);
     ssrtMean            = nan(nSignal, 1);
     ssrtIntegration     = cell(nSignal, 1);
@@ -217,6 +222,7 @@ for kTarg = 1 : nTargPair
         else
             [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
         end
+        clf
         choicePlotXMargin = .03;
         ssdMargin = 20;
         ylimArray = [];
@@ -268,230 +274,292 @@ for kTarg = 1 : nTargPair
     
     
     
-    
-    
-    for iPropIndex = 1 : nSignal
-        % Which Signal Strength levels to analyze
-        switch options.collapseSignal
-            case true
-                if iPropIndex == 1
-                    iPct = pSignalArray(pSignalArray < .5) * 100;
-                elseif iPropIndex == 2
-                    iPct = pSignalArray(pSignalArray > .5) * 100;
-                end
-            case false
-                iPct = pSignalArray(iPropIndex) * 100;
-        end
-        optSelect.rightCheckerPct = iPct;
+    % Get stopping data within each SSD
+    for jSSDInd = 1 : nSSD
         
         
         
-        % If collapsing into all left and all right or all up/all down,
-        % need to note here that there are "2" angles to deal with
-        % (important for calling ccm_trial_selection.m)
-        if options.collapseTarg && iPct(1) > 50
-            kAngle = 'right';
-        elseif options.collapseTarg && iPct(1) < 50
-            kAngle = 'left';
-        else
-            if iPct(1) > 50
-                rightTargArray = targAngleArray(rightTargInd);
-                kAngle = rightTargArray(kTarg);
-            elseif iPct(1) < 50
-                leftTargArray = targAngleArray(leftTargInd);
-                kAngle = leftTargArray(kTarg);
+        
+        for iPropInd = 1 : nSignal
+            % Which Signal Strength levels to analyze
+            switch options.collapseSignal
+                case true
+                    if iPropInd == 1
+                        iPct = pSignalArray(pSignalArray < .5) * 100;
+                    elseif iPropInd == 2
+                        iPct = pSignalArray(pSignalArray > .5) * 100;
+                    end
+                case false
+                    iPct = pSignalArray(iPropInd) * 100;
             end
-        end
-        optSelect.targDir = kAngle;
-        
-        
-        
-        % Get go RT distribution, to be used below for calculating SSRT and for
-        % predicting stop Incorrect RTs (to compare with observed, as per the
-        % race model).
-        optSelect.ssd = 'none';
-        
-        % Go trial correct target
-        optSelect.outcome           = {'goCorrectTarget', 'targetHoldAbort'};
-        goTargTrial                 = ccm_trial_selection(trialData, optSelect);
-        iGoTargIndices              = zeros(nTrial, 1);
-        iGoTargIndices(goTargTrial) = 1;
-        
-        if sum(iGoTargIndices)
-            iGoTrialTarg            = find(iGoTargIndices);
-            goTrialTarg{iPropIndex} = iGoTrialTarg;  % Keep track of totals for grand inhibition fnct
+            optSelect.rightCheckerPct = iPct;
             
-            iGoTrialRTTarg          = allRT(iGoTrialTarg);
-            goTargRT{iPropIndex}    = iGoTrialRTTarg;
-            goTargRTMean(iPropIndex) = nanmean(iGoTrialRTTarg);
-        end
-        %         iRTCumTarg = 1/length(iGoTrialTarg):1/length(iGoTrialTarg):1; %y-axis of a cumulative prob dist
-        %         iRTSortTarg = sort(iGoTrialRTTarg);
-        
-        
-        % Go trial errors
-        optSelect.outcome           = {'goCorrectDistractor', 'distractorHoldAbort'};
-        goDistTrial                 = ccm_trial_selection(trialData, optSelect);
-        iGoDistIndices              = zeros(nTrial, 1);
-        iGoDistIndices(goDistTrial) = 1;
-        
-        if sum(iGoDistIndices)
-            iGoTrialDist = find(iGoDistIndices);
-            goTrialDist{iPropIndex} = iGoTrialDist;  % Keep track of totals for grand inhibition fnct
             
-            iGoTrialRTDist = allRT(iGoTrialDist);
-            goDistRT{iPropIndex} = iGoTrialRTDist;
-            goDistRTMean(iPropIndex) = nanmean(iGoTrialRTDist);
-        else
-            iGoTrialDist = [];
-        end
-        %         iRTCumDist = 1/length(iGoTrial):1/length(iGoTrialDist):1; %y-axis of a cumulative prob dist
-        %         iRTSortDist = sort(iGoTrialRTDist);
-        
-        iGoTrial = sort([iGoTrialDist; iGoTrialTarg]);
-        goTrialTotal{iPropIndex} = iGoTrial;  % Keep track of totals for grand inhibition fnct
-        
-        iGoTrialRT = allRT(iGoTrial);
-        goTotalRT{iPropIndex} = iGoTrialRT;
-        goRTMean(iPropIndex) = nanmean(iGoTrialRT);
-        iRTCum = 1/length(iGoTrial):1/length(iGoTrial):1; %y-axis of a cumulative prob dist
-        iRTSort = sort(iGoTrialRT);
-        
-        
-        
-        % Get stopping data within each SSD
-        for jSSDIndex = 1 : length(ssdArray)
-            %             tic
-            jSSD = ssdArray(jSSDIndex);
+            
+            % If collapsing into all left and all right or all up/all down,
+            % need to note here that there are "2" angles to deal with
+            % (important for calling ccm_trial_selection.m)
+            if options.collapseTarg && iPct(1) > 50
+                kAngle = 'right';
+            elseif options.collapseTarg && iPct(1) < 50
+                kAngle = 'left';
+            else
+                if iPct(1) > 50
+                    rightTargArray = targAngleArray(rightTargInd);
+                    kAngle = rightTargArray(kTarg);
+                elseif iPct(1) < 50
+                    leftTargArray = targAngleArray(leftTargInd);
+                    kAngle = leftTargArray(kTarg);
+                end
+            end
+            optSelect.targDir = kAngle;
+            
+            
+            
+            
+            
+            
+            %    GATHER STOP TRIALS FROM DIFFERENT OUTCOMES
+            %  ============================================================
+            jSSD = ssdArray(jSSDInd);
             optSelect.ssd       = jSSD;
             
-            % stop correct trials
-            optSelect.outcome       = {'stopCorrect'};
-            stopCorrectTrial = ccm_trial_selection(trialData, optSelect);
-            stopStopTrial{iPropIndex, jSSDIndex} = stopCorrectTrial;  % Keep track of totals for grand inhibition fnct
-            nStopStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial);
             
-            % stop incorrect target trials
+            % Stop correct trials
+            optSelect.outcome       = {'stopCorrect'};
+            jStopCorrectTrial = ccm_trial_selection(trialData, optSelect);
+            stopStopTrial{iPropInd, jSSDInd} = jStopCorrectTrial;  % Keep track of totals for grand inhibition fnct
+            nStopStop(iPropInd, jSSDInd) = length(jStopCorrectTrial);
+            
+            
+            
+            % Stop incorrect target trials
             optSelect.outcome       = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectPreSSDTarget'};
             %             optSelect.outcome       = {'stopIncorrectTarget', 'targetHoldAbort'};
-            stopTargTrial = ccm_trial_selection(trialData, optSelect);
-            if ~usePreSSD
-                preSSDTrial = trialData.rt(stopTargTrial) < trialData.ssd(stopTargTrial);
-                stopTargTrial(preSSDTrial) = [];
-            end
-            nStopTarg(iPropIndex, jSSDIndex) = length(stopTargTrial);
+            jStopTargTrial = ccm_trial_selection(trialData, optSelect);
             
-            % stop incorrect distractor trials
+            
+            
+            % Stop incorrect distractor trials
             optSelect.outcome       =  {'stopIncorrectDistractor', 'distractorHoldAbort', 'stopIncorrectPreSSDDistractor'};
             %             optSelect.outcome       =  {'stopIncorrectDistractor', 'distractorHoldAbort'};
-            stopDistTrial = ccm_trial_selection(trialData, optSelect);
-            if ~usePreSSD
-                preSSDTrial = trialData.rt(stopDistTrial) < trialData.ssd(stopDistTrial);
-                stopDistTrial(preSSDTrial) = [];
+            jStopDistTrial = ccm_trial_selection(trialData, optSelect);
+            
+            
+            
+            
+            
+            %    GATHER GO TRIALS FROM DIFFERENT OUTCOMES
+            %  ============================================================
+            
+            % Get go RT distribution, to be used below for calculating SSRT and for
+            % predicting stop Incorrect RTs (to compare with observed, as per the
+            % race model).
+            optSelect.ssd = 'none';
+            
+            % Go trial correct target
+            optSelect.outcome           = {'goCorrectTarget', 'targetHoldAbort'};
+            jGoTargTrial                 = ccm_trial_selection(trialData, optSelect);
+            
+            
+            % Go trial errors
+            optSelect.outcome           = {'goCorrectDistractor', 'distractorHoldAbort'};
+            jGoDistTrial                 = ccm_trial_selection(trialData, optSelect);
+            
+            
+            
+            
+            % ADJUST VALID (STOP AND GO) TRIALS BASED ON WHETHER RT WAS MADE ON STOP TRIALS BEFORE SSD
+            %  ============================================================
+            if ~options.USE_PRE_SSD
+                stopTargPreSSDTrial = trialData.rt(jStopTargTrial) < jSSD;
+                jStopTargTrial(stopTargPreSSDTrial) = [];
+                
+                goTargPreSSDTrial = trialData.rt(jGoTargTrial) < jSSD;
+                jGoTargTrial(goTargPreSSDTrial) = [];
+                
+                stopDistPreSSDTrial = trialData.rt(jStopDistTrial) < jSSD;
+                jStopDistTrial(stopDistPreSSDTrial) = [];
+                
+                goDistPreSSDTrial = trialData.rt(jGoDistTrial) < jSSD;
+                jGoDistTrial(goDistPreSSDTrial) = [];
             end
-            nStopDist(iPropIndex, jSSDIndex) = length(stopDistTrial);
             
             
-            stopTargRT{iPropIndex, jSSDIndex} = trialData.rt(stopTargTrial);
-            stopDistRT{iPropIndex, jSSDIndex} = trialData.rt(stopDistTrial);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            jGoTrial = sort([jGoDistTrial; jGoTargTrial]);
+            
+            jGoTrialRT = allRT(jGoTrial);
+            goTotalRT{iPropInd, jSSDInd} = jGoTrialRT;
+            goRTMean(iPropInd, jSSDInd) = nanmean(jGoTrialRT);
+            iRTCum = 1/length(jGoTrial):1/length(jGoTrial):1; %y-axis of a cumulative prob dist
+            iRTSort = sort(jGoTrialRT);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            nStopTarg(iPropInd, jSSDInd) = length(jStopTargTrial);
+            nStopDist(iPropInd, jSSDInd) = length(jStopDistTrial);
+            
+            
+            stopTargRT{iPropInd, jSSDInd} = trialData.rt(jStopTargTrial);
+            stopDistRT{iPropInd, jSSDInd} = trialData.rt(jStopDistTrial);
             
             % stop incorrect trials for inhibition: do we want stop incorrect to the target or to
             % target/distractor?
-            stopIncorrectTrial = union(stopTargTrial, stopDistTrial);
+            stopIncorrectTrial = union(jStopTargTrial, jStopDistTrial);
             stopIncorrectTrial = stopIncorrectTrial(:);
-            stopRespondTrial{iPropIndex, jSSDIndex} = stopIncorrectTrial;
+            stopRespondTrial{iPropInd, jSSDInd} = stopIncorrectTrial;
             
-            stopIncorrectTrialTarg = stopTargTrial;
+            stopIncorrectTrialTarg = jStopTargTrial;
             if size(stopIncorrectTrialTarg, 2) > 1
                 stopIncorrectTrialTarg = stopIncorrectTrialTarg';
             end
-            stopRespondTrialTarg{iPropIndex, jSSDIndex} = stopIncorrectTrialTarg;  % Keep track of totals for grand inhibition fnct
+            stopTargTrial{iPropInd, jSSDInd} = stopIncorrectTrialTarg;  % Keep track of totals for grand inhibition fnct
             
-            stopIncorrectTrialDist = stopDistTrial;
+            stopIncorrectTrialDist = jStopDistTrial;
             if size(stopIncorrectTrialDist, 2) > 1
                 stopIncorrectTrialDist = stopIncorrectTrialDist';
             end
-            stopRespondTrialDist{iPropIndex, jSSDIndex} = stopIncorrectTrialDist;  % Keep track of totals for grand inhibition fnct
+            stopDistTrial{iPropInd, jSSDInd} = stopIncorrectTrialDist;  % Keep track of totals for grand inhibition fnct
             
             
             % Inhibition function data points:
-            stopRespondProb(iPropIndex, jSSDIndex) = length(stopIncorrectTrial) / (length(stopCorrectTrial) + length(stopIncorrectTrial));
-            nStop(iPropIndex, jSSDIndex) = length(stopCorrectTrial) + length(stopIncorrectTrial);
+            stopRespondProb(iPropInd, jSSDInd) = length(stopIncorrectTrial) / (length(jStopCorrectTrial) + length(stopIncorrectTrial));
+            nStop(iPropInd, jSSDInd) = length(jStopCorrectTrial) + length(stopIncorrectTrial);
             
             % p(Correct choice) vs. SSD data points:
-            stopTargetProb(iPropIndex, jSSDIndex) = length(stopTargTrial) / (length(stopTargTrial) + length(stopDistTrial));
+            stopTargetProb(iPropInd, jSSDInd) = length(jStopTargTrial) / (length(jStopTargTrial) + length(jStopDistTrial));
             
             
             % Predict noncanceled stop RTs:
             % ----------------------------------------------------------
             % Predicted mean stopIncorrectRT (based on goRTs and p(noncanceled):
-            jRTIndex = find(iRTCum >= stopRespondProb(iPropIndex, jSSDIndex), 1);   %match estimated p(noncan|SSD) to p(RT)
-            stopRespondRTPredict(iPropIndex, jSSDIndex) = nanmean(iRTSort(1 : jRTIndex-1));
+            jRTIndex = find(iRTCum >= stopRespondProb(iPropInd, jSSDInd), 1);   %match estimated p(noncan|SSD) to p(RT)
+            stopRespondRTPredict(iPropInd, jSSDInd) = nanmean(iRTSort(1 : jRTIndex-1));
             % Observed mean stop IncorrectRT:
             if length(allRT(stopIncorrectTrial)) > 1
-                stopRespondRT(iPropIndex, jSSDIndex) = nanmean(allRT(stopIncorrectTrial));
+                stopRespondRT(iPropInd, jSSDInd) = nanmean(allRT(stopIncorrectTrial));
             end
+            
+            
+            
+            
             
         end % iSSDIndex
         
+    end % iPropIndex
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    for iPropInd = 1 : nSignal
+        % Which Signal Strength levels to analyze
+        switch options.collapseSignal
+            case true
+                if iPropInd == 1
+                    iPct = pSignalArray(pSignalArray < .5) * 100;
+                elseif iPropInd == 2
+                    iPct = pSignalArray(pSignalArray > .5) * 100;
+                end
+            case false
+                iPct = pSignalArray(iPropInd) * 100;
+        end
+        
+        
         
         % Inhibition function data points
-        iStopProbRespond = stopRespondProb(iPropIndex, :);
-        keepSSD = ~isnan(iStopProbRespond);
-        iStopProbRespond = iStopProbRespond(keepSSD);
+        iStopProbRespond    = stopRespondProb(iPropInd, :);
+        keepSSD             = ~isnan(iStopProbRespond);
+        iStopProbRespond    = iStopProbRespond(keepSSD);
         
         % p(Correct choice) vs. SSD data points:
-        iStopProbTarget = stopTargetProb(iPropIndex, :);
-        keepSSDChoice = ~isnan(iStopProbTarget);
-        iStopProbTarget = iStopProbTarget(keepSSDChoice);
-        iSSDArrayChoice = ssdArray(keepSSDChoice)';
-        [p, s] = polyfit(iSSDArrayChoice, iStopProbTarget, 1);
-        xVal = min(iSSDArrayChoice) : max(iSSDArrayChoice);
+        iStopProbTarget     = stopTargetProb(iPropInd, :);
+        keepSSDChoice       = ~isnan(iStopProbTarget);
+        iStopProbTarget     = iStopProbTarget(keepSSDChoice);
+        iSSDArrayChoice     = ssdArray(keepSSDChoice)';
+        [p, s]              = polyfit(iSSDArrayChoice, iStopProbTarget, 1);
+        xVal                = min(iSSDArrayChoice) : max(iSSDArrayChoice);
         
         
         % Inhibition function calculation
-        iNStop = nStop(iPropIndex, :);
+        iNStop = nStop(iPropInd, :);
         iNStop = iNStop(keepSSD);
         iSSDArray = ssdArray(keepSSD);
-        ssd{iPropIndex} = iSSDArray;
+        ssd{iPropInd} = iSSDArray;
         
         [fitParameters, lowestSSE] = Weibull(iSSDArray, iStopProbRespond, iNStop);
         ssdTimePoints = ssdArray(1) : ssdArray(end);
-        inhibitionFn{iPropIndex} = weibull_curve(fitParameters, ssdTimePoints);
+        inhibitionFn{iPropInd} = weibull_curve(fitParameters, ssdTimePoints);
         
         
         % SSRT: get go RTs and number of stop trials (already have other
         % necessary variables)
-        iNStop = nStop(iPropIndex, :);
+        iNStop = nStop(iPropInd, :);
         iNStop(iNStop == 0) = [];
-        %     [SSRT, both_SSRTs, ssrtI, ssrtM, meanSSD] = get_ssrt(iSSDArray, iStopProbRespond, iNStop, iGoTrialRT, fitParameters);
-        %     ssrt(iPropIndex) = SSRT;
-        %     ssrtIntegration(iPropIndex) = ssrtI;
-        %     ssrtMean(iPropIndex) = ssrtM;
         
-        ssrt = get_ssrt(iSSDArray, iStopProbRespond, iNStop, iGoTrialRT, fitParameters);
-        ssrtGrand(iPropIndex) = ssrt.grand;
-        ssrtIntegrationWeighted(iPropIndex) = ssrt.integrationWeighted;
-        ssrtIntegrationSimple(iPropIndex) = ssrt.integrationSimple;
-        ssrtIntegration{iPropIndex} = ssrt.integration;
-        ssrtMean(iPropIndex) = ssrt.mean;
+        if options.USE_PRE_SSD
+            ssrt = get_ssrt(iSSDArray, iStopProbRespond, iNStop, goTotalRT{iPropInd, 1}, fitParameters);
+            ssrtGrand(iPropInd) = ssrt.grand;
+            ssrtIntegrationWeighted(iPropInd) = ssrt.integrationWeighted;
+            ssrtIntegrationSimple(iPropInd) = ssrt.integrationSimple;
+            ssrtIntegration{iPropInd} = ssrt.integration;
+            ssrtMean(iPropInd) = ssrt.mean;
+        else
+            ssrt = get_ssrt_post_ssd(iSSDArray, iStopProbRespond, iNStop, goTotalRT(iPropInd, keepSSD));
+            ssrtIntegrationWeighted(iPropInd) = ssrt.integrationWeighted;
+            ssrtIntegration{iPropInd} = ssrt.integration;
+        end
         
         
         % Mean SSD in each signal strength
+        optSelect = ccm_options;
         optSelect.outcome = {'targetHoldAbort', 'stopIncorrectTarget', 'stopIncorrectPreSSDTarget', ...
             'distractorHoldAbort', 'stopIncorrectDistractor', 'stopIncorrectPreSSDDistractor'};
+        optSelect.rightCheckerPct = iPct;
         optSelect.ssd = 'collapse';
         allStopTrial = ccm_trial_selection(trialData, optSelect);
         
-        conditionSSD{iPropIndex} = ssdArrayRaw(allStopTrial);
+        conditionSSD{iPropInd} = ssdArrayRaw(allStopTrial);
         
         
         % Inhibition functions using goRT - SSD in each signal strength:
-        goRTMinusSSD{iPropIndex} = goRTMean(iPropIndex) - iSSDArray;
+        goRTMinusSSD{iPropInd} = goRTMean(iPropInd, keepSSD)' - iSSDArray;
         offsetVal = 1000;
-        [fitParameters, lowestSSE] = Weibull(-goRTMinusSSD{iPropIndex} + offsetVal, iStopProbRespond', iNStop);
-        goSSDTimepoints = offsetVal + (min(-goRTMinusSSD{iPropIndex}) : max(-goRTMinusSSD{iPropIndex}));
-        inhFnGoMinusSSD{iPropIndex} = weibull_curve(fitParameters, goSSDTimepoints);
+        [fitParameters, lowestSSE] = Weibull(-goRTMinusSSD{iPropInd} + offsetVal, iStopProbRespond', iNStop);
+        goSSDTimepoints = offsetVal + (min(-goRTMinusSSD{iPropInd}) : max(-goRTMinusSSD{iPropInd}));
+        inhFnGoMinusSSD{iPropInd} = weibull_curve(fitParameters, goSSDTimepoints);
         
         
         
@@ -507,39 +575,56 @@ for kTarg = 1 : nTargPair
             else
                 cMap = ccm_colormap(pSignalArray);
             end
-            inhColor = cMap(iPropIndex,:);
+            inhColor = cMap(iPropInd,:);
             
             
-            %             plot(ax(axInhEach), ssdTimePoints, inhibitionFn{iPropIndex}, 'color', inhColor, 'linewidth', 2)
-            plot(ax(axInhEach), ssd{iPropIndex}, iStopProbRespond, 'color', inhColor, 'linewidth', 2)
-            %         if iPropIndex > 1 && iPropIndex < 4
-            plot(ax(axInhRTSSD), (goSSDTimepoints - offsetVal), inhFnGoMinusSSD{iPropIndex}, '-', 'color', inhColor, 'linewidth', 2);%'linewidth', 2)
-            plot(ax(axInhRTSSD), -goRTMinusSSD{iPropIndex}, iStopProbRespond, '.', 'color', inhColor, 'markersize', 15);%'linewidth', 2)
-            %         end
-            plot(ax(ssrtPRight), pSignalArray(iPropIndex), ssrtGrand(iPropIndex), '.', 'markersize', 30, 'color', inhColor)
-            plot(ax(ssrtPRight), pSignalArray(iPropIndex), ssrtIntegrationWeighted(iPropIndex), '.', 'markersize', 30, 'color', 'r')
+            
+            plot(ax(axInhEach), ssd{iPropInd}, iStopProbRespond, 'color', inhColor, 'linewidth', 2)
+            plot(ax(ssrtPRight), pSignalArray(iPropInd), ssrtIntegrationWeighted(iPropInd), '.', 'markersize', 30, 'color', 'r')
+            plot(ax(axInhRTSSD), -goRTMinusSSD{iPropInd}, iStopProbRespond, '.', 'color', inhColor, 'markersize', 15);%'linewidth', 2)
+            plot(ax(axInhRTSSD), (goSSDTimepoints - offsetVal), inhFnGoMinusSSD{iPropInd}, '-', 'color', inhColor, 'linewidth', 2);%'linewidth', 2)
             plot(ax(SSDvPCorrect), xVal, p(1) * xVal + p(2), 'color', inhColor, 'linewidth', 2)
-            plot(ax(SSDvSigStrength), pSignalArray(iPropIndex), mean(conditionSSD{iPropIndex}), '.',  'color', inhColor, 'markersize', 30)
+                plot(ax(SSDvSigStrength), pSignalArray(iPropInd), mean(conditionSSD{iPropInd}), '.',  'color', inhColor, 'markersize', 30)
+            
+            if options.USE_PRE_SSD
+                
+                plot(ax(ssrtPRight), pSignalArray(iPropInd), ssrtGrand(iPropInd), '.', 'markersize', 30, 'color', inhColor)
+            end
         end
         
         
         
         
         
-    end % iPropIndex
+        
+    end
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    % Regress the SSRT w.r.t. color coherence
+    if options.USE_PRE_SSD
+        regressSSRT = ssrtGrand;
+    else
+        regressSSRT = ssrtIntegrationWeighted;
+    end
     
     if ~options.collapseSignal
         flipPropArray = pSignalArray;
         flipPropArray(flipPropArray > .5) = abs(1 - flipPropArray(flipPropArray > .5));
-        [p, s] = polyfit(flipPropArray, ssrtGrand, 1);
+        [p, s] = polyfit(flipPropArray, regressSSRT, 1);
         [y, delta] = polyval(p, flipPropArray, s);
-        stats = regstats(flipPropArray, ssrtGrand);
-%         fprintf('p-value for regression: %.4f\n', stats.tstat.pval(2))
-        R = corrcoef(flipPropArray, ssrtGrand);
+        stats = regstats(flipPropArray, regressSSRT);
+        %         fprintf('p-value for regression: %.4f\n', stats.tstat.pval(2))
+        R = corrcoef(flipPropArray, regressSSRT);
         Rsqrd = R(1, 2)^2;
-        cov(flipPropArray, ssrtGrand);
+        cov(flipPropArray, regressSSRT);
         xVal = min(flipPropArray) : .001 : .5;
         yVal = p(1) * xVal + p(2);
         regressionLineY = [yVal(1:end-1), fliplr(yVal)];
@@ -549,19 +634,15 @@ for kTarg = 1 : nTargPair
     
     if plotFlag
         % inhibition function
-        %     xlim(ax(axInhEach), [ssdTimePoints(1) 400])
         xlim(ax(axInhEach), [ssdTimePoints(1) ssdTimePoints(end)])
-        %     set(ax(axInhEach), 'xtick', ssdArray)
-        %     set(ax(axInhEach), 'xtickLabel', ssdArray)
         ylim(ax(axInhEach), [0 1]);
         set(get(ax(axInhEach), 'ylabel'), 'String', 'p(Respond | stop)')
         
         
         xlim(ax(axInhRTSSD), [goSSDTimepoints(1) - offsetVal goSSDTimepoints(1) - offsetVal+400])
         
-        %         ssrt vs signal strength
-        set(ax(ssrtPRight), 'Ylim', [0 round(2*mean(ssrtGrand))])
-        set(ax(ssrtPRight), 'Ylim', [0 300])
+        % SSRT vs color coherence
+        set(ax(ssrtPRight), 'Ylim', [min([0; 1.2*min(regressSSRT(:)); 1.2*min(ssrtIntegrationWeighted(:))]) max([0; 1.2*max(regressSSRT(:)); 1.2*max(ssrtIntegrationWeighted(:))])])
         set(get(ax(ssrtPRight), 'ylabel'), 'String', 'SSRT')
         plot(ax(ssrtPRight), [.5 .5], ylim, '--k')
         if ~options.collapseSignal
@@ -596,14 +677,14 @@ for kTarg = 1 : nTargPair
         
         
         if plotSurface
-        figure(64)
-        clf
-        %      surf(ax(axPred), stopRespondRT)
-        %      surf(ax(axPred), stopRespondRTPredict)
-        colormap(hsv)
-        %      surf(ssdArray, signalStrength, stopRespondRT)
-        surface(stopRespondRT)
-        hold on
+            figure(64)
+            clf
+            %      surf(ax(axPred), stopRespondRT)
+            %      surf(ax(axPred), stopRespondRTPredict)
+            colormap(hsv)
+            %      surf(ssdArray, signalStrength, stopRespondRT)
+            surface(stopRespondRT)
+            hold on
         end
     end % if plotflag
     
@@ -623,18 +704,18 @@ for kTarg = 1 : nTargPair
     % Also calculate a grand inhibition function, SSRT, and predicted vs.
     % observed non-canceled RTs across discriminability levels
     goGrandRT = [];
-    for iPropIndex = 1 : nSignal
-        goGrandRT = [goGrandRT; goTotalRT{iPropIndex}];
+    for iPropInd = 1 : nSignal
+        goGrandRT = [goGrandRT; goTotalRT{iPropInd}];
     end
     goGrandRT = sort(goGrandRT);
     rtCum = 1/length(goGrandRT):1/length(goGrandRT):1; %y-axis of a cumulative prob dist
     
     % Grand Inhibition function
-    nStopIncorrectGrand = zeros(length(ssdArray), 1);
-    nStopCorrectGrand = zeros(length(ssdArray), 1);
-    stopRespondProbGrand = nan(length(ssdArray), 1);
-    nStopGrand = zeros(length(ssdArray), 1);
-    for iSSDIndex = 1 : length(ssdArray)
+    nStopIncorrectGrand = zeros(nSSD, 1);
+    nStopCorrectGrand = zeros(nSSD, 1);
+    stopRespondProbGrand = nan(nSSD, 1);
+    nStopGrand = zeros(nSSD, 1);
+    for iSSDIndex = 1 : nSSD
         for jPropIndex = 1 : nSignal;
             nStopIncorrectGrand(iSSDIndex) = nStopIncorrectGrand(iSSDIndex) + length(stopRespondTrial{jPropIndex, iSSDIndex});
             nStopCorrectGrand(iSSDIndex) = nStopCorrectGrand(iSSDIndex) + length(stopStopTrial{jPropIndex, iSSDIndex});
@@ -747,6 +828,7 @@ for kTarg = 1 : nTargPair
     
 end % for kTarg = 1 : nTargPair
 
+clear trialData
 end % function
 
 

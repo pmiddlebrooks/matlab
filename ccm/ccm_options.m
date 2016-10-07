@@ -90,10 +90,13 @@ Opt.ssd                 = 'any';
 Opt.allowRtPreSsd     = true;
 Opt.targDir             = 'collapse';
 Opt.responseDir    = {'collapse'}; % {'left', 'right'};
+Opt.ssrt                 = [];
 
 
 Opt.include50           = false; % include 50% color coherence conditions?
 Opt.deleteAborts     = true;
+Opt.USE_PRE_SSD   	= true; % Use noncanceled stop trials when RT precedes SSD?
+Opt.USE_TWO_COLORS         = false; % Only use one easy and one hard color for both sides
 
 Opt.latencyMatchMethod 	= 'ssrt';
 Opt.minTrialPerCond     = 15;

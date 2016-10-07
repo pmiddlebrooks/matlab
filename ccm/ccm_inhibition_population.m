@@ -6,6 +6,17 @@ end
 if nargin < 2
    sessionSet = 'behvaior';
 end
+
+task = 'ccm';
+if iscell(sessionSet)
+    % If user enters sessionSet, get rid of repeated sessions in case there
+    % were neural recordings with multiple units from a single session
+    sessionArray = unique(sessionSet);
+    subjectIDArray = repmat({subjectID}, length(sessionArray), 1);
+else
+[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
+end
+
 %% Population SSRT
 %******************************************************************************
 fprintf('\n\n\n\n')
@@ -13,34 +24,39 @@ disp('**************************************************************************
 disp('Populaiton SSRT')
 
 % subjectID = 'Human';
-subjectID = 'xena';
-sessionSet = 'behavior1';
+% subjectID = 'xena';
+% sessionSet = 'behavior1';
 % subjectID = 'broca';
 % sessionSet = 'neural3';
 
-   plotFlag = 1;
 
-task = 'ccm';
-[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
 figureHandle = 4900;
-printFlag = false;
+printFlag = true;
 
 
 switch lower(subjectID)
+   case 'joule'
+               [td, S, E] =load_data(subjectID, sessionArray{1});
+               pSignalArray = E.pSignalArray;
    case 'human'
       pSignalArray = [.35 .42 .46 .5 .54 .58 .65];
    case 'broca'
-      switch sessionSet
-         case 'behavior'
-            pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
-         case 'neural1'
-            pSignalArray = [.41 .44 .47 .53 .56 .59];
-         case 'neural2'
-            pSignalArray = [.42 .44 .46 .54 .56 .58];
-           otherwise
+%       switch sessionSet
+%          case 'behavior'
+%             pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
+%          case 'neural1'
+%             pSignalArray = [.41 .44 .47 .53 .56 .59];
+%          case 'neural2'
+%             pSignalArray = [.42 .44 .46 .54 .56 .58];
+%            otherwise
                [td, S, E] =load_data(subjectID, sessionArray{1});
                pSignalArray = E.pSignalArray;
-      end
+               if length(pSignalArray) == 6
+                   pSignalArray([2 5]) = [];
+               elseif length(pSignalArray) == 7
+                   pSignalArray([2 4 6]) = [];
+               end
+%       end
    case 'xena'
       pSignalArray = [.35 .42 .47 .5 .53 .58 .65];
 end
@@ -173,7 +189,8 @@ for iSession = 1 : nSession
    ssrtGrandMean       = [ssrtGrandMean; iData.ssrtCollapseMean];
    ssrtGrandInt        = [ssrtGrandInt; nanmean(iData.ssrtCollapseIntegration)];
    
-   
+       clear iData
+
 end
 % Need to do a little SSD value adjusting, due to ms difference and 1-frame
 % differences in SSD values
@@ -500,8 +517,7 @@ if plotFlag
    
    
    if printFlag
-      localFigurePath = local_figure_path;
-      print(figureHandle,[localFigurePath, subjectID,'_ccm_population_inhibition'],'-dpdf', '-r300')
+      print(figureHandle,fullfile(local_figure_path, subjectID,'ccm_population_inhibition'),'-dpdf', '-r300')
    end
 end
 

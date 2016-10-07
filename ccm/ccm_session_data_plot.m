@@ -402,9 +402,9 @@ for kDataIndex = 1 : nUnit
       titleString = sprintf('%s \t %s', sessionID, Data(kDataIndex, jTarg).name);
       text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top')
       if printPlot && ~collapseSignal
-         print(figureHandle,fullfile(local_figure_path, subjectID, [sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'.pdf']),'-dpdf', '-r300')
+         print(figureHandle,fullfile(local_figure_path, subjectID, [sessionID, '_ccm_',dataType, Data(kDataIndex, jTarg).name, '.pdf']),'-dpdf', '-r300')
       elseif printPlot && collapseSignal
-         print(figureHandle,fullfile(local_figure_path, subjectID, [sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'_collapse.pdf']),'-dpdf', '-r300')
+         print(figureHandle,fullfile(local_figure_path, subjectID, [sessionID, '_ccm_',dataType, Data(kDataIndex, jTarg).name, '_collapse.pdf']),'-dpdf', '-r300')
 % micalaFolder = '/Volumes/SchallLab/Users/Paul/micala/';
 % print(figureHandle,[micalaFolder, sessionID, '_ccm_', Data(kDataIndex, jTarg).name, '_',dataType,'_collapse.pdf'],'-dpdf', '-r300')
       end

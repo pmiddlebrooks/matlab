@@ -9,7 +9,7 @@ if nargin < 3
     options.doStops             = true;
     
     options.plotFlag            = true;
-    options.printPlot           = false;
+    options.printPlot           = true;
     options.figureHandle      	= 400;
     
     % Return just the default options struct if no input
@@ -53,7 +53,9 @@ figureHandle = 9239;
 
 
 
-
+if sum(~isnan(trialData.ssd)) == 0
+    options.doStops = false;
+end
 
 
 if options.doStops
@@ -327,10 +329,8 @@ end
 
 
 
-if printPlot && plotFlag
-    localFigurePath = local_figure_path;
-    
-    print(figureHandle+1,[localFigurePath, sessionID,'_ccm_behavior'],'-dpdf', '-r300')
+if printPlot && plotFlag   
+    print(figureHandle+1,fullfile(local_figure_path, subjectID, '_ccm_behavior.pdf'),'-dpdf', '-r300')
 end
 % delete(localDataFile);
 

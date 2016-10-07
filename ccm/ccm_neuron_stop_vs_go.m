@@ -37,7 +37,7 @@ function Data = ccm_neuron_stop_vs_go(subjectID, sessionID, unitArray, options)
 %%
 
 % Set default options or return a default options structure
-if nargin < 3
+if nargin < 4
     %Data type to collect/analyze
     options.dataType        	= 'neuron';
     
@@ -47,10 +47,10 @@ if nargin < 3
     options.minTrialPerCond     = 10;
     options.cellType            =      'move';
     options.ssrt            =      [];
-    options.Unit            =      [];
+    options.USE_PRE_SSD = true;
     
     options.plotFlag            = true;
-    options.printPlot           = false;
+    options.printPlot           = true;
     
     % Return just the default options struct if no input
     if nargin == 0
@@ -63,7 +63,6 @@ end
 % sessionID = 'bp093n02';
 % unitArray = {'spikeUnit17a'};
 
-usePreSSD = true;
 
 dataType            = options.dataType;
 collapseSignal      = options.collapseSignal;
@@ -92,7 +91,7 @@ epochName       = 'checkerOn';
 markEvent   = 'responseOnset';
 encodeTime      = 10;
 
-epochRangeChecker      = 1 : 400;
+epochRangeChecker      = 1 : 600;
 epochRangeSacc      = -199 : 200;
 
 
@@ -102,6 +101,7 @@ optSess             = ccm_options;
 optSess.plotFlag    = 0;
 optSess.collapseTarg = options.collapseTarg;
 optSess.unitArray   = unitArray;
+optSess.USE_PRE_SSD   = options.USE_PRE_SSD;
 Unit                = ccm_session_data(subjectID, sessionID, optSess);
 
 if isempty(Unit)
@@ -187,9 +187,12 @@ for kUnitIndex = 1 : nUnit
     
     
     % Pre-allocate cell arrays
-    cancelTime = nan(length(stopStopCoh), 1);
-    
-    % Nonanceled Stop and Fast Go
+    cancelTime6Std = nan(length(stopStopCoh), 1);
+    cancelTime4Std = nan(length(stopStopCoh), 1);
+   pass50msTestInd = nan(length(stopStopCoh), 1);  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
+   pValue40ms = nan(length(stopStopCoh), 1);  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
+
+   % Nonanceled Stop and Fast Go
     stopTargCheckerData          = cell(length(stopTargCoh), 1);
     stopTargCheckerFn          = cell(length(stopTargCoh), 1);
     stopTargCheckerEventLat  	= cell(length(stopTargCoh), 1);
@@ -210,8 +213,9 @@ for kUnitIndex = 1 : nUnit
     goTargFastSaccEventLat      = cell(length(stopTargCoh), 1);
     goTargFastSaccAlign         = cell(length(stopTargCoh), 1);
     
-    stopTargSpike               = cell(length(stopStopCoh), 1);
-    goTargFastSpike               = cell(length(stopStopCoh), 1);
+    stopTargSpike               = cell(length(stopTargCoh), 1);
+    goTargFastSpike               = cell(length(stopTargCoh), 1);
+    
     
     % Canceled Stop and Slow Go
     stopStopCheckerData          = cell(length(stopStopCoh), 1);
@@ -261,14 +265,14 @@ for kUnitIndex = 1 : nUnit
         
         opt = ccm_concat_neural_conditions; % Get default options structure
         
-        opt.epochName = epochName;
+        opt.epochName = 'responseOnset';
         opt.markEvent = markEvent;
         opt.conditionArray = {'goTarg'};
         opt.colorCohArray = rfColorCohArray;
         opt.ssdArray = ssdArray;
         
         dataAx           = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
-        sdfMax         = max(nanmean(spike_density_function(dataAx.signal(:,:), Kernel), 1)) * 1.2;
+        sdfMax         = 1.05 * max(nanmean(spike_density_function(dataAx.signal(:,:), Kernel), 1)) * 1.2;
         sdfMin = 0;
         
         goLineW = 2;
@@ -318,10 +322,194 @@ for kUnitIndex = 1 : nUnit
     %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     
     %%
+    %               Noncanceled Stop vs latency-matched (fast) Go:
+    if isempty(stopTargCoh)
+        fprintf('Session %s doesn"t have enough noncanceled trials in any condiiton to analyze\n', sessionID)
+    else
+             fprintf('\nGo vs. Noncanceled:\n')
+       for i = 1 : length(stopTargCoh)
+            
+            
+            
+            
+            
+            
+            % Get the go trial data: these need to be split to latency-match with
+            % the stop trial data
+            opt                 = options; % Get default options structure
+            
+            opt.epochName       = epochName;
+            opt.eventMarkName   = markEvent;
+            opt.conditionArray  = {'goTarg'};
+            opt.colorCohArray   = stopTargCoh(i);
+            opt.ssdArray        = [];
+            iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
+            
+            opt.epochName       = 'responseOnset';
+            opt.eventMarkName   = 'checkerOn';
+            iGoTargSacc         = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
+            
+            
+            
+            
+            % Get the stop trial data
+            opt.epochName       = epochName;
+            opt.eventMarkName   = markEvent;
+            opt.conditionArray  = {'stopTarg'};
+            opt.ssdArray        = stopTargSsd(i);
+            iStopTargChecker    = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
+            
+            opt.conditionArray  = {'stopStop'};
+            iStopStopChecker       = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
+            
+            opt.epochName       = 'responseOnset';
+            opt.eventMarkName   = 'checkerOn';
+            opt.conditionArray  = {'stopTarg'};
+            iStopTargSacc       = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
+            
+            
+            
+                  
+            % Use a latency-matching method to get a (fast)
+            % subsample of go trials that match the noncanceled
+            % stop trials
+            switch latencyMatchMethod
+                case 'ssrt'
+                    iStopLatency = stopTargSsd(i) + ssrt;
+                    iGoFastTrial = iGoTargChecker.eventLatency <= iStopLatency;
+                case 'mean'
+                    iGoTargRT = sort(iGoTargChecker.eventLatency);
+                    meanStopTargRT = nanmean(iStopTargChecker.eventLatency);
+                    while nanmean(iGoTargRT) > meanStopTargRT
+                        iGoTargRT(end) = [];
+                    end
+                    iStopLatency = iGoTargRT(end);
+                    iGoFastTrial = iGoTargChecker.eventLatency <= iStopLatency;
+                case 'match'
+                    % Use nearest neighbor method to get rt-matched
+                    % trials
+                    nStopCorrect = size(iStopStopChecker.signal, 1);
+                    data = ccm_match_rt(iGoTargChecker.eventLatency, iStopTargChecker.eventLatency(iStopTargTrial), nStopCorrect);
+                    iGoFastTrial = data.goFastTrial;
+            end
+            
+            
+      % Use a subsample of the noncanceled stop RTs that are
+            % later than the SSD plus some time to encode the stimulus
+            if ~options.USE_PRE_SSD
+                iGoFastTrial = iGoFastTrial & iGoTargChecker.eventLatency >  stopTargSsd(i) + encodeTime;
+                iStopTargTrial = iStopTargChecker.eventLatency > stopTargSsd(i) + encodeTime;
+            else
+                % Do nothing for Go Trials, already got 'em above
+                iStopTargTrial = 1 : length(iStopTargChecker.eventLatency);
+            end
+            
+            
+            
+            % ****************************************************************
+            % COLLECT (AND ANALYZE) THE RELEVANT DATA
+            
+            stopTargCheckerData{i}        = iStopTargChecker.signal(iStopTargTrial,:);
+            stopTargCheckerAlign{i}     	= iStopTargChecker.align;
+            stopTargCheckerEventLat{i}	= iStopTargChecker.eventLatency(iStopTargTrial,:);
+            
+            stopTargSaccData{i}           = iStopTargSacc.signal(iStopTargTrial,:);
+            stopTargSaccAlign{i}         = iStopTargSacc.align;
+            stopTargSaccEventLat{i}      = iStopTargSacc.eventLatency(iStopTargTrial,:);
+            
+            goTargFastCheckerData{i}      = iGoTargChecker.signal(iGoFastTrial,:);
+            goTargFastCheckerAlign{i} 	= iGoTargChecker.align;
+            goTargFastCheckerEventLat{i}	= iGoTargChecker.eventLatency(iGoFastTrial,:);
+            
+            goTargFastSaccData{i}         = iGoTargSacc.signal(iGoFastTrial,:);
+            goTargFastSaccAlign{i}       = iGoTargSacc.align;
+            goTargFastSaccEventLat{i}    = iGoTargSacc.eventLatency(iGoFastTrial,:);
+            
+            
+            
+            stopTargCheckerFn{i}      = nanmean(spike_density_function(stopTargCheckerData{i}, Kernel), 1);
+            stopTargSaccFn{i}      = nanmean(spike_density_function(stopTargSaccData{i}, Kernel), 1);
+            goTargFastCheckerFn{i}      = nanmean(spike_density_function(goTargFastCheckerData{i}, Kernel), 1);
+            goTargFastSaccFn{i}         = nanmean(spike_density_function(goTargFastSaccData{i}, Kernel), 1);
+            
+            
+            % Hanes et al 1998 t-test of spike rates 40 ms surrounding estimated ssrt
+            stopTargSpike{i}     = sum(iStopTargChecker.signal(iStopTargTrial, spikeWindow + iStopTargChecker.align + stopTargSsd(i) + ssrt), 2);
+            goTargFastSpike{i}   = sum(iGoTargChecker.signal(iGoFastTrial, spikeWindow + iGoTargChecker.align + stopTargSsd(i) + ssrt), 2);
+            [h,p,ci,sts]                        = ttest2(stopTargSpike{i}, goTargFastSpike{i});
+            
+            pValue40msStopTarg(i)    = p;
+            stats{i}     = sts;
+            
+         fprintf('ssd: %d  \tcolor: %.2f  \tgo v. stop: %.2f  %.2f sp, p = %.2f\n',...
+                stopTargSsd(i), stopTargCoh(i), mean(goTargFastSpike{i}), mean(stopTargSpike{i}), p);
+            
+            
+            
+            if plotFlag && i <= nPlot
+                figure(stopTargFig)
+                
+                % Data aligned on checkerboard onset
+                ax(i, colChkr) = axes('units', 'centimeters', 'position', [xAxesPosition(i, colChkr) yAxesPosition(i, colChkr) axisWidth axisHeight]);
+                set(ax(i, colChkr), 'ylim', [sdfMin sdfMax], 'xlim', [epochRangeChecker(1) epochRangeChecker(end)])
+                cla
+                hold(ax(i, colChkr), 'on')
+                plot(ax(i, colChkr), [1 1], [sdfMin sdfMax * .9], '-k', 'linewidth', 2)
+                ttl = sprintf('SSD: %d  pMag: %.2f', stopTargSsd(i), stopTargCoh(i));
+                title(ttl)
+                
+                % Data aligned on response onset
+                ax(i, colSacc) = axes('units', 'centimeters', 'position', [xAxesPosition(i, colSacc) yAxesPosition(i, colSacc) axisWidth axisHeight]);
+                set(ax(i, colSacc), 'ylim', [sdfMin sdfMax], 'xlim', [epochRangeSacc(1) epochRangeSacc(end)])
+                set(ax(i, colSacc), 'yticklabel', [], 'ycolor', [1 1 1])
+                cla
+                hold(ax(i, colSacc), 'on')
+                plot(ax(i, colSacc), [1 1], [sdfMin sdfMax * .9], '-k', 'linewidth', 2)
+                
+                %     if i > 1
+                %         set(ax(i, colChkr), 'yticklabel', [])
+                %         set(ax(i, colChkr), 'ycolor', [1 1 1])
+                %     end
+                
+                
+                plot(ax(i, colChkr), [stopTargSsd(i), stopTargSsd(i)], [sdfMin sdfMax], 'color', [.2 .2 .2], 'linewidth', 1)
+                plot(ax(i, colChkr), [stopTargSsd(i) + ssrt, stopTargSsd(i) + ssrt], [sdfMin sdfMax], '--', 'color', [0 0 0], 'linewidth', 1)
+                
+                iGoTargFastCheckerFn = goTargFastCheckerFn{i}(goTargFastCheckerAlign{i} + epochRangeChecker);
+                plot(ax(i, colChkr), epochRangeChecker, iGoTargFastCheckerFn, 'color', cMap(pSignalArray == stopTargCoh(i),:), 'linewidth', goLineW)
+                iGoTargRTMean = round(nanmean(goTargFastCheckerEventLat{i}));
+                plot(ax(i, colChkr), iGoTargRTMean, iGoTargFastCheckerFn(iGoTargRTMean), '.k','markersize', markSize)
+                
+                iStopTargCheckerFn = stopTargCheckerFn{i}(stopTargCheckerAlign{i} + epochRangeChecker);
+                plot(ax(i, colChkr), epochRangeChecker, iStopTargCheckerFn, 'color', stopColor, 'linewidth', stopLineW)
+                iStopTargRTMean = round(nanmean(stopTargCheckerEventLat{i}));
+                plot(ax(i, colChkr), iStopTargRTMean, iStopTargCheckerFn(iStopTargRTMean), '.k','markersize', markSize)
+                
+                
+                iGoTargFastSaccFn = goTargFastSaccFn{i}(goTargFastSaccAlign{i} + epochRangeSacc);
+                plot(ax(i, colSacc), epochRangeSacc, iGoTargFastSaccFn, 'color', cMap(pSignalArray == stopTargCoh(i),:), 'linewidth', goLineW)
+                
+                iStopTargSaccFn = stopTargSaccFn{i}(stopTargSaccAlign{i} + epochRangeSacc);
+                plot(ax(i, colSacc), epochRangeSacc, iStopTargSaccFn, 'color', stopColor, 'linewidth', stopLineW)
+                
+                
+            end
+        end
+        
+    end
+    
+     
+    
+    %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    
+    %%
     %               Canceled Stop vs latency-matched (Slow) Go:
     if isempty(stopStopCoh)
         fprintf('Session %s doesn"t have enough canceled trials in any condiiton to analyze\n', sessionID)
     else
+             fprintf('\nGo vs. Canceled:\n')
         for i = 1 : length(stopStopCoh)
             
             
@@ -363,7 +551,6 @@ for kUnitIndex = 1 : nUnit
                 
                 case 'ssrt'
                     iStopLatency = stopStopSsd(i) + ssrt;
-                    %                             iGoFastTrial = iGoTargChecker.eventLatency <= iStopLatency & iGoTargChecker.eventLatency >  stopStopSsd(i) + encodeTime;
                     iGoSlowTrial = iGoTargChecker.eventLatency > iStopLatency;
                 case 'mean'
                     iGoTargRT = sort(iGoTargChecker.eventLatency);
@@ -415,11 +602,11 @@ for kUnitIndex = 1 : nUnit
             
             % TEST #1:
             % Hanes et al 1998 (p.822) t-test of spike rates 40 ms surrounding estimated ssrt
-            stopStopSpike{i}     = sum(iStopStopChecker.signal(:, spikeWindow + iStopStopChecker.align + stopStopSsd(i) + ssrt), 2);
-            goTargSlowSpike{i}   = sum(iGoTargChecker.signal(iGoSlowTrial, spikeWindow + iGoTargChecker.align + stopStopSsd(i) + ssrt), 2);
+            stopStopSpike{i}     = sum(iStopStopChecker.signal(:, spikeWindow + iStopStopChecker.align + stopStopSsd(i) + ssrt), 2) / length(spikeWindow) * 1000;
+            goTargSlowSpike{i}   = sum(iGoTargChecker.signal(iGoSlowTrial, spikeWindow + iGoTargChecker.align + stopStopSsd(i) + ssrt), 2) / length(spikeWindow) * 1000;
             [h,p,ci,sts]       	= ttest2(stopStopSpike{i}, goTargSlowSpike{i});
             
-            pValue{i}    = p;
+            pValue40ms(i)    = p;
             stats{i}     = sts;
             
             
@@ -427,14 +614,17 @@ for kUnitIndex = 1 : nUnit
             % TEST #2:
             % Hanes et al 1998 (p.822) differential sdf test
             % ------------------------------------------------------------------------
-            cTime = nan; % cancel time for this condition  Initialize to NaN;
-            sdfDiff = goTargSlowCheckerFn{i}(iGoTargChecker.align + (-599 : epochRangeChecker(end)))' - stopStopCheckerFn{i}(iStopStopChecker.align + (-599 : epochRangeChecker(end)))';
+            sdfDiffCheckerOn = 500;
+            % Differential sdf go - stopStop
+            sdfDiff = goTargSlowCheckerFn{i}(iGoTargChecker.align + (-sdfDiffCheckerOn+1 : epochRangeChecker(end)))' - stopStopCheckerFn{i}(iStopStopChecker.align + (-sdfDiffCheckerOn+1 : epochRangeChecker(end)))';
             % If user thinks it's a fixation/stopping type cell, flip
             % the sign of the differential sdf
             if strcmp(options.cellType, 'fix')
                 sdfDiff = -sdfDiff;
             end
-            sdfDiffCheckerOn = 500;
+            
+            % Get the standard deviation of the differential sdf during the
+            % 500 ms before checkerboard onset
             stdDiff = std(sdfDiff(1:sdfDiffCheckerOn));
             
             
@@ -447,9 +637,8 @@ for kUnitIndex = 1 : nUnit
             % std greater than the stop sdf.
             % First whether the differential sdf was > 2*Std for the
             % first 50 ms
-            pass50msTestInd = [];  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
             if sum(std2Ind(1:50)) == 50
-                pass50msTestInd = 1;
+                pass50msTestInd(i) = 1;
             else
                 % If it wasn't, determein whether there was a time
                 % after the checkerboard onset that the differential
@@ -471,14 +660,14 @@ for kUnitIndex = 1 : nUnit
                     if length(riseAbove2Std) == length(sinkBelow2Std)
                         ind = find(sinkBelow2Std - riseAbove2Std >= 50, 1);
                         if ~isempty(ind)
-                            pass50msTestInd = riseAbove2Std(ind);
+                            pass50msTestInd(i) = riseAbove2Std(ind);
                         end
                         % If they're not equal, the last riseAbove2Std
                         % will last until the end of the sdf: see if
                         % that is at least 50 ms
                     elseif length(riseAbove2Std) > length(sinkBelow2Std)
                         if riseAbove2Std(end) < length(std2Ind) - 49
-                            pass50msTestInd = riseAbove2Std(end);
+                            pass50msTestInd(i) = riseAbove2Std(end);
                         end
                     end
                 end
@@ -487,21 +676,25 @@ for kUnitIndex = 1 : nUnit
             
             % If there werwe 50 consecutive ms of sdfDiff > 2*Std,
             % check whether the difference ever reached 6*Std
-            if ~isempty(pass50msTestInd)
-                std6Ind = sdfDiff(pass50msTestInd : end) > 6*stdDiff;
-                if sum(std6Ind)
-                    % Remember, Cancel time will be Negative if
+            if ~isnan(pass50msTestInd(i))
+                std4Ind = sdfDiff(sdfDiffCheckerOn + pass50msTestInd(i) : end) > 4*stdDiff;
+                if sum(std4Ind)
+                    
+                    % Cancel time will be Negative if
                     % go SDF > stop SDF BEFORE SSRT (which is a good thing-
                     % means the neuron can contribute to controlling saccade
                     % initiation/inhibition.
-                    cTime = pass50msTestInd - stopStopSsd(i) - ssrt;
-                    cancelTime(i) = cTime;
+                    cancelTime4Std(i) = find(std4Ind, 1) + pass50msTestInd(i) - stopStopSsd(i) - ssrt;
+                end
+                std6Ind = sdfDiff(sdfDiffCheckerOn + pass50msTestInd(i) : end) > 6*stdDiff;
+                if sum(std6Ind)
+                     cancelTime6Std(i) = find(std6Ind, 1) + pass50msTestInd(i) - stopStopSsd(i) - ssrt;
                 end
             end
             
             
-            fprintf('ssd: %d  \tgo v. stop: %.2f  %.2f sp, p = %.2f\t canceltime = %d\n',...
-                stopStopSsd(i), mean(goTargSlowSpike{i}), mean(stopStopSpike{i}), p, cancelTime(i));
+           fprintf('ssd: %d  \tcolor: %.2f  \tgo v. stop: %.1f  %.1f sp, p = %.2f\t canceltime = %d\n',...
+                stopStopSsd(i), stopStopCoh(i), mean(goTargSlowSpike{i}), mean(stopStopSpike{i}), p, cancelTime6Std(i));
             
             
             if plotFlag && i <= nPlot
@@ -509,45 +702,45 @@ for kUnitIndex = 1 : nUnit
                 
                 % Data aligned on checkerboard onset
                 ax(i, colChkr) = axes('units', 'centimeters', 'position', [xAxesPosition(i, colChkr) yAxesPosition(i, colChkr) axisWidth axisHeight]);
-                set(ax(i, colChkr), 'ylim', [sdfMin sdfMax * 1.1], 'xlim', [epochRangeChecker(1) epochRangeChecker(end)])
+                set(ax(i, colChkr), 'ylim', [sdfMin sdfMax], 'xlim', [epochRangeChecker(1) epochRangeChecker(end)])
                 cla
                 hold(ax(i, colChkr), 'on')
-                plot(ax(i, colChkr), [1 1], [0 sdfMax], '-k', 'linewidth', 2)
+                plot(ax(i, colChkr), [1 1], [sdfMin sdfMax * .9], '-k', 'linewidth', 2)
                 ttl = sprintf('SSD: %d  pMag: %.2f', stopStopSsd(i), stopStopCoh(i));
                 title(ttl)
                 
                 % Data aligned on response onset
                 ax(i, colSacc) = axes('units', 'centimeters', 'position', [xAxesPosition(i, colSacc) yAxesPosition(i, colSacc) axisWidth axisHeight]);
-                set(ax(i, colSacc), 'ylim', [sdfMin sdfMax * 1.1], 'xlim', [epochRangeSacc(1) epochRangeSacc(end)])
+                set(ax(i, colSacc), 'ylim', [sdfMin sdfMax], 'xlim', [epochRangeSacc(1) epochRangeSacc(end)])
                 set(ax(i, colSacc), 'yticklabel', [], 'ycolor', [1 1 1])
                 cla
                 hold(ax(i, colSacc), 'on')
-                plot(ax(i, colSacc), [1 1], [sdfMin sdfMax], '-k', 'linewidth', 2)
+                plot(ax(i, colSacc), [1 1], [sdfMin sdfMax * .9], '-k', 'linewidth', 2)
                 
                 
                 
                 plot(ax(i, colChkr), [stopStopSsd(i), stopStopSsd(i)], [sdfMin sdfMax], 'color', [.2 .2 .2], 'linewidth', 1)
                 plot(ax(i, colChkr), [stopStopSsd(i) + ssrt, stopStopSsd(i) + ssrt], [sdfMin sdfMax], '--', 'color', [0 0 0], 'linewidth', 1)
                 
-                iGoTargRTMean = round(mean(goTargSlowCheckerEventLat{i}));
-                goTargSlowRTMean = round(mean(goTargSlowCheckerEventLat{i}));
+                iGoTargRTMean = round(nanmean(goTargSlowCheckerEventLat{i}));
                 
                 % Checkerboard onset aligned
                 iGoTargSlowCheckerFn = goTargSlowCheckerFn{i}(goTargSlowCheckerAlign{i} + epochRangeChecker);
-                plot(ax(i, colChkr), epochRangeChecker, iGoTargSlowCheckerFn, 'color', cMap(pSignalArray == stopTargCoh(i),:), 'linewidth', goLineW)
+                plot(ax(i, colChkr), epochRangeChecker, iGoTargSlowCheckerFn, 'color', cMap(pSignalArray == stopStopCoh(i),:), 'linewidth', goLineW)
                 if iGoTargRTMean < length(iGoTargSlowCheckerFn)
                     plot(ax(i, colChkr), iGoTargRTMean, iGoTargSlowCheckerFn(iGoTargRTMean), '.k','markersize', markSize)
                 end
                 
                 iStopStopCheckerFn = stopStopCheckerFn{i}(stopStopCheckerAlign{i} + epochRangeChecker);
                 plot(ax(i, colChkr), epochRangeChecker, iStopStopCheckerFn, 'color', stopColor, 'linewidth', stopLineW)
+%                 plot(ax(i, colChkr), epochRangeChecker, sdfDiff(sdfDiffCheckerOn-1:end), 'color', 'g', 'linewidth', stopLineW)
                 
                 % Saccade-aligned
                 iGoTargSlowSaccFn = goTargSlowSaccFn{i}(goTargSlowSaccAlign{i} + epochRangeSacc);
-                plot(ax(i, colSacc), epochRangeSacc, iGoTargSlowSaccFn, 'color', cMap(pSignalArray == stopTargCoh(i),:), 'linewidth', goLineW)
+                plot(ax(i, colSacc), epochRangeSacc, iGoTargSlowSaccFn, 'color', cMap(pSignalArray == stopStopCoh(i),:), 'linewidth', goLineW)
                 
-                iStopStopSaccFn = stopStopCheckerFn{i}(stopStopCheckerAlign{i} + goTargSlowRTMean + epochRangeSacc);
-                plot(ax(i, colSacc), epochRangeSacc, iStopStopSaccFn, 'color', stopColor, 'linewidth', stopLineW)
+%                 iStopStopSaccFn = stopStopCheckerFn{i}(stopStopCheckerAlign{i} + iGoTargRTMean + epochRangeSacc);
+%                 plot(ax(i, colSacc), epochRangeSacc, iStopStopSaccFn, 'color', stopColor, 'linewidth', stopLineW)
                 
             end
         end
@@ -556,186 +749,7 @@ for kUnitIndex = 1 : nUnit
     end
     
     
-    
-    
-    %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    
-    %%
-    %               Noncanceled Stop vs latency-matched (fast) Go:
-    if isempty(stopTargCoh)
-        sprintf('Session %s doesn"t have enough noncanceled trials in any condiiton to analyze\n', sessionID)
-    else
-        for i = 1 : length(stopTargCoh)
-            
-            
-            
-            
-            
-            
-            % Get the go trial data: these need to be split to latency-match with
-            % the stop trial data
-            opt                 = options; % Get default options structure
-            
-            opt.epochName       = epochName;
-            opt.eventMarkName   = markEvent;
-            opt.conditionArray  = {'goTarg'};
-            opt.colorCohArray   = stopTargCoh(i);
-            opt.ssdArray        = [];
-            iGoTargChecker      = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
-            
-            opt.epochName       = 'responseOnset';
-            opt.eventMarkName   = 'checkerOn';
-            iGoTargSacc         = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
-            
-            
-            
-            
-            % Get the stop trial data
-            opt.epochName       = epochName;
-            opt.eventMarkName   = markEvent;
-            opt.conditionArray  = {'stopTarg'};
-            opt.ssdArray        = stopTargSsd(i);
-            iStopTargChecker    = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
-            
-            opt.conditionArray  = {'stopStop'};
-            iStopStopChecker       = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
-            
-            opt.epochName       = 'responseOnset';
-            opt.eventMarkName   = 'checkerOn';
-            opt.conditionArray  = {'stopTarg'};
-            iStopTargSacc       = ccm_concat_neural_conditions(Unit(kUnitIndex), opt);
-            
-            
-            
-            % Use a subsample of the noncanceled stop RTs that are
-            % later than the SSD plus some time to encode the stimulus
-            if ~usePreSSD
-                iStopTargTrial = iStopTargChecker.eventLatency > stopTargSsd(i) + encodeTime;
-            else
-                iStopTargTrial = 1 : length(iStopTargChecker.eventLatency);
-            end
-            
-            % Use a latency-matching method to get a (fast)
-            % subsample of go trials that match the noncanceled
-            % stop trials
-            switch latencyMatchMethod
-                case 'ssrt'
-                    iStopLatency = stopTargSsd(i) + ssrt;
-                    iGoFastTrial = iGoTargChecker.eventLatency <= iStopLatency & iGoTargChecker.eventLatency >  stopTargSsd(i) + encodeTime;
-                case 'mean'
-                    iGoTargRT = sort(iGoTargChecker.eventLatency);
-                    meanStopTargRT = nanmean(iStopTargChecker.eventLatency);
-                    while nanmean(iGoTargRT) > meanStopTargRT
-                        iGoTargRT(end) = [];
-                    end
-                    iStopLatency = iGoTargRT(end);
-                    iGoFastTrial = iGoTargChecker.eventLatency <= iStopLatency;
-                case 'match'
-                    % Use nearest neighbor method to get rt-matched
-                    % trials
-                    nStopCorrect = size(iStopStopChecker.signal, 1);
-                    data = ccm_match_rt(iGoTargChecker.eventLatency, iStopTargChecker.eventLatency(iStopTargTrial), nStopCorrect);
-                    iGoFastTrial = data.goFastTrial;
-            end
-            
-            
-            
-            
-            % ****************************************************************
-            % COLLECT (AND ANALYZE) THE RELEVANT DATA
-            
-            stopTargCheckerData{i}        = iStopTargChecker.signal(iStopTargTrial,:);
-            stopTargCheckerAlign{i}     	= iStopTargChecker.align;
-            stopTargCheckerEventLat{i}	= iStopTargChecker.eventLatency(iStopTargTrial,:);
-            
-            stopTargSaccData{i}           = iStopTargSacc.signal(iStopTargTrial,:);
-            stopTargSaccAlign{i}         = iStopTargSacc.align;
-            stopTargSaccEventLat{i}      = iStopTargSacc.eventLatency(iStopTargTrial,:);
-            
-            goTargFastCheckerData{i}      = iGoTargChecker.signal(iGoFastTrial,:);
-            goTargFastCheckerAlign{i} 	= iGoTargChecker.align;
-            goTargFastCheckerEventLat{i}	= iGoTargChecker.eventLatency(iGoFastTrial,:);
-            
-            goTargFastSaccData{i}         = iGoTargSacc.signal(iGoFastTrial,:);
-            goTargFastSaccAlign{i}       = iGoTargSacc.align;
-            goTargFastSaccEventLat{i}    = iGoTargSacc.eventLatency(iGoFastTrial,:);
-            
-            
-            
-            stopTargCheckerFn{i}      = nanmean(spike_density_function(stopTargCheckerData{i}, Kernel), 1);
-            stopTargSaccFn{i}      = nanmean(spike_density_function(stopTargSaccData{i}, Kernel), 1);
-            goTargFastCheckerFn{i}      = nanmean(spike_density_function(goTargFastCheckerData{i}, Kernel), 1);
-            goTargFastSaccFn{i}         = nanmean(spike_density_function(goTargFastSaccData{i}, Kernel), 1);
-            
-            
-            % Hanes et al 1998 t-test of spike rates 40 ms surrounding estimated ssrt
-            stopTargSpike{i}     = sum(iStopTargChecker.signal(iStopTargTrial, spikeWindow + iStopTargChecker.align + stopTargSsd(i) + ssrt), 2);
-            goTargFastSpike{i}   = sum(iGoTargChecker.signal(iGoFastTrial, spikeWindow + iGoTargChecker.align + stopTargSsd(i) + ssrt), 2);
-            [h,p,ci,sts]                        = ttest2(stopTargSpike{i}, goTargFastSpike{i});
-            
-            pValue{i}    = p;
-            stats{i}     = sts;
-            
-            fprintf('ssd: %d  \tgo v. stop: %.2f  %.2f sp, p = %.2f\n',...
-                stopTargSsd(i), mean(goTargFastSpike{i}), mean(stopTargSpike{i}), p);
-            
-            
-            
-            if plotFlag && i <= nPlot
-                figure(stopTargFig)
-                
-                % Data aligned on checkerboard onset
-                ax(i, colChkr) = axes('units', 'centimeters', 'position', [xAxesPosition(i, colChkr) yAxesPosition(i, colChkr) axisWidth axisHeight]);
-                set(ax(i, colChkr), 'ylim', [sdfMin sdfMax * 1.1], 'xlim', [epochRangeChecker(1) epochRangeChecker(end)])
-                cla
-                hold(ax(i, colChkr), 'on')
-                plot(ax(i, colChkr), [1 1], [sdfMin sdfMax], '-k', 'linewidth', 2)
-                ttl = sprintf('SSD: %d  pMag: %.2f', stopTargSsd(i), stopTargCoh(i));
-                title(ttl)
-                
-                % Data aligned on response onset
-                ax(i, colSacc) = axes('units', 'centimeters', 'position', [xAxesPosition(i, colSacc) yAxesPosition(i, colSacc) axisWidth axisHeight]);
-                set(ax(i, colSacc), 'ylim', [sdfMin sdfMax * 1.1], 'xlim', [epochRangeSacc(1) epochRangeSacc(end)])
-                set(ax(i, colSacc), 'yticklabel', [], 'ycolor', [1 1 1])
-                cla
-                hold(ax(i, colSacc), 'on')
-                plot(ax(i, colSacc), [1 1], [sdfMin sdfMax], '-k', 'linewidth', 2)
-                
-                %     if i > 1
-                %         set(ax(i, colChkr), 'yticklabel', [])
-                %         set(ax(i, colChkr), 'ycolor', [1 1 1])
-                %     end
-                
-                
-                plot(ax(i, colChkr), [stopTargSsd(i), stopTargSsd(i)], [sdfMin sdfMax], 'color', [.2 .2 .2], 'linewidth', 1)
-                plot(ax(i, colChkr), [stopTargSsd(i) + ssrt, stopTargSsd(i) + ssrt], [sdfMin sdfMax], '--', 'color', [0 0 0], 'linewidth', 1)
-                
-                iGoTargFastCheckerFn = goTargFastCheckerFn{i}(goTargFastCheckerAlign{i} + epochRangeChecker);
-                plot(ax(i, colChkr), epochRangeChecker, iGoTargFastCheckerFn, 'color', cMap(pSignalArray == stopTargCoh(i),:), 'linewidth', goLineW)
-                iGoTargRTMean = round(mean(goTargFastCheckerEventLat{i}));
-                plot(ax(i, colChkr), iGoTargRTMean, iGoTargFastCheckerFn(iGoTargRTMean), '.k','markersize', markSize)
-                
-                iStopTargCheckerFn = stopTargCheckerFn{i}(stopTargCheckerAlign{i} + epochRangeChecker);
-                plot(ax(i, colChkr), epochRangeChecker, iStopTargCheckerFn, 'color', stopColor, 'linewidth', stopLineW)
-                iStopTargRTMean = round(mean(stopTargCheckerEventLat{i}));
-                plot(ax(i, colChkr), iStopTargRTMean, iStopTargCheckerFn(iStopTargRTMean), '.k','markersize', markSize)
-                
-                
-                iGoTargFastSaccFn = goTargFastSaccFn{i}(goTargFastSaccAlign{i} + epochRangeSacc);
-                plot(ax(i, colSacc), epochRangeSacc, iGoTargFastSaccFn, 'color', cMap(pSignalArray == stopTargCoh(i),:), 'linewidth', goLineW)
-                
-                iStopTargSaccFn = stopTargSaccFn{i}(stopTargSaccAlign{i} + epochRangeSacc);
-                plot(ax(i, colSacc), epochRangeSacc, iStopTargSaccFn, 'color', stopColor, 'linewidth', stopLineW)
-                
-                
-            end
-        end
-        
-    end
-    
-    
+   
     
     %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     %             $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -748,6 +762,11 @@ for kUnitIndex = 1 : nUnit
     % Collect the data for later analyses
     
     %               Nonanceled Stop vs latency-matched (Fast) Go:
+    Data(kUnitIndex).stopStopCoh      = stopStopCoh;
+    Data(kUnitIndex).stopStopSsd      = stopStopSsd;
+    Data(kUnitIndex).stopTargCoh      = stopTargCoh;
+    Data(kUnitIndex).stopTargSsd      = stopTargSsd;
+
     Data(kUnitIndex).stopTargSpike      = stopTargSpike;
     Data(kUnitIndex).stopTargCheckerData        = stopTargCheckerData;
     Data(kUnitIndex).stopTargCheckerAlign        = stopTargCheckerAlign;
@@ -782,15 +801,24 @@ for kUnitIndex = 1 : nUnit
     
     Data(kUnitIndex).stopStopSpike      = stopStopSpike;
     Data(kUnitIndex).goTargSlowSpike    = goTargSlowSpike;
-    Data(kUnitIndex).cancelTime    = cancelTime;
+    
+    
+    Data(kUnitIndex).stopTargCoh    = stopTargCoh;
+    Data(kUnitIndex).stopTargSsd    = stopTargSsd;
+    Data(kUnitIndex).stopStopCoh    = stopStopCoh;
+    Data(kUnitIndex).stopStopSsd    = stopStopSsd;
+    
+    Data(kUnitIndex).pValue40ms     = pValue40ms;
+    Data(kUnitIndex).pass50msTime    = pass50msTestInd;
+    Data(kUnitIndex).cancelTime6Std    = cancelTime6Std;
+    Data(kUnitIndex).cancelTime4Std    = cancelTime4Std;
     
     Data(kUnitIndex).inhibition    = dataInh;
     Data(kUnitIndex).pSignalArray    = pSignalArray;
     
     if printPlot
-        localFigurePath = local_figure_path;
-        print(stopTargFig,[localFigurePath, sessionID, '_',Unit(kUnitIndex).name, '_ccm_go_vs_noncanceled.pdf'],'-dpdf', '-r300')
-        print(stopStopFig,[localFigurePath, sessionID, '_',Unit(kUnitIndex).name, '_ccm_go_vs_canceled.pdf'],'-dpdf', '-r300')
+        print(stopTargFig,fullfile(local_figure_path, subjectID, [sessionID, '_ccm_go_vs_noncanceled_',Unit(kUnitIndex).name, '.pdf']),'-dpdf', '-r300')
+        print(stopStopFig,fullfile(local_figure_path, subjectID, [sessionID, '_ccm_go_vs_canceled_',Unit(kUnitIndex).name, '.pdf']),'-dpdf', '-r300')
     end
     
     

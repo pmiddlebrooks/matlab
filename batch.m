@@ -16,7 +16,7 @@ sessionList = ...
     'bp206n02'};
 for i = 1 : length(sessionList)
     iSessionID = sessionList{i}
-plexon_translate_datafile_mac('broca',iSessionID);
+    plexon_translate_datafile_mac('broca',iSessionID);
 end
 %%      GET FIGURES FOR CCM: CCM_SESSION_DATA, CCM_DDM_LIKE, AND CCM_NEURON_STOP_VS_GO
 
@@ -36,7 +36,7 @@ opt.collapseSignal = true;
 % sessionList = {'bp093n02'};
 for i = 1 : length(sessionList)
     iSessionID = sessionList{i};
-data = ccm_session_data('broca', iSessionID, opt);
+    data = ccm_session_data('broca', iSessionID, opt);
 end
 
 %%
@@ -44,21 +44,21 @@ dataDir = '/Volumes/SchallLab/data/Broca';
 d = dir(dataDir);
 for i = 1240 : size(d, 1)
     if regexp(d(i).name, '.*n01.plx')
-     disp(d(i).name(1:end-4))   
- plexon_translate_datafile_mac('broca',d(i).name(1:end-4));
+        disp(d(i).name(1:end-4))
+        plexon_translate_datafile_mac('broca',d(i).name(1:end-4));
     end
 end
-       
+
 %%
 dataDir = '/Volumes/SchallLab/data/Joule';
 d = dir(dataDir);
 for i = 100 : size(d, 1)
     if regexp(d(i).name, 'jp.*.plx')
-     disp(d(i).name(1:end-4))   
- plexon_translate_datafile_mac('joule',d(i).name(1:end-4));
+        disp(d(i).name(1:end-4))
+        plexon_translate_datafile_mac('joule',d(i).name(1:end-4));
     end
 end
-       
+
 
 %%      GET FIGURES FOR MEM/DEL: MEM_SESSION_DATA
 
@@ -79,7 +79,7 @@ sessionList = find_sessions_data(subjectID, taskID, dataIncludeArray);
 % sessionList = {'bp093n02'};
 for i = 1 : length(sessionList)
     iSessionID = sessionList{i};
-data = mem_session_data('broca', iSessionID);
+    data = mem_session_data('broca', iSessionID);
 end
 
 %%
@@ -381,7 +381,7 @@ for i = 1 : length(sessionArray)
     U = ccm_session_behavior('broca',iSessionID,'plotFlag',false);
     
     U.nGo
-
+    
     
     criteria = all(U.nGo > 60);
     if criteria
@@ -415,8 +415,8 @@ sessionArray = ...
     'bp229n02', ...
     'bp230n02'};
 
-    opt = ccm_session_data;
-    opt.dataType = 'lfp';
+opt = ccm_session_data;
+opt.dataType = 'lfp';
 for i = 1 : length(sessionArray)
     i
     iSessionID = sessionArray{i}
@@ -464,7 +464,7 @@ for i = 9 : length(sessionArray)
     U = ccm_session_behavior('broca',iSessionID,'plotFlag',true);
     
     U.nGo
-
+    
     
     criteria = all(U.nGo > 60);
     if criteria
@@ -483,11 +483,338 @@ dataDir = '/Volumes/SchallLab/data/Broca';
 d = dir(dataDir);
 for i = 1240 : size(d, 1)
     if regexp(d(i).name, '.*n01.plx')
-     disp(d(i).name(1:end-4))   
- plexon_translate_datafile_mac('broca',d(i).name(1:end-4));
+        disp(d(i).name(1:end-4))
+        plexon_translate_datafile_mac('broca',d(i).name(1:end-4));
     end
 end
 
 
 
 
+
+
+
+
+
+
+
+%% Translate all joules ccm sessions (except neural ones, already done)
+subject = 'joule';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+
+% Open the sessions file and makes lists of the entries
+fid=  fopen(fullfile(dataPath,['ccm_sessions_',subject,'.csv']));
+
+
+nCol = 5;
+formatSpec = '%s';
+mHeader = textscan(fid, formatSpec, nCol, 'Delimiter', ',');
+
+mData = textscan(fid, '%s %s %d %d %d', 'Delimiter', ',','TreatAsEmpty',{'NA','na'});
+
+sessionList     = mData{1};
+
+Opt.whichData   = 'behavior';
+Opt.saveFile    = true;
+for i = 48 : size(sessionList, 1)
+    i
+    session = sessionList{i};
+    if ~ismember(session, {'jp054n02', 'jp060n02', 'jp061n02'})
+        disp(session)
+        plexon_translate_datafile_mac('joule',session, Opt);
+    end
+end
+
+%% print joule's session behavior for each ccm session
+subject = 'joule';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+
+% Open the sessions file and makes lists of the entries
+fid=  fopen(fullfile(dataPath,['ccm_sessions_',subject,'.csv']));
+
+
+nCol = 5;
+formatSpec = '%s';
+mHeader = textscan(fid, formatSpec, nCol, 'Delimiter', ',');
+
+mData = textscan(fid, '%s %s %d %d %d', 'Delimiter', ',','TreatAsEmpty',{'NA','na'});
+
+sessionList     = mData{1};
+hemisphereList  = mData{2};
+
+for i = 70 : length(sessionList)
+    data = ccm_session_behavior(subject, sessionList{i});
+    clear data
+end
+
+%% run ccm_classify_neuron_pop for joule, fresh
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+
+addpath(genpath(fullfile(projectRoot,'src/code',projectDate)));
+
+subject = 'joule';
+
+append = false;
+ccm_classify_neuron_pop(subject,projectRoot,projectDate,append)
+%% run ccm_classify_neuron_pop for broca, fresh
+
+subject = 'broca';
+
+append = false;
+ccm_classify_neuron_pop(subject,projectRoot,projectDate,append)
+
+%% print broca's session behavior for each ccm session
+subject = 'broca';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+
+% Open the sessions file and makes lists of the entries
+fid=  fopen(fullfile(dataPath,['ccm_sessions_',subject,'.csv']));
+
+
+nCol = 5;
+formatSpec = '%s';
+mHeader = textscan(fid, formatSpec, nCol, 'Delimiter', ',');
+
+mData = textscan(fid, '%s %s %d %d %d', 'Delimiter', ',','TreatAsEmpty',{'NA','na'});
+
+sessionList     = mData{1};
+hemisphereList  = mData{2};
+
+for i = 1 : length(sessionList)
+    data = ccm_session_behavior(subject, sessionList{i});
+    clear data
+end
+
+%% List number of neurons in each category for broca and joule
+subject = 'joule';
+% subject = 'joule';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+neuronNumber = table();
+
+% Total channels recorded, total modulation neurons
+load(fullfile(dataPath, 'ccm_neuronTypes'))
+neuronNumber.sessions = length(unique(neuronTypes.sessionID));
+neuronNumber.channels = size(neuronTypes, 1);
+neuronNumber.modulated = sum(neuronTypes.fix | ...
+    neuronTypes.vis | ...
+    neuronTypes.checker | ...
+    neuronTypes.presacc | ...
+    neuronTypes.postsacc | ...
+    neuronTypes.reward | ...
+    neuronTypes.intertrial);
+
+categories = {'fix', 'visNoPresacc', 'visPresacc', 'presaccNoVis', 'postSaccNoPresacc'};
+for i = 1 : length(categories)
+    load(fullfile(dataPath, ['ccm_',categories{i},'_neurons']))
+    neuronNumber.(categories{i}) = length(neurons.sessionID);
+end
+
+
+%% Inhibition and chronometric population plots
+subject = 'joule';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+category = 'presacc';
+load(fullfile(dataPath, ['ccm_',category,'_neurons']))
+sessionSet = unique(neurons.sessionID);
+
+ccm_inhibition_population(subject, sessionSet);
+ccm_chronometric_population(subject, sessionSet);
+ccm_psychometric_population(subject, sessionSet);
+
+%% Population behavioral measures
+% subject = 'joule';
+subject = 'broca';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+% category = 'presacc';
+% load(fullfile(dataPath, ['ccm_',category,'_neurons']))
+% sessionSet = unique(neurons.sessionID);
+
+load(fullfile(dataPath, 'ccm_neuronTypes'))
+sessionSet = unique(neuronTypes.sessionID);
+
+
+    ccm_chronometric_population(subject, sessionSet);
+    ccm_psychometric_population(subject, sessionSet);
+ccm_rt_distribution_population(subject, sessionSet);
+ccm_inhibition_population(subject, sessionSet);
+
+%%
+subject = 'broca';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+category = 'ddm';
+load(fullfile(dataPath, ['ccm_',category,'_neurons']))
+
+% interest = table();
+
+opt = ccm_options;
+
+for i = 18 : length(neurons.sessionID)
+    fprintf('%d\tSession: %s\t Unit: %s\n', i, neurons.sessionID{i}, neurons.unit{i})
+    iTable = table();
+    iTable.session  = neurons.sessionID(i);
+    iTable.unit  = neurons.unit(i);
+    % opt.unitArray = neurons.unit(i);
+    data = ccm_neuron_stop_vs_go(subject, neurons.sessionID{i}, neurons.unit(i));
+    prompt = 'add to list?';
+    addToList = input(prompt);
+    if addToList
+        
+        interest = [interest; iTable];
+        
+    end
+    clear data
+end
+
+%% Total number of sessions, trial numbers for all recorded sessions
+subject = 'broca';
+% subject = 'joule';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+number = table();
+
+% Total channels recorded, total modulation neurons
+load(fullfile(dataPath, 'ccm_neuronTypes'))
+sessions = unique(neuronTypes.sessionID);
+for i = 1 : length(sessions)
+    iNumber = table();
+    iNumber.session = sessions(i);
+    [td, S] = load_data(subject, sessions{i});
+    opt = ccm_options;
+    
+    % Go trials
+    opt.outcome = {...
+        'goCorrectTarget', 'goCorrectDistractor', ...
+        };
+    
+    iNumber.goTrials = length(ccm_trial_selection(td, opt));
+    % Stop trials
+    opt.outcome = {...
+        'stopCorrect', ...
+        'stopIncorrectTarget', 'stopIncorrectDistractor'};
+    
+    iNumber.stopTrials = length(ccm_trial_selection(td, opt));
+    number = [number; iNumber];
+    
+end
+disp('done')
+%% Total number of sessions, trial numbers for all recorded sessions
+subject = 'broca';
+% subject = 'joule';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+number = table();
+
+% Total channels recorded, total modulation neurons
+load(fullfile(dataPath, 'ccm_neuronTypes'))
+sessions = unique(neuronTypes.sessionID);
+for i = 1 : length(sessions)
+    iNumber = table();
+    iNumber.session = sessions(i);
+    [td, S] = load_data(subject, sessions{i});
+    opt = ccm_options;
+    
+    % Go trials
+    opt.outcome = {...
+        'goCorrectTarget', 'goCorrectDistractor', ...
+        };
+    
+    iNumber.goTrials = length(ccm_trial_selection(td, opt));
+    % Stop trials
+    opt.outcome = {...
+        'stopCorrect', ...
+        'stopIncorrectTarget', 'stopIncorrectDistractor'};
+    
+    iNumber.stopTrials = length(ccm_trial_selection(td, opt));
+    number = [number; iNumber];
+    
+end
+disp('done')
+%% Total number of sessions, trial numbers for all recorded sessions
+subject = 'broca';
+% subject = 'joule';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+number = table();
+
+% Total channels recorded, total modulation neurons
+load(fullfile(dataPath, 'ccm_neuronTypes'))
+sessions = unique(neuronTypes.sessionID);
+for i = 1 : length(sessions)
+    iNumber = table();
+    
+    iNumber.session = sessions(i);
+    % find the index of the first spike unit from this session
+    firstInd = find(strcmp(sessions{i}, neuronTypes.sessionID), 1, 'first');
+    lastInd = find(strcmp(sessions{i}, neuronTypes.sessionID), 1, 'last');
+    
+    % How many spike units recorded on each channel?
+    unitInd = cellfun(@(x) str2double(regexp(x,'\d*','Match')), neuronTypes.unit(firstInd:lastInd));
+    
+    % How many channels/electrodes were recorded/used during this session?
+    iChannels = unique(unitInd);
+    iNumber.channels = length(iChannels);
+    
+    iNumber.unitPerChannel = cell(1,1);
+    iNumber.unitPerChannel{1} = nan(1, iNumber.channels);
+    
+    for j = 1 : iNumber.channels
+        iNumber.unitPerChannel{1}(j) = sum(iChannels(j) == unitInd);
+    end
+    
+    iNumber.unitPerSession = sum(iNumber.unitPerChannel{1});
+    number = [number; iNumber];
+    
+end
+disp(number)
+
+channelType = unique(number.channels);
+electrode = nan(length(channelType),1);
+meanSignal = nan(length(channelType),1);
+for i = 1 : length(channelType)
+    
+    % How many sessions with this electrode configuration?
+    iChannelInd = number.channels == channelType(i);
+    electrode(i) = sum(iChannelInd);
+    meanSignal(i) = mean(number.unitPerSession(iChannelInd));
+    
+    fprintf('%d channel:\t %d sessions\t Mean single/multi unit per channel: %.1f\n', channelType(i), electrode(i), meanSignal(i))
+end
+%%
+Opt.whichData = 'behavior';
+subject = 'joule';
+sessionArray = {...
+    'jp077n03'};
+for i = 1 : length(sessionArray)
+plexon_translate_datafile_mac(subject, sessionArray{i}, Opt);
+end

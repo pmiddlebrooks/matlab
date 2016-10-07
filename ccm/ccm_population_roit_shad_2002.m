@@ -118,6 +118,7 @@ end
             hold(ax(axGo, e), 'on')
             plot(ax(axGo, e), [-epochRange(1) -epochRange(1)], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
             title(opt.epochArray{e})
+            set(ax(axGo, e), 'xticklabel', get(gca, 'xtick')+epochRange(1)-1)
             
             % Stop trials
             ax(axStop, e) = axes('units', 'centimeters', 'position', [xAxesPosition(axStop, e) yAxesPosition(axStop, e) axisWidth axisHeight]);
@@ -128,7 +129,8 @@ end
             hold(ax(axStop, e), 'on')
             plot(ax(axStop, e), [-epochRange(1) -epochRange(1)], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
             title(opt.epochArray{e})
-            end
+             set(ax(axStop, e), 'xticklabel', get(gca, 'xtick')+epochRange(1)-1)
+           end
 
             
             
@@ -144,10 +146,14 @@ for e = 1 : length(opt.epochArray)
         
         %   _______ GO TRIALS  _______
         for o = 1 : length(goOutcomeArray)
+%             e
+%             c
+%             o
             meanSDF = mean(Data.(conditionArray{c}).(goOutcomeArray{o}).(opt.epochArray{e}).sdf);
             align = Data.(conditionArray{c}).(goOutcomeArray{o}).(opt.epochArray{e}).align;
-            if strcmp(opt.epochArray{o}, 'checkerOn')
-                meanSDF = meanSDF(1 : round(mean(Data.(conditionArray{c}).(goOutcomeArray{o}).rt))+align);
+            % shorten the plotted sdf if needed, based on RT
+            if strcmp(opt.epochArray{o}, 'checkerOn') && median(Data.(conditionArray{c}).(goOutcomeArray{o}).rt)+align < length(meanSDF)
+                meanSDF = meanSDF(1 : round(median(Data.(conditionArray{c}).(goOutcomeArray{o}).rt))+align);
            end
             plot(ax(axGo, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',goInOutColor(c,:))
         end % Go trials
@@ -157,8 +163,9 @@ for e = 1 : length(opt.epochArray)
         for o = 1 : length(stopOutcomeArray)
             meanSDF = mean(Data.(conditionArray{c}).(stopOutcomeArray{o}).(opt.epochArray{e}).sdf);
             align = Data.(conditionArray{c}).(stopOutcomeArray{o}).(opt.epochArray{e}).align;
-            if strcmp(opt.epochArray{o}, 'checkerOn')
-                meanSDF = meanSDF(1 : round(mean(Data.(conditionArray{c}).(stopOutcomeArray{o}).rt))+align);
+            % shorten the plotted sdf if needed, based on RT
+            if strcmp(opt.epochArray{o}, 'checkerOn') && median(Data.(conditionArray{c}).(stopOutcomeArray{o}).rt)+align < length(meanSDF)
+                meanSDF = meanSDF(1 : round(nanmedian(Data.(conditionArray{c}).(stopOutcomeArray{o}).rt))+align);
             end
             plot(ax(axStop, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',stopInOutColor(c,:))            
         end % Stop trials

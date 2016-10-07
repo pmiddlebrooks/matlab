@@ -1,4 +1,12 @@
-function data = ccm_chronometric_population(subjectID, plotFlag, figureHandle)
+function data = ccm_chronometric_population(subjectID, sessionSet, plotFlag)
+
+if nargin < 3
+    plotFlag = 1;
+end
+if nargin < 2
+    sessionSet = 'behvaior';
+end
+
 %%
 % **************************************************************************************************
 % Populaiton chronometric
@@ -9,36 +17,43 @@ disp('Populaiton chronometric')
 % subjectID = 'Human';
 % subjectID = 'Xena';
 % sessionSet = 'behavior';
-subjectID = 'xena';
-sessionSet = 'behavior1';
+% subjectID = 'xena';
+% sessionSet = 'behavior1';
 
+if iscell(sessionSet)
+    % If user enters sessionSet, get rid of repeated sessions in case there
+    % were neural recordings with multiple units from a single session
+    sessionArray = unique(sessionSet);
+    subjectIDArray = repmat({subjectID}, length(sessionArray), 1);
+else
+    [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
+end
 
 task = 'ccm';
-[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
-% if nargin < 3
-    plotFlag = 1;
+figureHandle = 4950;
 % end
-% if nargin < 4
-    figureHandle = 4950;
-% end
+printFlag = true;
 
 
 
 switch lower(subjectID)
+    case 'joule'
+        [td, S, E] =load_data(subjectID, sessionArray{1});
+        pSignalArray = E.pSignalArray;
     case 'human'
         pSignalArray = [.35 .42 .46 .5 .54 .58 .65];
     case 'broca'
-       switch sessionSet
-          case 'behavior'
-        pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
-          case 'neural1'
-        pSignalArray = [.41 .44 .47 .53 .56 .59];
-          case 'neural2'
-        pSignalArray = [.42 .44 .46 .54 .56 .58];
-           otherwise
-               [td, S, E] =load_data(subjectID, sessionArray{1});
-               pSignalArray = E.pSignalArray;
-       end
+        %        switch sessionSet
+        %           case 'behavior'
+        %         pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
+        %           case 'neural1'
+        %         pSignalArray = [.41 .44 .47 .53 .56 .59];
+        %           case 'neural2'
+        %         pSignalArray = [.42 .44 .46 .54 .56 .58];
+        %            otherwise
+        [td, S, E] =load_data(subjectID, sessionArray{1});
+        pSignalArray = E.pSignalArray;
+        %        end
     case 'xena'
         pSignalArray = [.35 .42 .47 .5 .53 .58 .65];
 end
@@ -59,7 +74,7 @@ if plotFlag
     cla
     ax(ssdAx) = axes('units', 'centimeters', 'position', [xAxesPosition(2, 2) yAxesPosition(2, 2) axisWidth axisHeight]);
     cla
-%     stopColor = [.5 .5 .5];
+    %     stopColor = [.5 .5 .5];
     stopColor = [1 0 0];
     goColor = [0 0 0];
     choicePlotXMargin = .03;
@@ -93,9 +108,10 @@ ssdData = [];
 ssdRTData = [];
 for iSession = 1 : nSession
     
-   sessionArray{iSession}
-   chronOpt = ccm_chronometric;
-   chronOpt.plotFlag = false;
+    display(sessionArray{iSession})
+    chronOpt = ccm_chronometric;
+    chronOpt.collapseTarg = true;
+    chronOpt.plotFlag = false;
     iData = ccm_chronometric(subjectIDArray{iSession}, sessionArray{iSession}, chronOpt);
     % go and stop means for the session collapsed across signal strength
     goTargSessionMean = [goTargSessionMean; nanmean([cell2mat(iData.goLeftToTarg(:)); cell2mat(iData.goRightToTarg(:))])];
@@ -112,24 +128,24 @@ for iSession = 1 : nSession
     goRightToDist = [goRightToDist; cellfun(@nanmean, iData.goRightToDist)];
     
     
-
-        iStopLeftToTarg = nan(1, size(iData.stopLeftToTarg, 2));
+    
+    iStopLeftToTarg = nan(1, size(iData.stopLeftToTarg, 2));
     iStopRightToTarg = nan(1, size(iData.stopLeftToTarg, 2));
     iStopLeftToDist = nan(1, size(iData.stopLeftToTarg, 2));
     iStopRightToDist = nan(1, size(iData.stopLeftToTarg, 2));
-for i = 1 : size(iData.stopLeftToTarg, 2)
-       
-%     % Stop data
-    iStopLeftToTarg(i) = nanmean(cell2mat(iData.stopLeftToTarg(:,i)));
-    iStopRightToTarg(i) = nanmean(cell2mat(iData.stopRightToTarg(:,i)));
-    iStopLeftToDist(i) = nanmean(cell2mat(iData.stopLeftToDist(:,i)));
-    iStopRightToDist(i) = nanmean(cell2mat(iData.stopRightToDist(:,i)));
-end   
+    for i = 1 : size(iData.stopLeftToTarg, 2)
+        
+        %     % Stop data
+        iStopLeftToTarg(i) = nanmean(cell2mat(iData.stopLeftToTarg(:,i)));
+        iStopRightToTarg(i) = nanmean(cell2mat(iData.stopRightToTarg(:,i)));
+        iStopLeftToDist(i) = nanmean(cell2mat(iData.stopLeftToDist(:,i)));
+        iStopRightToDist(i) = nanmean(cell2mat(iData.stopRightToDist(:,i)));
+    end
     % Stop data
-%     iStopLeftToTarg = [nanmean(cell2mat(iData.stopLeftToTarg(:,1))), nanmean(cell2mat(iData.stopLeftToTarg(:,2))), nanmean(cell2mat(iData.stopLeftToTarg(:,3)))];
-%     iStopRightToTarg = [nanmean(cell2mat(iData.stopRightToTarg(:,1))), nanmean(cell2mat(iData.stopRightToTarg(:,2))), nanmean(cell2mat(iData.stopRightToTarg(:,3)))];
-%     iStopLeftToDist = [nanmean(cell2mat(iData.stopLeftToDist(:,1))), nanmean(cell2mat(iData.stopLeftToDist(:,2))), nanmean(cell2mat(iData.stopLeftToDist(:,3)))];
-%     iStopRightToDist = [nanmean(cell2mat(iData.stopRightToDist(:,1))), nanmean(cell2mat(iData.stopRightToDist(:,2))), nanmean(cell2mat(iData.stopRightToDist(:,3)))];
+    %     iStopLeftToTarg = [nanmean(cell2mat(iData.stopLeftToTarg(:,1))), nanmean(cell2mat(iData.stopLeftToTarg(:,2))), nanmean(cell2mat(iData.stopLeftToTarg(:,3)))];
+    %     iStopRightToTarg = [nanmean(cell2mat(iData.stopRightToTarg(:,1))), nanmean(cell2mat(iData.stopRightToTarg(:,2))), nanmean(cell2mat(iData.stopRightToTarg(:,3)))];
+    %     iStopLeftToDist = [nanmean(cell2mat(iData.stopLeftToDist(:,1))), nanmean(cell2mat(iData.stopLeftToDist(:,2))), nanmean(cell2mat(iData.stopLeftToDist(:,3)))];
+    %     iStopRightToDist = [nanmean(cell2mat(iData.stopRightToDist(:,1))), nanmean(cell2mat(iData.stopRightToDist(:,2))), nanmean(cell2mat(iData.stopRightToDist(:,3)))];
     
     stopLeftToTarg = [stopLeftToTarg; iStopLeftToTarg];
     stopRightToTarg = [stopRightToTarg; iStopRightToTarg];
@@ -152,7 +168,7 @@ end
             cell2mat(cellfun(@(x) x', iData.stopLeftToDist(jSSD, :), 'uniformoutput', 0)),...
             cell2mat(cellfun(@(x) x', iData.stopRightToTarg(jSSD, :), 'uniformoutput', 0)),...
             cell2mat(cellfun(@(x) x', iData.stopRightToDist(jSSD, :), 'uniformoutput', 0))];
-%         if jSSD < 2 && 
+        %         if jSSD < 2 &&
         jSSDRT = nanmean(jSSDRTAll);
         if ~isnan(jSSDRT)
             ssdRTData = [ssdRTData; jSSDRT];
@@ -161,10 +177,14 @@ end
         end
     end
     
+    if iSession == 1
+  pSignalArrayLeft = iData.pSignalArrayLeft;
+pSignalArrayRight = iData.pSignalArrayRight;
+    end
+          clear iData
+
 end
 
-pSignalArrayLeft = iData.pSignalArrayLeft;
-pSignalArrayRight = iData.pSignalArrayRight;
 
 
 
@@ -216,6 +236,16 @@ fprintf('\nGo:   Targ: %.0f (%.0f) \tDist: %.0f (%.0f)', goTargMean, goTargSD, g
 fprintf('\nStop: Targ: %.0f (%.0f) \tDist: %.0f (%.0f)', stopTargMean, stopTargSD, stopDistMean, stopDistSD);
 
 
+
+
+
+
+
+
+
+
+
+
 if plotFlag
     % PLOT GO TRIALS
     plot(ax(rtAx), pSignalArrayLeft, goLeftTargMean, '-o', 'color', goColor, 'linewidth' , 2, 'markeredgecolor', goColor, 'markerfacecolor', [1 1 1], 'markersize', 10)
@@ -256,10 +286,21 @@ if plotFlag
     
     % PLOT RTs within each SSD
     plot(ax(ssdAx), ssdData, ssdRTData, '.', 'color', stopColor, 'markersize', 10)
+    % regression line
     plot(ax(ssdAx), xVal, yVal, 'color', 'r', 'linewidth', 2)
+    % 1:1 line
+    get(ax(ssdAx), 'xlim')
+    plot(ax(ssdAx), get(ax(ssdAx), 'ylim'), get(ax(ssdAx), 'ylim'), 'color', 'k', 'linewidth', 1)
+    
     
     
 end
+
+
+
+
+
+
 
 
 
@@ -323,7 +364,7 @@ c = multcompare(stats, 'dimension', 3, 'display', 'off');
 disp(c)
 disp(stats)
 
-    
+
 
 % TTESTS for overall means calculations
 % ==================================
@@ -357,26 +398,26 @@ rtDataSession = [];
 groupSession = [];
 session = [];
 for iSession = 1 : nSession
-rtData = [];
-group = [];
-for i = 1 : size(goTarg, 2)
-    rtData = [rtData, goTarg(iSession,i)];
-    group = [group, {['goTarg',num2str(i)]}];
-end
-for i = 1 : size(goDist, 2)
-    rtData = [rtData, goDist(iSession,i)];
-    group = [group, {['goDist',num2str(i)]}];
-end
-for i = 1 : size(stopTarg, 2)
-    rtData = [rtData, stopTarg(iSession,i)];
-     group = [group, {['stopTarg',num2str(i)]}];
-end
-for i = 1 : size(stopDist, 2)
-    rtData = [rtData, stopDist(iSession,i)];
-    group = [group, {['stopDist',num2str(i)]}];
-end
-rtDataSession = [rtDataSession; rtData];
-groupSession = [groupSession; group];
+    rtData = [];
+    group = [];
+    for i = 1 : size(goTarg, 2)
+        rtData = [rtData, goTarg(iSession,i)];
+        group = [group, {['goTarg',num2str(i)]}];
+    end
+    for i = 1 : size(goDist, 2)
+        rtData = [rtData, goDist(iSession,i)];
+        group = [group, {['goDist',num2str(i)]}];
+    end
+    for i = 1 : size(stopTarg, 2)
+        rtData = [rtData, stopTarg(iSession,i)];
+        group = [group, {['stopTarg',num2str(i)]}];
+    end
+    for i = 1 : size(stopDist, 2)
+        rtData = [rtData, stopDist(iSession,i)];
+        group = [group, {['stopDist',num2str(i)]}];
+    end
+    rtDataSession = [rtDataSession; rtData];
+    groupSession = [groupSession; group];
 end
 
 
@@ -403,7 +444,7 @@ for i = 1 : size(goTarg, 2)
     groupTarg = [groupTarg; repmat(targFlag, length(goTarg(:,i)), 1)];
     groupSig = [groupSig; repmat(i, length(goTarg(:,i)), 1)];
     sessionNumber = [sessionNumber; (1:nSession)'];
-%     sessionNumber = [sessionNumber; i * ones(length(goTarg(:,i)), 1)];
+    %     sessionNumber = [sessionNumber; i * ones(length(goTarg(:,i)), 1)];
 end
 for i = 1 : size(goDist, 2)
     rtData = [rtData; goDist(:,i)];
@@ -411,7 +452,7 @@ for i = 1 : size(goDist, 2)
     groupTarg = [groupTarg; repmat(distFlag, length(goDist(:,i)), 1)];
     groupSig = [groupSig; repmat(i, length(goDist(:,i)), 1)];
     sessionNumber = [sessionNumber; (1:nSession)'];
-%     sessionNumber = [sessionNumber; i * ones(length(goDist(:,i)), 1)];
+    %     sessionNumber = [sessionNumber; i * ones(length(goDist(:,i)), 1)];
 end
 for i = 1 : size(stopTarg, 2)
     rtData = [rtData; stopTarg(:,i)];
@@ -419,7 +460,7 @@ for i = 1 : size(stopTarg, 2)
     groupTarg = [groupTarg; repmat(targFlag, length(stopTarg(:,i)), 1)];
     groupSig = [groupSig; repmat(i, length(stopTarg(:,i)), 1)];
     sessionNumber = [sessionNumber; (1:nSession)'];
-%     sessionNumber = [sessionNumber; i * ones(length(stopTarg(:,i)), 1)];
+    %     sessionNumber = [sessionNumber; i * ones(length(stopTarg(:,i)), 1)];
 end
 for i = 1 : size(stopDist, 2)
     rtData = [rtData; stopDist(:,i)];
@@ -427,10 +468,14 @@ for i = 1 : size(stopDist, 2)
     groupTarg = [groupTarg; repmat(distFlag, length(stopDist(:,i)), 1)];
     groupSig = [groupSig; repmat(i, length(stopDist(:,i)), 1)];
     sessionNumber = [sessionNumber; (1:nSession)'];
-%     sessionNumber = [sessionNumber; i * ones(length(stopDist(:,i)), 1)];
+    %     sessionNumber = [sessionNumber; i * ones(length(stopDist(:,i)), 1)];
 end
 size(groupSig)
 size(sessionNumber)
 
 datas = [rtData, groupInh, groupTarg, groupSig, sessionNumber];
+
+if printFlag
+    print(figureHandle,fullfile(local_figure_path, subjectID,'ccm_population_chronometric.pdf'),'-dpdf', '-r300')
+end
 

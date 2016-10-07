@@ -47,6 +47,7 @@ if nargin < 3
     options.collapseTarg        = false;
     options.include50           = false;
     options.doStops              = true;
+    options.USE_TWO_COLORS         = false;
     
     options.plotFlag            = true;
     options.printPlot           = false;
@@ -65,9 +66,16 @@ figureHandle    = options.figureHandle;
 
 %%
 % Load the data
-[trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
+[trialData, SessionData, ExtraVar] = ccm_load_data_behavior(subjectID, sessionID);
 ssdArray = ExtraVar.ssdArray;
 pSignalArray = unique(trialData.targ1CheckerProp);
+ if options.USE_TWO_COLORS
+              if length(pSignalArray) == 6
+                   pSignalArray([2 5]) = [];
+               elseif length(pSignalArray) == 7
+                   pSignalArray([2 4 6]) = [];
+              end
+ end
 targAngleArray = unique(trialData.targAngle);
 distAngleArray = targAngleArray;
 
@@ -573,3 +581,6 @@ for kTarg = 1 : nTargPair
     end
     
 end % kTarg
+
+clear trialData
+

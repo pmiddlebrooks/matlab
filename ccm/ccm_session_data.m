@@ -162,8 +162,6 @@ end
 
 
 
-% epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
-epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
 epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn', 'rewardOn'};
 nEpoch = length(epochArray);
 nOutcome = 5; % Used to find the maximum signal levels for normalization if desired
@@ -181,7 +179,7 @@ nUnit = length(Opt.unitArray);
 [allRT, rtOutlierTrial] = truncate_rt(trialData.rt, MIN_RT, MAX_RT, STD_MULTIPLE);
 trialData.rt(rtOutlierTrial) = nan;
 
-
+trialData = ccm_delete_nan_rt(trialData);
 
 
 DO_50 = false;
@@ -1077,6 +1075,5 @@ end
 %         
 %         
 %     end
-
 
 end

@@ -3,13 +3,15 @@ function [trialData, SessionData] = plexon_translate_datafile_mac(monkey, sessio
 % Translate a plexon file on a mac computer.
 %
 %
-% Opt.whichData =   'all' (default); 
+% Opt.whichData =   'all' (default);
 %                       'behavior': only eye movements, event codes, and trial event timings. No neurophysiology data
 %                       'spike': only spike data
 %                       'lfp': only lfp data
 %                       'eeg': only eeg data
-% 
-
+%
+if nargin < 3
+    Opt.whichData = 'all';
+end;
 % note the current directory.
 cdir = pwd;
 
@@ -46,36 +48,27 @@ N_PHOTODIODE_POSSIBLE = 6;
 
 nError = 0;
 
-prompt = 'Which hemisphere was recording from (right, left, both)? ';
-hemisphere = input(prompt, 's');
-
 switch Opt.whichData
     case {'all','lfp','eeg','spike'}
-prompt = 'Are these LFP and EEG channels correct (y or n)? ';
-disp(sprintf('Spike/LFP Channels: %d\n', LFP_CHANNELS))
-disp(sprintf('EEG Channels: %d\n', EEG_CHANNELS))
-answer = input(prompt, 's');
-
-if strcmp(answer, 'n')
-    prompt = 'Enter LFP Channels ';
-    LFP_CHANNELS = input(prompt);
-    prompt = 'Enter EEG Channels ';
-    EEG_CHANNELS = input(prompt);
-   
+        prompt = 'Which hemisphere was recording from (right, left, both, none)? ';
+        hemisphere = input(prompt, 's');
+        prompt = 'Are these LFP and EEG channels correct (y or n)? ';
+        disp(sprintf('Spike/LFP Channels: %d\n', LFP_CHANNELS))
+        disp(sprintf('EEG Channels: %d\n', EEG_CHANNELS))
+        answer = input(prompt, 's');
+        
+        if strcmp(answer, 'n')
+            prompt = 'Enter LFP Channels ';
+            LFP_CHANNELS = input(prompt);
+            prompt = 'Enter EEG Channels ';
+            EEG_CHANNELS = input(prompt);
+            
+        end
+    case 'behavior' % Otherwise it's behavior only (for now)
+        hemisphere = 'none';
+        LFP_CHANNELS = [];
+        EEG_CHANNELS = [];
 end
-end
-% LFP_CHANNELS        = 1:8;  % Default assumption recording LFP on channels listed
-LFP_CHANNELS = [];
-% sn = str2num(sessionID(3:5));
-% if sn < 198
-%     LFP_CHANNELS = 17;
-% elseif sn > 197 && sn < 202
-%     LFP_CHANNELS = 1:24;
-% elseif sn > 201 && sn < 228
-%     LFP_CHANNELS = 1:8;
-% elseif sn > 227
-%     LFP_CHANNELS = 1:32;
-% end
 
 %__________________________________________________________________________
 %                      FIND AND LOAD PLEXON FILE
@@ -1196,61 +1189,61 @@ taskID = SessionData.taskID;
 
 switch Opt.whichData
     case {'all','spike'}
-
-%__________________________________________________________________________
-%                   GET SPIKE TIME DATA.
-%__________________________________________________________________________
-nSpikeChannel               = length(plx.SpikeChannels);
-
-SessionData.spikeUnitArray  = {};
-spikeChannelArray           = [];
-nUnitInd                 = 1; % nUnitFilled gets incremented with each unit
-
-
-% Although online plexon allows only 4 units per channel, offline sorting
-% allows more. Enable that possibility here:
-unit_appends = {'a','b','c','d','e','f'};
-for iChannel = 1:nSpikeChannel
-    
-    % If channel has no data, skip to next one.
-    if isempty(plx.SpikeChannels(iChannel).Timestamps)
-        continue
-    end
-    
-    % How many units on this channel? Units are numbered from 0
-    maxUnit = double(max(plx.SpikeChannels(iChannel).Units));
-    for jUnit = 1 : maxUnit
-        jUnitAppend = char(unit_appends(jUnit));
-        jStampInd = plx.SpikeChannels(iChannel).Units == jUnit;  % Get the timestamp indices for this particular unit
-        jSpikeTime = round(double(plx.SpikeChannels(iChannel).Timestamps(jStampInd)) ./ (plx.ADFrequency / 1000));
         
-        % Initialize an empty cell to add to trialData dataset
-        iData = cell(nTrial, 1);
+        %__________________________________________________________________________
+        %                   GET SPIKE TIME DATA.
+        %__________________________________________________________________________
+        nSpikeChannel               = length(plx.SpikeChannels);
         
-        % Extract the spike timestamps within the given trial
-        for iTrial = 1 : nTrial
-            if iTrial < nTrial
-                spikeRealTime            = jSpikeTime(jSpikeTime >= firstTrialStart + trialData.trialOnset(iTrial) & jSpikeTime < firstTrialStart + trialData.trialOnset(iTrial+1));
-            elseif iTrial == nTrial
-                spikeRealTime            = jSpikeTime(jSpikeTime >= firstTrialStart + trialData.trialOnset(iTrial) & jSpikeTime < firstTrialStart + trialData.trialDuration(iTrial));
+        SessionData.spikeUnitArray  = {};
+        spikeChannelArray           = [];
+        nUnitInd                 = 1; % nUnitFilled gets incremented with each unit
+        
+        
+        % Although online plexon allows only 4 units per channel, offline sorting
+        % allows more. Enable that possibility here:
+        unit_appends = {'a','b','c','d','e','f'};
+        for iChannel = 1:nSpikeChannel
+            
+            % If channel has no data, skip to next one.
+            if isempty(plx.SpikeChannels(iChannel).Timestamps)
+                continue
             end
             
-            % Adjust the trial's spike time so it's relative to trial start
-            iData{iTrial} = spikeRealTime - (firstTrialStart + trialData.trialOnset(iTrial)+1);
-        end
+            % How many units on this channel? Units are numbered from 0
+            maxUnit = double(max(plx.SpikeChannels(iChannel).Units));
+            for jUnit = 1 : maxUnit
+                jUnitAppend = char(unit_appends(jUnit));
+                jStampInd = plx.SpikeChannels(iChannel).Units == jUnit;  % Get the timestamp indices for this particular unit
+                jSpikeTime = round(double(plx.SpikeChannels(iChannel).Timestamps(jStampInd)) ./ (plx.ADFrequency / 1000));
+                
+                % Initialize an empty cell to add to trialData dataset
+                iData = cell(nTrial, 1);
+                
+                % Extract the spike timestamps within the given trial
+                for iTrial = 1 : nTrial
+                    if iTrial < nTrial
+                        spikeRealTime            = jSpikeTime(jSpikeTime >= firstTrialStart + trialData.trialOnset(iTrial) & jSpikeTime < firstTrialStart + trialData.trialOnset(iTrial+1));
+                    elseif iTrial == nTrial
+                        spikeRealTime            = jSpikeTime(jSpikeTime >= firstTrialStart + trialData.trialOnset(iTrial) & jSpikeTime < firstTrialStart + trialData.trialDuration(iTrial));
+                    end
+                    
+                    % Adjust the trial's spike time so it's relative to trial start
+                    iData{iTrial} = spikeRealTime - (firstTrialStart + trialData.trialOnset(iTrial)+1);
+                end
+                
+                % Fill the spikeData from all the trials for this jUnit
+                trialData.spikeData(:,nUnitInd) = iData;
+                
+                unitName = sprintf('spikeUnit%s%s', num2str(iChannel, '%02i'), jUnitAppend); %figure out the channel name
+                SessionData.spikeUnitArray = [SessionData.spikeUnitArray, unitName];
+                
+                
+                nUnitInd = nUnitInd + 1;
+            end  % while addUnit
+        end  % for iChannel
+        % end
         
-        % Fill the spikeData from all the trials for this jUnit
-        trialData.spikeData(:,nUnitInd) = iData;
-        
-        unitName = sprintf('spikeUnit%s%s', num2str(iChannel, '%02i'), jUnitAppend); %figure out the channel name
-        SessionData.spikeUnitArray = [SessionData.spikeUnitArray, unitName];
-        
-        
-        nUnitInd = nUnitInd + 1;
-    end  % while addUnit
-end  % for iChannel
-% end
-
 end
 
 
@@ -1269,7 +1262,7 @@ iLFP = 1;
 
 % get AD channels
 for iChannel = 1:nADChannel
-
+    
     % If channel has no data, skip to next one.
     if isempty(plx.ContinuousChannels(iChannel).Values)
         continue
@@ -1290,45 +1283,45 @@ for iChannel = 1:nADChannel
     
     
     % Only get data if we called for it in Opt structure
-if ((iChannel == xChannel || iChannel == yChannel) && strcmp(Opt.whichData, 'behavior') || strcmp(Opt.whichData, 'spike')) ||...
-        strcmp(Opt.whichData, 'all') || strcmp(Opt.whichData, 'lfp')
-    % Get the raw voltage data
-    adValues    = double(plx.ContinuousChannels(iChannel).Values);
-    adValues    = adValues ./ plx.ContinuousChannels(iChannel).ADGain;
-    adValues    = adValues ./ plx.ContinuousChannels(iChannel).PreAmpGain;
-    adValues    = adValues .* AD_VOLTAGE_FACTOR;
-    
-    % Need to shift the AD Values based on when plexon started collecting
-    % data (Timestamps value is first timestamp for this channel
-    lagShift    = ceil(plx.ContinuousChannels(iChannel).Timestamps(1) / (plx.ADFrequency / 1000));
-    adValues    = [nan(lagShift, 1); adValues];
-    
-    
-    
-    % if it is an eye channel, do some post processing
-    if strcmp(ADname,'eyeX') ||...
-            strcmp(ADname,'eyeY')
-        % convert the channel from voltage to degrees
-        if iChannel == xChannel
-            %                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
-            adValues = (adValues * eyeXGain) - eyeXOffset; %this may need to be done to take vector into account
-        elseif iChannel == yChannel
-            %                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
-            adValues = (adValues * eyeYGain) - eyeYOffset; %this may need to be done to take vector into account
-            adValues = -adValues;
+    if ((iChannel == xChannel || iChannel == yChannel) && strcmp(Opt.whichData, 'behavior') || strcmp(Opt.whichData, 'spike')) ||...
+            strcmp(Opt.whichData, 'all') || strcmp(Opt.whichData, 'lfp')
+        % Get the raw voltage data
+        adValues    = double(plx.ContinuousChannels(iChannel).Values);
+        adValues    = adValues ./ plx.ContinuousChannels(iChannel).ADGain;
+        adValues    = adValues ./ plx.ContinuousChannels(iChannel).PreAmpGain;
+        adValues    = adValues .* AD_VOLTAGE_FACTOR;
+        
+        % Need to shift the AD Values based on when plexon started collecting
+        % data (Timestamps value is first timestamp for this channel
+        lagShift    = ceil(plx.ContinuousChannels(iChannel).Timestamps(1) / (plx.ADFrequency / 1000));
+        adValues    = [nan(lagShift, 1); adValues];
+        
+        
+        
+        % if it is an eye channel, do some post processing
+        if strcmp(ADname,'eyeX') ||...
+                strcmp(ADname,'eyeY')
+            % convert the channel from voltage to degrees
+            if iChannel == xChannel
+                %                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
+                adValues = (adValues * eyeXGain) - eyeXOffset; %this may need to be done to take vector into account
+            elseif iChannel == yChannel
+                %                 adValues = adValues * AD_VOLTAGE_FACTOR / 400; %this may need to be done to take vector into account
+                adValues = (adValues * eyeYGain) - eyeYOffset; %this may need to be done to take vector into account
+                adValues = -adValues;
+            end
+            
+            % gaussian polynomial for convolving eye traces
+            polyWidth = 12;
+            polyn = gaussmf(polyWidth/-2 : polyWidth/2, [polyWidth/4,0]);
+            polyn = polyn/sum(polyn); % now it sums to 1
+            
+            %smooth out analog line noise
+            %     adValues = conv_2009a(adValues, polyn, 'same');
+            adValues = conv(adValues, polyn, 'same');
         end
         
-        % gaussian polynomial for convolving eye traces
-        polyWidth = 12;
-        polyn = gaussmf(polyWidth/-2 : polyWidth/2, [polyWidth/4,0]);
-        polyn = polyn/sum(polyn); % now it sums to 1
-        
-        %smooth out analog line noise
-        %     adValues = conv_2009a(adValues, polyn, 'same');
-        adValues = conv(adValues, polyn, 'same');
     end
-    
-end 
     
     % Initialize an empty cell to add to trialData dataset
     iData = cell(nTrial, 1);
@@ -1398,13 +1391,13 @@ end
 %                   SAVE TRANSLATED DATA FILE
 %__________________________________________________________________________
 if Opt.saveFile
-fprintf('Saving file to %s ...\n', sessionID);
-% Save a copy on teba
-saveFileName = [tebaDataPath, sessionID];
-save(saveFileName, 'trialData', 'SessionData','-v7.3')
-% Make a local copy too
-saveLocalName = [localDataPath, sessionID];
-save(saveLocalName, 'trialData', 'SessionData','-v7.3')
+    fprintf('Saving file to %s ...\n', sessionID);
+    % Save a copy on teba
+    saveFileName = [tebaDataPath, sessionID];
+    save(saveFileName, 'trialData', 'SessionData','-v7.3')
+    % Make a local copy too
+    saveLocalName = [localDataPath, sessionID];
+    save(saveLocalName, 'trialData', 'SessionData','-v7.3')
 end
 toc
 

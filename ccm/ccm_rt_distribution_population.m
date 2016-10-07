@@ -1,33 +1,50 @@
-function data = ccm_rt_distribution_population(subjectID, plotFlag)
+function data = ccm_rt_distribution_population(subjectID, sessionSet, plotFlag)
 %%
+if nargin < 3
+   plotFlag = 1;
+end
+if nargin < 2
+   sessionSet = 'behvaior';
+end
+
+task = 'ccm';
+if iscell(sessionSet)
+    % If user enters sessionSet, get rid of repeated sessions in case there
+    % were neural recordings with multiple units from a single session
+    sessionArray = unique(sessionSet);
+    subjectIDArray = repmat({subjectID}, length(sessionArray), 1);
+else
+[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
+end
 % ****************************************************************************************
 % Population CDF
 % ****************************************************************************************
-task = 'ccm';
-subjectID = 'Human';
-subjectID = 'broca';
-% subjectID = 'Xena';
-sessionSet = 'behavior2';
-
-[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
 
 switch lower(subjectID)
-    case 'human'
-        pSignalArray = [.35 .42 .46 .5 .54 .58 .65];
-    case 'broca'
-       switch sessionSet
-          case 'behavior'
-        pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
-          case 'neural1'
-        pSignalArray = [.41 .44 .47 .53 .56 .59];
-          case 'neural2'
-        pSignalArray = [.42 .44 .46 .54 .56 .58];
-           otherwise
+   case 'joule'
                [td, S, E] =load_data(subjectID, sessionArray{1});
                pSignalArray = E.pSignalArray;
-       end
-    case 'xena'
-        pSignalArray = [.35 .42 .47 .5 .53 .58 .65];
+   case 'human'
+      pSignalArray = [.35 .42 .46 .5 .54 .58 .65];
+   case 'broca'
+%       switch sessionSet
+%          case 'behavior'
+%             pSignalArray = [.41 .45 .48 .5 .52 .55 .59];
+%          case 'neural1'
+%             pSignalArray = [.41 .44 .47 .53 .56 .59];
+%          case 'neural2'
+%             pSignalArray = [.42 .44 .46 .54 .56 .58];
+%            otherwise
+               [td, S, E] =load_data(subjectID, sessionArray{1});
+               pSignalArray = E.pSignalArray;
+               if length(pSignalArray) == 6
+                   pSignalArray([2 5]) = [];
+               elseif length(pSignalArray) == 7
+                   pSignalArray([2 4 6]) = [];
+               end
+%       end
+   case 'xena'
+      pSignalArray = [.35 .42 .47 .5 .53 .58 .65];
 end
 
 if mod(length(pSignalArray), 2)
@@ -41,12 +58,14 @@ nRow = 3;
 nColumn = 2;
 cumAx = 1;
 distAx = 2;
-[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', 9898);
+figureHandle = 65;
+[axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_figure(nRow, nColumn, 'portrait', figureHandle);
 ax(cumAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 1) yAxesPosition(1, 1) axisWidth axisHeight]);
 ax(distAx) = axes('units', 'centimeters', 'position', [xAxesPosition(1, 2) yAxesPosition(1, 2) axisWidth axisHeight]);
 hold(ax(cumAx), 'on')
 hold(ax(distAx), 'on')
 stopColor = [.5 .5 .5];
+stopColor = [1 0 0];
 goColor = [0 0 0];
 switch lower(subjectID)
     case 'human'
@@ -69,6 +88,7 @@ for iSession = 1 : nSession
     
     optChron = ccm_chronometric;
     optChron.plotFlag = 0;
+    optChron.collapseTarg = true;
     
     iData = ccm_chronometric(subjectIDArray{iSession}, sessionArray{iSession}, optChron);
     
@@ -153,11 +173,12 @@ fprintf('Kolmogorov-Smirnov test:  Go Incorrect vs Stop Incorrect: p = %1.2d\n',
 
 
 box(ax(cumAx), 'off')
-plot(ax(cumAx), propGoTargRT, 'color', goColor)
-plot(ax(cumAx), propGoDistRT, '--', 'color', goColor)
+set(ax(cumAx), 'xlim', [100 1000]);
+plot(ax(cumAx), propGoTargRT, 'color', goColor, 'linewidth', 2)
+plot(ax(cumAx), propGoDistRT, '--', 'color', goColor, 'linewidth', 2)
 
-plot(ax(cumAx), propStopTargRT, 'color', stopColor)
-plot(ax(cumAx), propStopDistRT, '--', 'color', stopColor)
+plot(ax(cumAx), propStopTargRT, 'color', stopColor, 'linewidth', 2)
+plot(ax(cumAx), propStopDistRT, '--', 'color', stopColor, 'linewidth', 2)
 legend(ax(cumAx), {'Go Target', 'Go Distractor', 'Stop Target', 'Stop Distractor'}, 'location', 'southeast');
 
 
@@ -180,8 +201,11 @@ distributionArea = sum(stopRTBinValues * timeStep);
 stopStopPDF = stopRTBinValues / distributionArea;
 stopStopBinCenters = min(stopRT)+timeStep/2 : timeStep : max(stopRT)-timeStep/2;
 
+set(ax(distAx), 'xlim', [100 1000]);
 plot(ax(distAx), goCorrectBinCenters, goCorrectPDF, '-', 'color', goColor, 'linewidth', 2)
-plot(ax(distAx), stopStopBinCenters, stopStopPDF, '--', 'color', stopColor, 'linewidth', 2)
+plot(ax(distAx), stopStopBinCenters, stopStopPDF, '-', 'color', stopColor, 'linewidth', 2)
+
+print(figureHandle,fullfile(local_figure_path, subjectID,'ccm_population_rt_distribution'),'-dpdf', '-r300')
 
 
 

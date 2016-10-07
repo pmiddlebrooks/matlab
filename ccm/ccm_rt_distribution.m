@@ -1,5 +1,6 @@
 function ccm_rt_distribution(subjectID, sessionID, plotFlag)
 
+useTwoColors = true;
 
 % Load the data
 [dataFile, localDataPath, localDataFile] = data_file_path(subjectID, sessionID);
@@ -32,6 +33,13 @@ stopIncorrectRT = [];
 goCorrectRT     = [];
 nBin = 40;
 
+if useTwoColors
+    if length(pSignalArray) == 6
+        pSignalArray([2 5]) = [];
+    elseif length(pSignalArray) == 7
+        pSignalArray([2 4 6]) = [];
+    end
+end
 
 
 if plotFlag

@@ -89,6 +89,7 @@ if nargin < 2
         return
     end
 end
+MIN_TRIAL = 5;
 
 sessionSet      = Opt.sessionSet;
 sessionArray    = Opt.sessionArray;
@@ -180,7 +181,7 @@ iData = [];
 iOpt = Opt;
 for iUnit = 1 : nUnit
     
-    fprintf('Unit: %s\t%s\n', sessionArray{iUnit}, unitArray{iUnit})
+    fprintf('%d of %d\tUnit: %s\t%s\n', iUnit, nUnit, sessionArray{iUnit}, unitArray{iUnit})
     iOpt.unitArray = Opt.unitArray(iUnit);
     iData = ccm_session_data(subjectIDArray{iUnit}, sessionArray{iUnit}, iOpt);
     
@@ -231,7 +232,7 @@ for iUnit = 1 : nUnit
                         mEpoch = epochArrayGo{m};
                         sdfWindow = ccm_epoch_range(mEpoch, 'analyze');
                         
-                        if ~isempty(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf)
+                        if size(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf, 1) >= MIN_TRIAL
                             alignTime = iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).alignTime;
                             
                             % Might need to pad the sdf if aligntime is before the sdf window beginning
@@ -241,7 +242,13 @@ for iUnit = 1 : nUnit
                                     iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf];
                                 alignTime = alignTime - sdfWindow(1);
                             end
-                            
+                            % Might need to pad the sdf if aligntime
+                            % doesn't leave enough space before end of sdf
+                                if alignTime + sdfWindow(end) > size(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf, 2)
+                                    iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf = ...
+                                        [iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf,...
+                                        nan(size(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf, 1), sdfWindow(end) - sdfWindow(1) - size(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf, 2)+1)];
+                                end
                             Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf = ...
                                 [Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf;...
                                 nanmean(iData.signalStrength(iRFList(k)).(nOutcome).(mEpoch).sdf(:,alignTime + sdfWindow), 1)];
@@ -271,7 +278,7 @@ for iUnit = 1 : nUnit
                             cOpt.conditionArray = {nOutcome};
                             iConcat             = ccm_concat_neural_conditions(iData, cOpt);
                             
-                            if ~isempty(iConcat.signal)
+                            if size(iConcat.signal, 1) >= MIN_TRIAL
                                 alignTime = iConcat.align;
                                 
                                 % Might need to pad the sdf if aligntime is before the sdf window beginning
@@ -281,19 +288,26 @@ for iUnit = 1 : nUnit
                                         iConcat.signalFn];
                                     alignTime = alignTime - sdfWindow(1)+1;
                                 end
+                                % Might need to pad the sdf if aligntime
+                                % doesn't leave enough space before end of sdf
+                                if alignTime + sdfWindow(end) > length(iConcat.signalFn)
+                                    iConcat.signalFn = ...
+                                        [iConcat.signalFn,...
+                                        nan(1, sdfWindow(end) -sdfWindow(1) - length(iConcat.signalFn)+1)];
+                                end
                                 
                                 Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf = ...
                                     [Data.(colorCohArray{k}).(nOutcome).(mEpoch).sdf;...
                                     nanmean(iConcat.signalFn(:,alignTime + sdfWindow), 1)];
-                            Data.(colorCohArray{k}).(nOutcome).(mEpoch).align = -sdfWindow(1);
+                                Data.(colorCohArray{k}).(nOutcome).(mEpoch).align = -sdfWindow(1);
                                 
                             end
-                        if strcmp(mEpoch, 'checkerOn') && ~strcmp(nOutcome, 'stopStop')
-                            Data.(colorCohArray{k}).(nOutcome).rt = ...
-                                [Data.(colorCohArray{k}).(nOutcome).rt;...
-                                nanmean(iConcat.eventLatency)];
-                        end
-                        
+                            if strcmp(mEpoch, 'checkerOn') && ~strcmp(nOutcome, 'stopStop')
+                                Data.(colorCohArray{k}).(nOutcome).rt = ...
+                                    [Data.(colorCohArray{k}).(nOutcome).rt;...
+                                    nanmean(iConcat.eventLatency)];
+                            end
+                            
                             
                         end
                     end
