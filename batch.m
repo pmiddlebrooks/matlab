@@ -632,15 +632,15 @@ end
 
 
 %% Inhibition and chronometric population plots
-subject = 'joule';
+subject = 'broca';
 dataPath = fullfile(projectRoot,'data',projectDate,subject);
 category = 'presacc';
 load(fullfile(dataPath, ['ccm_',category,'_neurons']))
 sessionSet = unique(neurons.sessionID);
 
-ccm_inhibition_population(subject, sessionSet);
-ccm_chronometric_population(subject, sessionSet);
-ccm_psychometric_population(subject, sessionSet);
+dataInh = ccm_inhibition_population(subject, sessionSet);
+% ccm_chronometric_population(subject, sessionSet);
+% ccm_psychometric_population(subject, sessionSet);
 
 %% Population behavioral measures
 % subject = 'joule';
@@ -655,8 +655,8 @@ load(fullfile(dataPath, 'ccm_neuronTypes'))
 sessionSet = unique(neuronTypes.sessionID);
 
 
-    ccm_chronometric_population(subject, sessionSet);
-    ccm_psychometric_population(subject, sessionSet);
+ccm_chronometric_population(subject, sessionSet);
+ccm_psychometric_population(subject, sessionSet);
 ccm_rt_distribution_population(subject, sessionSet);
 ccm_inhibition_population(subject, sessionSet);
 
@@ -670,7 +670,7 @@ load(fullfile(dataPath, ['ccm_',category,'_neurons']))
 
 opt = ccm_options;
 
-for i = 18 : length(neurons.sessionID)
+for i = 1 : length(neurons.sessionID)
     fprintf('%d\tSession: %s\t Unit: %s\n', i, neurons.sessionID{i}, neurons.unit{i})
     iTable = table();
     iTable.session  = neurons.sessionID(i);
@@ -816,5 +816,172 @@ subject = 'joule';
 sessionArray = {...
     'jp077n03'};
 for i = 1 : length(sessionArray)
-plexon_translate_datafile_mac(subject, sessionArray{i}, Opt);
+    plexon_translate_datafile_mac(subject, sessionArray{i}, Opt);
 end
+
+%%
+cEpoch = 'presacc';
+presaccSessions = c(c.(cEpoch) & ~dg.ddm, :);
+opt = ccm_options;
+presaccNotDDM = table();
+
+for i = 1 : size(presaccSessions, 1)
+    iInterest = table;
+    iInterest.sessionID = presaccSessions.sessionID(i);
+    iInterest.unit = presaccSessions.unit(i);
+    
+    fprintf('%s\tRF:%s\n', presaccSessions.sessionID{i}, presaccSessions.rf{i})
+    pdfName1 = [presaccSessions.sessionID{i},'_ccm_',presaccSessions.unit{i},'_neuron.pdf'];
+%     pdfName2 = [presaccSessions.sessionID{i},'_',presaccSessions.unit{i},'_ccm_neuron.pdf'];
+    if exist(fullfile(local_figure_path,subject,pdfName1))
+        open(fullfile(local_figure_path,subject,pdfName1))
+    elseif exist(fullfile(local_figure_path,subject,pdfName2))
+        open(fullfile(local_figure_path,subject,pdfName2))
+    else
+        opt.unitArray = presaccSessions.unit(i);
+        ccm_session_data(subject, presaccSessions.sessionID{i}, opt);
+    end
+    
+    
+    prompt = 'add to list?';
+    addToList = input(prompt);
+    if addToList
+        
+        presaccNotDDM = [presaccNotDDM; iInterest];
+        
+    end
+end
+
+%%
+opt = ccm_options;
+presaccNotDDM = table();
+for i = 1 : size(presaccList, 1)
+    iInterest = table;
+    iInterest.sessionID = presaccList.sessionID(i);
+    iInterest.unit = presaccList.unit(i);
+    
+    fprintf('%s\t%s\n', presaccList.sessionID{i}, presaccList.unit{i})
+    opt.unitArray = presaccList.unit(i);
+    pdfName1 = [presaccList.sessionID{i},'_ccm_',presaccList.unit{i},'_neuron.pdf'];
+%     pdfName2 = [presaccList.sessionID{i},'_',presaccList.unit{i},'_ccm_neuron.pdf'];
+    if exist(fullfile(local_figure_path,subject,pdfName1))
+        open(fullfile(local_figure_path,subject,pdfName1))
+    elseif exist(fullfile(local_figure_path,subject,pdfName2))
+        open(fullfile(local_figure_path,subject,pdfName2))
+    else
+        opt.unitArray = presaccList.unit(i);
+        ccm_session_data(subject, presaccList.sessionID{i}, opt);
+    end
+    
+    prompt = 'add to list?';
+    addToList = input(prompt);
+    if addToList
+        
+        presaccNotDDM = [presaccNotDDM; iInterest];
+        
+    end
+
+end
+
+%%
+
+opt = ccm_options;
+ddmNoPresacc = table();
+for i = 1 : size(dg, 1)
+    iInterest = table;
+    iInterest.sessionID = dg.sessionID(i);
+    iInterest.unit = dg.unit(i);
+    
+    fprintf('%s\t%s\n', dg.sessionID{i}, dg.unit{i})
+    opt.unitArray = dg.unit(i);
+    pdfName1 = [dg.sessionID{i},'_ccm_',dg.unit{i},'_neuron.pdf'];
+%     pdfName2 = [dg.sessionID{i},'_',dg.unit{i},'_ccm_neuron.pdf'];
+    if exist(fullfile(local_figure_path,subject,pdfName1))
+        open(fullfile(local_figure_path,subject,pdfName1))
+    elseif exist(fullfile(local_figure_path,subject,pdfName2))
+        open(fullfile(local_figure_path,subject,pdfName2))
+    else
+        opt.unitArray = dg.unit(i);
+        ccm_session_data(subject, dg.sessionID{i}, opt);
+    end
+
+            prompt = 'add to list?';
+    addToList = input(prompt);
+    if addToList
+        
+        ddmNoPresacc = [ddmNoPresacc; iInterest];
+        
+    end
+
+end
+
+%%
+opt = ccm_options;
+for i = 1 : size(ddmNoPresacc, 1)
+    pdfName1 = [ddmNoPresacc.sessionID{i},'_ccm_',ddmNoPresacc.unit{i},'_neuron.pdf'];
+%     pdfName2 = [presaccList.sessionID{i},'_',presaccList.unit{i},'_ccm_neuron.pdf'];
+    if exist(fullfile(local_figure_path,subject,pdfName1))
+        open(fullfile(local_figure_path,subject,pdfName1))
+    else
+        opt.unitArray = presaccList.unit(i);
+        ccm_session_data(subject, presaccList.sessionID{i}, opt);
+    end
+pause
+end
+
+%%
+% load a list of neurons sessions and units
+category = 'presacc';
+load(fullfile(dataPath, ['ccm_',category,'_neurons']))
+
+% load the population of cancel time anlysis
+load(fullfile(dataPath, ['ccm_canceled_vs_go_neuronTypes']))
+
+% Build a new table of the relevant neurons
+cancelData = table();
+for i = 1 : size(neurons, 1)
+    % find the indices in cancelGoNeuronData that correspond to this unit
+    iInd = strcmp(neurons.sessionID(i), cancelGoNeuronData.sessionID) & strcmp(neurons.unit(i), cancelGoNeuronData.unit);
+    cancelData = [cancelData; cancelGoNeuronData(iInd,:)];
+end
+
+
+
+alphaVal = .05;
+
+% How many were go vs stop different during 40 ms peri-SSRT?
+peri40msInd = cancelData.pValue40msStopStop < alphaVal;
+notPeri40ms = cancelData.pValue40msStopStop >= alphaVal;
+
+pPeri40ms = sum(peri40msInd) / (sum(peri40msInd) + sum(notPeri40ms));
+
+
+
+%   START HERE TO USE cancelTime2Std TO SORT NEURONS
+cancelData.cancelTime = cancelData.cancelTime2Std - cancelData.ssd - cancelData.ssrt;
+
+
+% How many conditions out of all possible canceled?
+nCancleCond = sum(~isnan(cancelData.cancelTime));
+nTotal = size(cancelData, 1);
+pCancelCond = nCancelCond / nTotal;
+
+% What's the full distribution of cancel times?
+cancelCond = cancelData.cancelTime(~isnan(cancelData.cancelTime));
+
+
+% How many neurons had at least one condition that "canceled"?
+neruonList = unique(cancelData.unit);
+neurons = zeros(length(neuronList), 1);
+nCancelPerNeuron = zeros(length(neuronList), 1);
+for i = 1 : length(neuronList)
+    iCond = strcmp(cancelData.unit, neuronList(i));
+    nCancelPerNeuron = sum(~isnan(cancelData.cancelTime(iCond)));
+    if sum(~isnan(cancelData.cancelTime(iCond)))
+        neurons(i) = 1;
+    end
+end
+nNeuronCond = sum(neurons);
+pNeuronCond = nNeuronCond / length(neuronList);
+disp([neuronList, num2cell(nCancelPerNeuron)])
+

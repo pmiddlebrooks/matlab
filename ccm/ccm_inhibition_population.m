@@ -147,6 +147,7 @@ for iSession = 1 : nSession
    optInh              = ccm_inhibition;
    optInh.plotFlag     = 0;
    optInh.include50    = 1;
+   optInh.USE_TWO_COLORS = true;
    iData               = ccm_inhibition(subjectIDArray{iSession}, sessionArray{iSession}, optInh);
    iData.ssrtIntegration = cellfun(@nanmean, iData.ssrtIntegration);
    
@@ -381,10 +382,10 @@ if plotFlag
    
    
    % SSRT  ********************************
-   plot(ax(axSSRT), pSignalArray, mean(ssrtInt, 1), '-ok', 'markeredgecolor', 'k', 'markerfacecolor', 'k', 'markersize', 10)
+%    plot(ax(axSSRT), pSignalArray, mean(ssrtInt, 1), '-ok', 'markeredgecolor', 'k', 'markerfacecolor', 'k', 'markersize', 10)
    errorbar(ax(axSSRT), pSignalArray ,ssrtPlotAvg, ssrtPlotStd, '.' , 'linestyle' , 'none', 'color', 'k', 'linewidth' , 2)
    plot(ax(axSSRT), pSignalArray, mean(ssrtIntWeight, 1), '-or', 'markeredgecolor', 'r', 'markerfacecolor', 'r', 'markersize', 10)
-   plot(ax(axSSRT), pSignalArray, mean(ssrtMean, 1), '-og', 'markeredgecolor', 'g', 'markerfacecolor', 'g', 'markersize', 10)
+%    plot(ax(axSSRT), pSignalArray, mean(ssrtMean, 1), '-og', 'markeredgecolor', 'g', 'markerfacecolor', 'g', 'markersize', 10)
    
    set(ax(axSSRT), 'Xlim', [pSignalArray(1) - choicePlotXMargin, pSignalArray(end) + choicePlotXMargin])
    set(ax(axSSRT), 'xtick', pSignalArray)
@@ -522,7 +523,8 @@ if plotFlag
 end
 
 
-
+data.ssrtIntWeight = ssrtIntWeight;
+data.ssrtGrandIntWeight = ssrtGrandIntWeight;
 
 
 

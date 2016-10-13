@@ -51,7 +51,7 @@ switch lower(subjectID)
         %           case 'neural2'
         %         pSignalArray = [.42 .44 .46 .54 .56 .58];
         %            otherwise
-        [td, S, E] =load_data(subjectID, sessionArray{1});
+        [td, S, E] =load_data(subjectID, sessionArray{end});
         pSignalArray = E.pSignalArray;
         %        end
     case 'xena'
@@ -112,6 +112,7 @@ for iSession = 1 : nSession
     chronOpt = ccm_chronometric;
     chronOpt.collapseTarg = true;
     chronOpt.plotFlag = false;
+    chronOpt.USE_TWO_COLORS = true;
     iData = ccm_chronometric(subjectIDArray{iSession}, sessionArray{iSession}, chronOpt);
     % go and stop means for the session collapsed across signal strength
     goTargSessionMean = [goTargSessionMean; nanmean([cell2mat(iData.goLeftToTarg(:)); cell2mat(iData.goRightToTarg(:))])];

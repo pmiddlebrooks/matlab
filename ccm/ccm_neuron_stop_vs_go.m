@@ -4,6 +4,11 @@ function Data = ccm_neuron_stop_vs_go(subjectID, sessionID, unitArray, options)
 %
 % Compares noncanceled stops trials vs. latency matched (fast) go trials and canceled stop trials vs. latency matched (slower) go trials.
 %
+% ALL CANCEL TIMES OUTPUT ARE RELATIVE TO CHECKERBOARD ONSET, SO YOU NEED
+% TO SUBTRACT SSD AND SSRT TO CALCULATE CLASSIC "CANCEL TIME" (RELATIVE TO
+% SSRT)
+%
+%
 % If called without any arguments, returns a default options structure.
 % If options are input but one is not specified, it assumes default.
 %
@@ -185,14 +190,15 @@ for kUnitIndex = 1 : nUnit
     
     disp(Unit(kUnitIndex).name)
     
-    
     % Pre-allocate cell arrays
     cancelTime6Std = nan(length(stopStopCoh), 1);
     cancelTime4Std = nan(length(stopStopCoh), 1);
-   pass50msTestInd = nan(length(stopStopCoh), 1);  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
-   pValue40ms = nan(length(stopStopCoh), 1);  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
+   cancelTime2Std = nan(length(stopStopCoh), 1);  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
+   pValue40msStopStop = nan(length(stopStopCoh), 1);  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
 
-   % Nonanceled Stop and Fast Go
+    pValue40msStopTarg = nan(length(stopTargCoh), 1);  % The index in the sdf after checker onset at wich the differential sdf passes the 50ms test
+  
+    % Nonanceled Stop and Fast Go
     stopTargCheckerData          = cell(length(stopTargCoh), 1);
     stopTargCheckerFn          = cell(length(stopTargCoh), 1);
     stopTargCheckerEventLat  	= cell(length(stopTargCoh), 1);
@@ -606,7 +612,7 @@ for kUnitIndex = 1 : nUnit
             goTargSlowSpike{i}   = sum(iGoTargChecker.signal(iGoSlowTrial, spikeWindow + iGoTargChecker.align + stopStopSsd(i) + ssrt), 2) / length(spikeWindow) * 1000;
             [h,p,ci,sts]       	= ttest2(stopStopSpike{i}, goTargSlowSpike{i});
             
-            pValue40ms(i)    = p;
+            pValue40msStopStop(i)    = p;
             stats{i}     = sts;
             
             
@@ -638,7 +644,7 @@ for kUnitIndex = 1 : nUnit
             % First whether the differential sdf was > 2*Std for the
             % first 50 ms
             if sum(std2Ind(1:50)) == 50
-                pass50msTestInd(i) = 1;
+                cancelTime2Std(i) = 1;
             else
                 % If it wasn't, determein whether there was a time
                 % after the checkerboard onset that the differential
@@ -660,14 +666,14 @@ for kUnitIndex = 1 : nUnit
                     if length(riseAbove2Std) == length(sinkBelow2Std)
                         ind = find(sinkBelow2Std - riseAbove2Std >= 50, 1);
                         if ~isempty(ind)
-                            pass50msTestInd(i) = riseAbove2Std(ind);
+                            cancelTime2Std(i) = riseAbove2Std(ind);
                         end
                         % If they're not equal, the last riseAbove2Std
                         % will last until the end of the sdf: see if
                         % that is at least 50 ms
                     elseif length(riseAbove2Std) > length(sinkBelow2Std)
                         if riseAbove2Std(end) < length(std2Ind) - 49
-                            pass50msTestInd(i) = riseAbove2Std(end);
+                            cancelTime2Std(i) = riseAbove2Std(end);
                         end
                     end
                 end
@@ -676,25 +682,32 @@ for kUnitIndex = 1 : nUnit
             
             % If there werwe 50 consecutive ms of sdfDiff > 2*Std,
             % check whether the difference ever reached 6*Std
-            if ~isnan(pass50msTestInd(i))
-                std4Ind = sdfDiff(sdfDiffCheckerOn + pass50msTestInd(i) : end) > 4*stdDiff;
+            if ~isnan(cancelTime2Std(i))
+                
+                
+                std4Ind = sdfDiff(sdfDiffCheckerOn : end) > 4*stdDiff;
                 if sum(std4Ind)
                     
                     % Cancel time will be Negative if
                     % go SDF > stop SDF BEFORE SSRT (which is a good thing-
                     % means the neuron can contribute to controlling saccade
                     % initiation/inhibition.
-                    cancelTime4Std(i) = find(std4Ind, 1) + pass50msTestInd(i) - stopStopSsd(i) - ssrt;
+                    cancelTime4Std(i) = find(std4Ind, 1) + cancelTime2Std(i);
                 end
-                std6Ind = sdfDiff(sdfDiffCheckerOn + pass50msTestInd(i) : end) > 6*stdDiff;
+                std6Ind = sdfDiff(sdfDiffCheckerOn : end) > 6*stdDiff;
                 if sum(std6Ind)
-                     cancelTime6Std(i) = find(std6Ind, 1) + pass50msTestInd(i) - stopStopSsd(i) - ssrt;
+                     cancelTime6Std(i) = find(std6Ind, 1) + cancelTime2Std(i);
+                end
+                
+                % If it didn't pass the 6 Std test, don't consider it to
+                % have canceled (reset the 2 Std test to NaN
+                if isnan(cancelTime6Std(i))
+                    cancelTime2Std(i) = nan;
                 end
             end
             
-            
            fprintf('ssd: %d  \tcolor: %.2f  \tgo v. stop: %.1f  %.1f sp, p = %.2f\t canceltime = %d\n',...
-                stopStopSsd(i), stopStopCoh(i), mean(goTargSlowSpike{i}), mean(stopStopSpike{i}), p, cancelTime6Std(i));
+                stopStopSsd(i), stopStopCoh(i), mean(goTargSlowSpike{i}), mean(stopStopSpike{i}), p, cancelTime2Std(i) - stopStopSsd(i) - ssrt);
             
             
             if plotFlag && i <= nPlot
@@ -760,7 +773,9 @@ for kUnitIndex = 1 : nUnit
     
     
     % Collect the data for later analyses
-    
+   Data(kUnitIndex).rf      = {rf};
+   Data(kUnitIndex).ssrt      = ssrt;
+
     %               Nonanceled Stop vs latency-matched (Fast) Go:
     Data(kUnitIndex).stopStopCoh      = stopStopCoh;
     Data(kUnitIndex).stopStopSsd      = stopStopSsd;
@@ -783,7 +798,8 @@ for kUnitIndex = 1 : nUnit
     Data(kUnitIndex).goTargFastSaccAlign      = goTargFastSaccAlign;
     Data(kUnitIndex).goTargFastSaccEventLat     = goTargFastSaccEventLat;
     
-    
+        Data(kUnitIndex).pValue40msStopTarg     = pValue40msStopTarg;
+
     
     
     %               Canceled Stop vs latency-matched (Slow) Go:
@@ -808,10 +824,10 @@ for kUnitIndex = 1 : nUnit
     Data(kUnitIndex).stopStopCoh    = stopStopCoh;
     Data(kUnitIndex).stopStopSsd    = stopStopSsd;
     
-    Data(kUnitIndex).pValue40ms     = pValue40ms;
-    Data(kUnitIndex).pass50msTime    = pass50msTestInd;
-    Data(kUnitIndex).cancelTime6Std    = cancelTime6Std;
+    Data(kUnitIndex).pValue40msStopStop     = pValue40msStopStop;
+    Data(kUnitIndex).cancelTime2Std    = cancelTime2Std;
     Data(kUnitIndex).cancelTime4Std    = cancelTime4Std;
+    Data(kUnitIndex).cancelTime6Std    = cancelTime6Std;
     
     Data(kUnitIndex).inhibition    = dataInh;
     Data(kUnitIndex).pSignalArray    = pSignalArray;
