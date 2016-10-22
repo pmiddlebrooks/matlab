@@ -3,6 +3,15 @@ function [trialData, SessionData, ExtraVariable] = load_data(subjectID, sessionI
 %
 % Loads a data file and does some minimal processing common to lots of
 % analyses
+%
+% Optionally input the name of a unit, and the function will load only that
+% unit's neurophysiological data
+%       example: 'spikeUnit01a'
+
+if nargin < 3
+    Unit = [];
+end
+
 ExtraVariable = struct();
 
 if ismember(lower(subjectID), {'joule', 'broca', 'xena', 'chase', 'hoagie', 'norm', 'andy', 'nebby', 'shuffles'})
@@ -19,14 +28,14 @@ end
 
 [dataFile, localDataPath, localDataFile] = data_file_path(subjectID, sessionID, monkeyOrHuman);
 
-
-
 % If the file hasn't already been copied to a local directory, do it now
 if exist(localDataFile, 'file') ~= 2
     copyfile(dataFile, localDataPath)
     disp(sessionID)
 end
 load(localDataFile);
+
+
 if isa(trialData, 'dataset')
     trialData = dataset2table(trialData);
 end

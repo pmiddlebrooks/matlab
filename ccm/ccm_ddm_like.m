@@ -40,8 +40,8 @@ end
 % Constants: 
 
 % These will determine the trial-to-trial epochs used for analyses:
-epochOffset = 80;  % When to begin spike rate analysis after stimulus (checkerboard) onset
-preSaccadeBuffer = 30; % When to cut off spike rate analysis before saccade onset
+epochOffset = 150;  % When to begin spike rate analysis after stimulus (checkerboard) onset
+preSaccadeBuffer = 50; % When to cut off spike rate analysis before saccade onset
 minEpochDuration = 20; % Only include trials for which the determined epoch is this long
 
 
@@ -74,7 +74,7 @@ Kernel.decay = 20;
 
 
 % MIN_RT = 120;
-% RT must be before the sum of the following to be included in analyses:
+% RT must be after the sum of the following to be included in analyses:
 MIN_RT = epochOffset + minEpochDuration + preSaccadeBuffer; 
 MAX_RT = 1200;
 STD_MULTIPLE = 3;
@@ -135,12 +135,14 @@ for iUnit = 1 : length(spikeUnit)
     
    % Initialize end of epoch as median RTs from easiect choice
    % conditions
-   epochEnd = [medianLeftRT * ones(length(leftTrial), 1); medianRightRT * ones(length(rightTrial), 1)];
-   % Replace epoch-cutoffs for trials with rts shorter than the median RT
-   earlyRTTrial = trialData.rt < epochEnd;
-   epochEnd(earlyRTTrial) = trialData.rt(earlyRTTrial);
-   epochEnd = epochEnd + alignmentIndex - preSaccadeBuffer;
-   epochBegin = alignmentIndex + epochOffset * ones(nTrial, 1);
+%    epochEnd = [medianLeftRT * ones(length(leftTrial), 1); medianRightRT * ones(length(rightTrial), 1)];
+%    % Replace epoch-cutoffs for trials with rts shorter than the median RT
+%    earlyRTTrial = trialData.rt < epochEnd;
+%    epochEnd(earlyRTTrial) = trialData.rt(earlyRTTrial);
+%    epochEnd = epochEnd + alignmentIndex - preSaccadeBuffer;
+%    epochBegin = alignmentIndex + epochOffset * ones(nTrial, 1);
+epochEnd = alignmentIndex + trialData.rt - preSaccadeBuffer;
+epochBegin = epochEnd - 70;
    epochDuration = epochEnd - epochBegin;
    
    excludeTrial = find(epochDuration < minEpochDuration);
@@ -184,7 +186,7 @@ for iUnit = 1 : length(spikeUnit)
       % SET UP PLOT
       lineW = 2;
       plotEpochRange = [-200 : 300];
-      plotEpochRange = [-49 : 250];
+      plotEpochRange = [-49 : 350];
       cMap = ccm_colormap(pSignalArray);
       leftColor = cMap(1,:) .* .8;
       rightColor = cMap(end,:) .* .8;
@@ -241,7 +243,7 @@ for iUnit = 1 : length(spikeUnit)
       
       sdfMax = max(max(sdfLeft(alignmentIndex + plotEpochRange)), max(sdfRight(alignmentIndex + plotEpochRange)));
       yMax = 1.1 * sdfMax;
-      fillX = [epochOffset, nanmean(epochEnd)-alignmentIndex, nanmean(epochEnd)-alignmentIndex, epochOffset];
+      fillX = [min(epochBegin)-alignmentIndex, nanmean(epochEnd)-alignmentIndex, nanmean(epochEnd)-alignmentIndex, min(epochBegin)-alignmentIndex];
       fillY = [.1 .1 yMax yMax];
       fillColor = [1 1 .5];
       

@@ -103,7 +103,7 @@ epochRangeSacc      = -199 : 200;
 %%   Get neural data from the session/unit:
 
 optSess             = ccm_options;
-optSess.plotFlag    = 0;
+optSess.plotFlag    = false;
 optSess.collapseTarg = options.collapseTarg;
 optSess.unitArray   = unitArray;
 optSess.USE_PRE_SSD   = options.USE_PRE_SSD;

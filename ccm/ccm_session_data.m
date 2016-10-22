@@ -70,7 +70,7 @@ end
 
 if isempty(Opt.trialData)
     % Load the data
-[trialData, SessionData, ExtraVar] = load_data(subjectID, sessionID);
+[trialData, SessionData, ExtraVar] = ccm_load_data_behavior(subjectID, sessionID);
 else
     trialData = Opt.trialData;
     SessionData = Opt.SessionData;
@@ -133,6 +133,16 @@ if strcmp(Opt.howProcess, 'each') || strcmp(Opt.howProcess, 'step') || strcmp(Op
 end
 end
 
+% How many units were recorded?
+nUnit = length(Opt.unitArray);
+
+% Load each spike unit and add it to the trialData table
+for i = 1 : nUnit
+    load(fullfile(local_data_path, subjectID, [sessionID, '_', Opt.unitArray{i}]))
+    trialData.spikeData(:,i) = spikeData;
+end
+
+
 
 % Make sure user input a dataType that was recorded during the session
 dataTypePossible = {'neuron', 'lfp', 'erp'};
@@ -166,12 +176,6 @@ epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'respon
 nEpoch = length(epochArray);
 nOutcome = 5; % Used to find the maximum signal levels for normalization if desired
 
-
-
-
-
-% How many units were recorded?
-nUnit = length(Opt.unitArray);
 
 
 
@@ -245,7 +249,8 @@ ssrt = dataInh.ssrtCollapseIntegrationWeighted;
 for kDataInd = 1 : nUnit
     switch dataType
         case 'neuron'
-            [a, kUnit] = ismember(Opt.unitArray{kDataInd}, SessionData.spikeUnitArray);
+            kUnit = kDataInd;
+%             [a, kUnit] = ismember(Opt.unitArray{kDataInd}, SessionData.spikeUnitArray);
         case 'lfp'
             [a, kUnit] = ismember(chNum(kDataInd), SessionData.lfpChannel);
         case 'erp'

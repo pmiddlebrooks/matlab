@@ -638,9 +638,9 @@ category = 'presacc';
 load(fullfile(dataPath, ['ccm_',category,'_neurons']))
 sessionSet = unique(neurons.sessionID);
 
-dataInh = ccm_inhibition_population(subject, sessionSet);
-% ccm_chronometric_population(subject, sessionSet);
-% ccm_psychometric_population(subject, sessionSet);
+% dataInh = ccm_inhibition_population(subject, sessionSet);
+% dataChron =  ccm_chronometric_population(subject, sessionSet);
+ccm_psychometric_population(subject, sessionSet);
 
 %% Population behavioral measures
 % subject = 'joule';
@@ -657,7 +657,7 @@ sessionSet = unique(neuronTypes.sessionID);
 
 ccm_chronometric_population(subject, sessionSet);
 ccm_psychometric_population(subject, sessionSet);
-ccm_rt_distribution_population(subject, sessionSet);
+% ccm_rt_distribution_population(subject, sessionSet);
 ccm_inhibition_population(subject, sessionSet);
 
 %%
@@ -929,59 +929,276 @@ for i = 1 : size(ddmNoPresacc, 1)
 pause
 end
 
+
+
+
+
+
+
+
+
+%% Total number of sessions, trial numbers for all recorded sessions
+subject = 'broca';
+% subject = 'joule';
+
+projectDate = '2016-08-12';
+projectRoot = '/Volumes/HD-1/Users/paulmiddlebrooks/perceptualchoice_stop_spikes_population';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+
+% Total channels recorded, total modulation neurons
+load(fullfile(dataPath, 'ccm_neuronTypes'))
+sessions = unique(neuronTypes.sessionID);
+for i = 1 : length(sessions)
+    
+    [td, S] = load_data(subject,sessions{i});
+    nUnit = length(S.spikeUnitArray);
+    
+    for j = 1 : nUnit
+        jUnitName = S.spikeUnitArray{j};
+        saveFileName = [sessions{i}, '_', jUnitName];
+        
+        spikeData = td.spikeData(:, j);
+        save(fullfile(local_data_path, subject, saveFileName), 'spikeData')
+    end
+    
+end
+
+%% Correlate SSRT with mean RT per session
+subject = 'broca';
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+
+% Open the sessions file and makes lists of the entries
+fid=  fopen(fullfile(dataPath,['ccm_sessions_',subject,'.csv']));
+
+
+nCol = 5;
+formatSpec = '%s';
+mHeader = textscan(fid, formatSpec, nCol, 'Delimiter', ',');
+
+mData = textscan(fid, '%s %s %d %d %d', 'Delimiter', ',','TreatAsEmpty',{'NA','na'});
+
+sessionList     = mData{1};
+
+opt = ccm_options;
+opt.plotFlag = false;
+opt.printFlag = false;
+
+ssrt = nan(length(sessionList), 1);
+rt = nan(length(sessionList), 1);
+poolID = parpool(3);
+parfor i = 1 : length(sessionList)
+ 
+    dataInh = ccm_inhibition(subject, sessionList{i}, opt);
+    
+    if ~isempty(dataInh)
+ rt(i) = nanmean(dataInh.allRT);
+ ssrt(i) = dataInh.ssrtCollapseIntegrationWeighted;
+    end
+end
+delete(poolID)
+ridNan = isnan(rt);
+rt(ridNan) = [];
+ssrt(ridNan) = [];
+
+[p, s] = polyfit(rt(:), ssrt(:), 1);
+% [y, delta] = polyval(p, rt(:), s);
+stats = regstats(rt(:), ssrt(:))
+fprintf('p-value for regression: %.4f\n', stats.tstat.pval(2))
+
+% R = corrcoef(rt(:), ssrt(:));
+Rsqrd = stats.rsquare;
+
+cov(rt(:), ssrt(:));
+xVal = min(rt(:)) : max(rt(:));
+yVal = p(1) * xVal + p(2);
+
+figure()
+hold all;
+plot(rt, ssrt, '.',   'color', 'k', 'markersize', 30)
+plot(xVal, yVal, 'color', 'k', 'linewidth', 2)
+
+
+%% Population sdfs for various categories of neurons
+subject = 'broca';
+sessionList = unique(presacc.sessionID);
+rtCorrect = cell(size(sessionList, 1), 4);
+rtError = cell(size(sessionList, 1), 4);
+    chronOpt = ccm_chronometric;
+    chronOpt.collapseTarg = true;
+    chronOpt.plotFlag = false;
+    chronOpt.USE_TWO_COLORS = true;
+    chronOpt.doStops = false;
+    
+for i =  size(sessionList, 1) : size(sessionList, 1)
+    i
+    iData = ccm_chronometric(subject, sessionList{i}, chronOpt);
+    
+    rtCorrect(i, 1) = iData.goLeftToTarg(1);
+    rtCorrect(i, 2) = iData.goLeftToTarg(2);
+    rtCorrect(i, 3) = iData.goRightToTarg(1);
+    rtCorrect(i, 4) = iData.goRightToTarg(2);
+    
+    rtError(i, 1) = iData.goRightToDist(1);
+    rtError(i, 2) = iData.goRightToDist(2);
+    rtError(i, 3) = iData.goLeftToDist(1);
+    rtError(i, 4) = iData.goLeftToDist(2);
+    
+end
+
+rtCorrect1 = cell2mat(rtCorrect(:, 1));
+rtCorrect2 = cell2mat(rtCorrect(:, 2));
+rtCorrect3 = cell2mat(rtCorrect(:, 3));
+rtCorrect4 = cell2mat(rtCorrect(:, 4));
+rtError1 = cell2mat(rtError(:, 1));
+rtError2 = cell2mat(rtError(:, 2));
+rtError3 = cell2mat(rtError(:, 3));
+rtError4 = cell2mat(rtError(:, 4));
+
+accuracy1 = length(rtCorrect1) / (length(rtCorrect1) + length(rtError1));
+accuracy2 = length(rtCorrect2) / (length(rtCorrect2) + length(rtError2));
+accuracy3 = length(rtCorrect3) / (length(rtCorrect3) + length(rtError3));
+accuracy4 = length(rtCorrect4) / (length(rtCorrect4) + length(rtError4));
+
+meanCorrect1 = nanmean(rtCorrect1);
+meanCorrect2 = nanmean(rtCorrect2);
+meanCorrect3 = nanmean(rtCorrect3);
+meanCorrect4 = nanmean(rtCorrect4);
+meanError1 = nanmean(rtError1);
+meanError2 = nanmean(rtError2);
+meanError3 = nanmean(rtError3);
+meanError4 = nanmean(rtError4);
+
+varCorrect1 = nanvar(rtCorrect1);
+varCorrect2 = nanvar(rtCorrect2);
+varCorrect3 = nanvar(rtCorrect3);
+varCorrect4 = nanvar(rtCorrect4);
+varError1 = nanvar(rtError1);
+varError2 = nanvar(rtError2);
+varError3 = nanvar(rtError3);
+varError4 = nanvar(rtError4);
+
 %%
-% load a list of neurons sessions and units
-category = 'presacc';
-load(fullfile(dataPath, ['ccm_',category,'_neurons']))
+% Open original popoulation with all the RFs
+
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+o = load(fullfile(dataPath, 'ccm_neuronTypes'));
+
+%Open full list of dingGold neuronTypes 
+dg = load(fullfile(dataPath, ['ccm_ding_gold_neuronTypes']));
+
+rfList = cell(size(dg.neuronTypes, 1), 1);
+% Walk through dingGood neuronTypes, add RF data
+for i = 1 : size(o.neuronTypes, 1)
+dgInd = strcmp(dg.neuronTypes.sessionID ,o.neuronTypes.sessionID(i)) & strcmp(dg.neuronTypes.unit ,o.neuronTypes.unit(i));
+rfList(dgInd) = o.neuronTypes.rf(i);
+end
+neuronTypes = dg.neuronTypes;
+neuronTypes.rf = rfList;
+save(fullfile(dataPath, 'ccm_ding_gold_neuronTypes'), 'neuronTypes')
+%%
+% Open original popoulation with all the RFs
+
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+o = load(fullfile(dataPath, 'ccm_neuronTypes'));
+
+
+%Open full list of dingGold neuronTypes 
+dg = load(fullfile(dataPath, ['ccm_ding_gold_ddm_Stim_neurons']));
+
+rfList = cell(size(dg.neurons, 1), 1);
+% Walk through dingGood neuronTypes, add RF data
+for i = 1 : size(o.neuronTypes, 1)
+dgInd = strcmp(dg.neurons.sessionID ,o.neuronTypes.sessionID(i)) & strcmp(dg.neurons.unit ,o.neuronTypes.unit(i));
+rfList(dgInd) = o.neuronTypes.rf(i);
+end
+neurons = dg.neurons;
+neurons.rf = rfList;
+save(fullfile(dataPath, 'ccm_ding_gold_ddm_Stim_neurons'), 'neurons')
+%%
+    % Open original popoulation with all the RFs
+
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+o = load(fullfile(dataPath, 'ccm_neuronTypes'));
 
 % load the population of cancel time anlysis
 load(fullfile(dataPath, ['ccm_canceled_vs_go_neuronTypes']))
+neuronTypes.('hemishphere') = [];
 
-% Build a new table of the relevant neurons
-cancelData = table();
+% rfList = cell(size(neuronTypes, 1), 1);
+hemisphereList = cell(size(neuronTypes, 1), 1);
+% Walk through dingGood neuronTypes, add RF data
+for i = 1 : size(o.neuronTypes, 1)
+dgInd = strcmp(neuronTypes.sessionID ,o.neuronTypes.sessionID(i)) & strcmp(neuronTypes.unit ,o.neuronTypes.unit(i));
+% rfList(dgInd) = o.neuronTypes.rf(i);
+hemisphereList(dgInd) = o.neuronTypes.hemisphere(i);
+end
+
+% neuronTypes.rf = rfList;
+neuronTypes.hemisphere = hemisphereList;
+save(fullfile(dataPath, 'ccm_canceled_vs_go_neuronTypes'), 'neuronTypes')
+
+
+
+%%
+categoryName = 'ding_gold_ddm_';
+epoch = 'Stim';
+
+    load(fullfile(dataPath, ['ccm_',categoryName, epoch,'_neurons']))
+    
+
+
 for i = 1 : size(neurons, 1)
-    % find the indices in cancelGoNeuronData that correspond to this unit
-    iInd = strcmp(neurons.sessionID(i), cancelGoNeuronData.sessionID) & strcmp(neurons.unit(i), cancelGoNeuronData.unit);
-    cancelData = [cancelData; cancelGoNeuronData(iInd,:)];
-end
-
-
-
-alphaVal = .05;
-
-% How many were go vs stop different during 40 ms peri-SSRT?
-peri40msInd = cancelData.pValue40msStopStop < alphaVal;
-notPeri40ms = cancelData.pValue40msStopStop >= alphaVal;
-
-pPeri40ms = sum(peri40msInd) / (sum(peri40msInd) + sum(notPeri40ms));
-
-
-
-%   START HERE TO USE cancelTime2Std TO SORT NEURONS
-cancelData.cancelTime = cancelData.cancelTime2Std - cancelData.ssd - cancelData.ssrt;
-
-
-% How many conditions out of all possible canceled?
-nCancleCond = sum(~isnan(cancelData.cancelTime));
-nTotal = size(cancelData, 1);
-pCancelCond = nCancelCond / nTotal;
-
-% What's the full distribution of cancel times?
-cancelCond = cancelData.cancelTime(~isnan(cancelData.cancelTime));
-
-
-% How many neurons had at least one condition that "canceled"?
-neruonList = unique(cancelData.unit);
-neurons = zeros(length(neuronList), 1);
-nCancelPerNeuron = zeros(length(neuronList), 1);
-for i = 1 : length(neuronList)
-    iCond = strcmp(cancelData.unit, neuronList(i));
-    nCancelPerNeuron = sum(~isnan(cancelData.cancelTime(iCond)));
-    if sum(~isnan(cancelData.cancelTime(iCond)))
-        neurons(i) = 1;
+    
+    % Find corresponding receptive field
+    unitInfo = table();
+    unitInfo.sessionID  = neuronTypes.sessionID(sessionInd(i));
+    unitInfo.unit       = neuronTypes.unit(sessionInd(i));
+    unitInfo.hemisphere  = neuronTypes.hemisphere(sessionInd(i));
+    
+    fprintf('%02d of %d\t%s\t%s\n',i,length(sessionInd), neuronTypes.sessionID{sessionInd(i)},neuronTypes.unit{sessionInd(i)})
+    fprintf('Hem: %s\n',neuronTypes.hemisphere{sessionInd(i)})
+    
+    opt.unitArray = unitInfo.unit;
+    opt.hemisphere = neuronTypes.hemisphere{sessionInd(i)};
+    opt.printPlot = true;
+    
+    pdfName = [neuronTypes.sessionID{sessionInd(i)},'_ccm_',neuronTypes.unit{sessionInd(i)},'_neuron.pdf'];
+    if exist(fullfile(local_figure_path,subject,pdfName))
+      open(fullfile(local_figure_path,subject,pdfName))
+    else
+      iData = ccm_session_data(subject, neuronTypes.sessionID{sessionInd(i)}, opt);
     end
+    
+    
+    prompt = 'add to list?';
+    addToList = input(prompt);
+    if addToList
+        
+        neurons = [neurons; unitInfo];
+        save(fullfile(dataPath, ['ccm_',categoryName, epoch, '_neurons']), 'neurons')
+        
+    end
+    clear iData
 end
-nNeuronCond = sum(neurons);
-pNeuronCond = nNeuronCond / length(neuronList);
-disp([neuronList, num2cell(nCancelPerNeuron)])
+%%
+subject = 'broca';
+categoryList = {'fix', 'visNoPresacc', 'presaccNoVis', 'visPresacc', 'postsaccNoPresacc'};
+for i = 1 : length(categoryList)
+    clear Data
+    load(fullfile(dataPath, ['ccm_',categoryList{i},'_neurons']))
 
+    fprintf('%s\t%d\n',categoryList{i}, size(neurons, 1))
+end
+
+%%
+categoryList = {'checker'};%, 'fix', 'checker', 'visNoPresacc', 'visPresacc', 'presacc', 'presaccNoVis', 'postsaccNoPresacc'}
+opt = ccm_population_neuron_plot;
+opt.easyOnly = true;
+opt.doStops = false;
+
+for i = 1 : length(categoryList)
+opt.categoryName = categoryList{i};
+
+    ccm_population_neuron_plot(subject,projectRoot,projectDate,opt)
+end

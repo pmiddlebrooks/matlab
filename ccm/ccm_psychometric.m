@@ -52,7 +52,7 @@ if nargin < 3
     options.collapseTarg        = false;
     options.include50           = false;
     options.doStops            = true;
-    options.USE_TWO_COLORS    = false
+    options.USE_TWO_COLORS    = true;
     
     options.plotFlag            = true;
     options.printPlot           = false;

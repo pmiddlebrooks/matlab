@@ -82,7 +82,7 @@ if plotFlag
         case 'Human'
             set(ax(rtAx), 'Ylim', [400 900])
         otherwise
-            set(ax(rtAx), 'Ylim', [200 600])
+            set(ax(rtAx), 'Ylim', [250 450])
     end
     hold(ax(rtAx), 'on')
     hold(ax(ssdAx), 'on')
@@ -479,4 +479,4 @@ datas = [rtData, groupInh, groupTarg, groupSig, sessionNumber];
 if printFlag
     print(figureHandle,fullfile(local_figure_path, subjectID,'ccm_population_chronometric.pdf'),'-dpdf', '-r300')
 end
-
+data = []

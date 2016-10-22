@@ -1398,6 +1398,17 @@ if Opt.saveFile
     % Make a local copy too
     saveLocalName = [localDataPath, sessionID];
     save(saveLocalName, 'trialData', 'SessionData','-v7.3')
+    
+    % Create local files of each individual unit data
+    nUnit = length(SessionData.spikeUnitArray);
+    
+    for j = 1 : nUnit
+        jUnitName = S.spikeUnitArray{j};
+        saveFileName = [sessionID, '_', jUnitName];
+        
+        spikeData = trialData.spikeData(:, j);
+        save(fullfile(local_data_path, subject, saveFileName), 'spikeData')
+    end
 end
 toc
 

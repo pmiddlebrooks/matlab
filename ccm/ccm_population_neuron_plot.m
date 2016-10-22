@@ -1,419 +1,270 @@
-function ccm_population_neuron_plot(Data, opt)
+function Data = ccm_population_neuron_plot(subject, projectRoot, projectDate, opt)
+%
+% function ccm_population_neuron_plot(Data, opt)
+%
+% Plots avg sdfs from a given population of neurons.
+%
+
 
 %%
 % Copied and modified from ccm_session_data_plot
-% Set defaults    
+% Set defaults
 
-pSignalArray    = Data(1).pSignalArray;
-ssdArray        = Data(1).ssdArray;
-sessionID       = Data(1).sessionID;
+if nargin < 4
+    opt.epochArray      = {'targOn','checkerOn','stopSignalOn','responseOnset','rewardOn'};
+    opt.epochArray      = {'targOn','checkerOn','stopSignalOn','responseOnset'};
+    opt.doStops         = true;
+    opt.plotError     	= true;
+    opt.easyOnly     	= false;
+    opt.normalizeData         = false;
+    opt.plotSEM         = false;
+    opt.categoryName   	= 'presacc';
+    opt.printPlot   	= true;
+    opt.dataType        = 'neuron';
+    if nargin == 0, Data = opt; return, end
+end
 
-
-dataType        = opt.dataType;
-printPlot       = opt.printPlot;
-filterData      = opt.filterData;
-stopHz          = opt.stopHz;
-figureHandle    = opt.figureHandle;
-collapseSignal  = opt.collapseSignal;
-doStops         = opt.doStops;
-plotError       = opt.plotError;
-plotSEM         = opt.plotSEM;
-epochArrayStop 	= opt.epochArrayStop; % {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
-epochArrayGo   	= opt.epochArrayGo; % {'fixWindowEntered', 'targOn', 'checkerOn', 'responseOnset', 'rewardOn'};
-outcomeArrayGo 	= opt.outcomeArrayGo; % {'goTarg', 'goDist'};
-outcomeArrayStop  = opt.outcomeArrayStop; % {'stopTarg', 'stopStop','goFast', 'goSlow'};
-colorCohArray  	= opt.colorCohArray; % {'easyIn', 'easyOut', 'hardIn', 'hardOut'};
-
-
+if ~opt.doStops
+        opt.epochArray      = {'targOn','checkerOn','responseOnset'};
+end
 
 % ____________________ CONSTANTS AND VARIABLES ____________________
-epochArray = {'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'rewardOn'};
-
-[nUnit, nTargPair] = size(Data);
-
-nSignal = length(pSignalArray);
-% If collapsing data across signal strength, adjust the pSignalArray here
-if collapseSignal
-   nSignal = 2;
+printPlot       = true; % opt.printPlot;
+% filterData      = opt.filterData;
+% stopHz          = opt.stopHz;
+% Define axes limits
+switch opt.dataType
+    case 'neuron'
+        yLimMax = 60;
+        yLimMin = 10;
+    case {'erp','lfp'}
+        yLimMax = .04;
+        yLimMin = -.04;
 end
 
 
-%   ____________________ SET UP PLOTS  ____________________
-if collapseSignal
-   cMap = ccm_colormap([0 1]);
+goOutcomeArray      = {'goTarg'}; %{'goTarg', 'goDist'};
+stopOutcomeArray    = {'stopTarg'}; %{'stopTarg', 'stopDist'};
+if opt.easyOnly
+conditionArray       = {'easyIn', 'easyOut'};
 else
-   cMap = ccm_colormap(pSignalArray);
+conditionArray       = {'easyIn', 'easyOut', 'hardIn', 'hardOut'};
+end
+
+inStyle = '-';
+outStyle = '--';
+
+% goTargStyle = '-';
+% goDistStyle = '--';
+% stopTargStyle = '-';
+% stopDistStyle = '--';
+% stopStopStyle = '-';
+
+goEasyColor = [0 .8 0];
+goHardColor = [0 .3 0];
+if opt.easyOnly, goEasyColor = goHardColor; end
+stopEasyColor = [.8 0 0];
+stopHardColor = [.3 0 0];
+stopStopEasyColor = [.5 .5 .5];
+stopStopHardColor = [0 0 0];
+
+
+
+% ____________________    LOAD DATA    ____________________
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+load(fullfile(dataPath, ['ccm_',opt.categoryName,'_neuron_population'])) % Load Data struct for that population
+
+
+if opt.normalizeData
+    nSession = length(Data.easyIn.goTarg.rt);
+    for i = 1 : nSession
+        iNormFactor = max(Data.easyIn.goTarg.responseOnset.sdf(i,:));
+        
+        for e = 1 : length(opt.epochArray)
+            for c = 1 : length(conditionArray)
+                for g = 1 : length(goOutcomeArray)
+                    if ~strcmp(opt.epochArray{e}, 'stopSignalOn')
+                        
+                        Data.(conditionArray{c}).(goOutcomeArray{g}).(opt.epochArray{e}).sdf(i,:) = ...
+                            Data.(conditionArray{c}).(goOutcomeArray{g}).(opt.epochArray{e}).sdf(i,:) / iNormFactor;
+                    end
+                end
+                
+                for s = 1 : length(stopOutcomeArray)
+                    Data.(conditionArray{c}).(stopOutcomeArray{s}).(opt.epochArray{e}).sdf(i,:) = ...
+                        Data.(conditionArray{c}).(stopOutcomeArray{s}).(opt.epochArray{e}).sdf(i,:) / iNormFactor;
+                end
+                if ~strcmp(opt.epochArray{e}, 'responseOnset')
+                    
+                    Data.(conditionArray{c}).stopStop.(opt.epochArray{e}).sdf(i,:) = ...
+                        Data.(conditionArray{c}).stopStop.(opt.epochArray{e}).sdf(i,:) / iNormFactor;
+                end
+            end
+        end
+    end
 end
 
 
-targLineW = 2;
-distLineW = 1;
-for kDataIndex = 1 : nUnit
-   for jTarg = 1 : nTargPair
-      nRow = 3;
-      nEpoch = length(epochArray);
-      nColumn = nEpoch * 2 + 1;
-      figureHandle = figureHandle + 1;
-      if printPlot
-         [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nColumn, figureHandle);
-      else
-         [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nColumn, figureHandle);
-      end
-      clf
-      
-      switch dataType
-          case 'neuron'
-      yLimMax = Data(kDataIndex, jTarg).yMax * 1.1;
-      yLimMin = min(Data(kDataIndex, jTarg).yMin * 1.1);
-          case {'erp','lfp'}
-              yLimMax = .04;
-              yLimMin = -.04;
-      end
-      
-      %    yLimMin = 0;
-      %    yLimMax = 65;
-      for mEpoch = 1 : nEpoch
-         mEpochName = epochArray{mEpoch};
-         epochRange = ccm_epoch_range(mEpochName, 'plot');
-         
-         % _______  Set up axes  ___________
-         % axes names
-         axGo = 1;
-         axStopGo = 2;
-         axStopStop = 3;
-         
-         % Set up plot axes
-         % Left target Go trials
-         ax(axGo, mEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axGo, mEpoch) yAxesPosition(axGo, mEpoch) axisWidth axisHeight]);
-         set(ax(axGo, mEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
-         cla
-         hold(ax(axGo, mEpoch), 'on')
-         plot(ax(axGo, mEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
-         title(epochArray{mEpoch})
-         
-         % Right target Go trials
-         ax(axGo, mEpoch+nEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axGo, mEpoch+nEpoch+1) yAxesPosition(axGo, mEpoch+nEpoch+1) axisWidth axisHeight]);
-         set(ax(axGo, mEpoch+nEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
-         cla
-         hold(ax(axGo, mEpoch+nEpoch), 'on')
-         plot(ax(axGo, mEpoch+nEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
-         title(epochArray{mEpoch})
-         %             set(ax(axRight, mEpoch), 'Xtick', [0 : 100 : epochRange(end) - epochRange(1)], 'XtickLabel', [epochRange(1) : 100: epochRange(end)])
-         
-         if doStops
-         % Left target Stop Incorrect trials
-         ax(axStopGo, mEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axStopGo, mEpoch) yAxesPosition(axStopGo, mEpoch) axisWidth axisHeight]);
-         set(ax(axStopGo, mEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
-         cla
-         hold(ax(axStopGo, mEpoch), 'on')
-         plot(ax(axStopGo, mEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
-         
-         % Right target Stop Incorrect trials
-         ax(axStopGo, mEpoch+nEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axStopGo, mEpoch+nEpoch+1) yAxesPosition(axStopGo, mEpoch+nEpoch+1) axisWidth axisHeight]);
-         set(ax(axStopGo, mEpoch+nEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
-         cla
-         hold(ax(axStopGo, mEpoch+nEpoch), 'on')
-         plot(ax(axStopGo, mEpoch+nEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
-         
-         % Left target Stop Correct trials
-         ax(axStopStop, mEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axStopStop, mEpoch) yAxesPosition(axStopStop, mEpoch) axisWidth axisHeight]);
-         set(ax(axStopStop, mEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
-         cla
-         hold(ax(axStopStop, mEpoch), 'on')
-         plot(ax(axStopStop, mEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
-         
-         % Right target Stop Correct trials
-         ax(axStopStop, mEpoch+nEpoch) = axes('units', 'centimeters', 'position', [xAxesPosition(axStopStop, mEpoch+nEpoch+1) yAxesPosition(axStopStop, mEpoch+nEpoch+1) axisWidth axisHeight]);
-         set(ax(axStopStop, mEpoch+nEpoch), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
-         cla
-         hold(ax(axStopStop, mEpoch+nEpoch), 'on')
-         plot(ax(axStopStop, mEpoch+nEpoch), [1 1], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
-         
-         end % if doStops
-         
-         
-         if mEpoch > 1
-            set(ax(axGo, mEpoch), 'yticklabel', [])
-            set(ax(axGo, mEpoch+nEpoch), 'yticklabel', [])
-            set(ax(axGo, mEpoch), 'ycolor', [1 1 1])
-            set(ax(axGo, mEpoch+nEpoch), 'ycolor', [1 1 1])
+
+
+%   ____________________ SET UP PLOT  ____________________
+lineWidth = 3;  % for all conditions right now
+inOutStyle = {inStyle, outStyle, inStyle, outStyle};  % {'goTarg', 'goDist'};
+% goOutcomeStyle = {goTargStyle, goDistStyle};  % {'goTarg', 'goDist'};
+% stopOutcomeStyle = {stopTargStyle, stopDistStyle};  % {'stopTarg', 'stopDist'};
+
+goInOutColor = [goEasyColor; goEasyColor; goHardColor; goHardColor];
+stopInOutColor = [stopEasyColor; stopEasyColor; stopHardColor; stopHardColor];
+stopStopColor = [stopStopEasyColor; stopStopEasyColor; stopStopHardColor; stopStopHardColor];
+% goAccuracyColor = [goEasyColor; goHardColor];
+% stopAccuracyColor = [stopEasyColor; stopHardColor];
+
+
+
+nCol = length(opt.epochArray);
+if ~opt.doStops
+    nRow = 2;
+else
+nRow = 3;
+end
+
+figureHandle = 846;
+
+
+if printPlot
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = standard_landscape(nRow, nCol, figureHandle);
+else
+    [axisWidth, axisHeight, xAxesPosition, yAxesPosition] = screen_figure(nRow, nCol, figureHandle);
+end
+clf
+
+
+% _______  Set up axes  ___________
+% axes names
+axGo = 1;
+axStop = 1;
+axStopStop = 1;
+for e = 1 : length(opt.epochArray)
+    epochRange = ccm_epoch_range(opt.epochArray{e}, 'plot');
+    
+    
+    % Set up plots
+    % Go trials
+    ax(axGo, e) = axes('units', 'centimeters', 'position', [xAxesPosition(axGo, e) yAxesPosition(axGo, e) axisWidth axisHeight]);
+    hold(ax(axGo, e), 'on')
+    %             set(ax(axGo, e), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
+    set(ax(axGo, e), 'ylim', [yLimMin yLimMax], 'xlim', [1 epochRange(end) - epochRange(1)])
+    cla
+    hold(ax(axGo, e), 'on')
+    plot(ax(axGo, e), [-epochRange(1) -epochRange(1)], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
+    title(opt.epochArray{e})
+    set(ax(axGo, e), 'xticklabel', get(gca, 'xtick')+epochRange(1)-1)
+    if e > 1, set(ax(axGo, e), 'yticklabel', []), end
+    
+    if opt.doStops
+    % Stop trials
+    ax(axStop, e) = axes('units', 'centimeters', 'position', [xAxesPosition(axStop, e) yAxesPosition(axStop, e) axisWidth axisHeight]);
+    hold(ax(axStop, e), 'on')
+    %             set(ax(axStop, e), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
+    set(ax(axStop, e), 'ylim', [yLimMin yLimMax], 'xlim', [1 epochRange(end) - epochRange(1)])
+    cla
+    hold(ax(axStop, e), 'on')
+    plot(ax(axStop, e), [-epochRange(1) -epochRange(1)], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
+    set(ax(axStop, e), 'xticklabel', get(gca, 'xtick')+epochRange(1)-1)
+    if e > 1, set(ax(axStop, e), 'yticklabel', []), end
+    
+    
+    % Stop Stop trials
+    ax(axStopStop, e) = axes('units', 'centimeters', 'position', [xAxesPosition(axStopStop, e) yAxesPosition(axStopStop, e) axisWidth axisHeight]);
+    hold(ax(axStopStop, e), 'on')
+    %             set(ax(axStopStop, e), 'ylim', [yLimMin yLimMax], 'xlim', [epochRange(1) epochRange(end)])
+    set(ax(axStopStop, e), 'ylim', [yLimMin yLimMax], 'xlim', [1 epochRange(end) - epochRange(1)])
+    cla
+    hold(ax(axStopStop, e), 'on')
+    plot(ax(axStopStop, e), [-epochRange(1) -epochRange(1)], [yLimMin yLimMax * .9], '-k', 'linewidth', 2)
+    set(ax(axStopStop, e), 'xticklabel', get(gca, 'xtick')+epochRange(1)-1)
+    if e > 1, set(ax(axStopStop, e), 'yticklabel', []), end
+    end
+end
+
+
+
+
+
+% Loop through epochs
+for e = 1 : length(opt.epochArray)
+    epochRange = ccm_epoch_range(opt.epochArray{e}, 'plot');
+    
+    % Loop colorherence (easyIn, easyOut, hardIn, hardOut)
+    for c = 1 : length(conditionArray)
+        
+        
+        %   _______ GO TRIALS  _______
+        if ~strcmp(opt.epochArray{e}, 'stopSignalOn')
+            % Go Targ
+            meanSDF = nanmean(Data.(conditionArray{c}).goTarg.(opt.epochArray{e}).sdf, 1);
+            align = Data.(conditionArray{c}).goTarg.(opt.epochArray{e}).align;
+            plot(ax(axGo, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',goInOutColor(c,:))
             
-            if doStops
-            set(ax(axStopGo, mEpoch), 'yticklabel', [])
-            set(ax(axStopGo, mEpoch+nEpoch), 'yticklabel', [])
-            set(ax(axStopStop, mEpoch), 'yticklabel', [])
-            set(ax(axStopStop, mEpoch+nEpoch), 'yticklabel', [])
-            set(ax(axStopGo, mEpoch), 'ycolor', [1 1 1])
-            set(ax(axStopGo, mEpoch+nEpoch), 'ycolor', [1 1 1])
-            set(ax(axStopStop, mEpoch), 'ycolor', [1 1 1])
-            set(ax(axStopStop, mEpoch+nEpoch), 'ycolor', [1 1 1])
-            end % if doStops
-         end
-         
-         
-         
-         
-         
-         
-         
-         
-         % __________ Loop signal strengths and plot  _________
-         
-         
-         
-         
-         
-         
-         % PLOT LEFT TARGET TRIALS
-         for i = 1 : nSignal/2
-            iPropIndexL = nSignal/2 + 1 - i;
-            
-            
-            
-            % Go trials
-            switch dataType
-               case 'neuron'
-                  dataSignal = 'sdfMean';
-               case 'lfp'
-                  dataSignal = 'lfpMean';
-               case 'erp'
-                  dataSignal = 'erp';
-            end
-            
-            if ~strcmp(mEpochName, 'stopSignalOn')  % No stop signals on go trials
-               
-               alignGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goTarg.(mEpochName).alignTime;
-               alignGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goDist.(mEpochName).alignTime;
-               
-               if ~isempty(alignGoTarg)
-                  sigGoTarg = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goTarg.(mEpochName).(dataSignal));
-                  %                         plot(ax(axGo, mEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', goC(iPropIndex,:), 'linewidth', targLineW)
-                  plot(ax(axGo, mEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', cMap(iPropIndexL,:), 'linewidth', targLineW)
-               end
-               if ~isempty(alignGoDist) && plotError
-                  sigGoDist = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goDist.(mEpochName).(dataSignal));
-                  plot(ax(axGo, mEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', cMap(iPropIndexL,:), 'linewidth', distLineW)
-               end
-            end
-            
-            
-            % Stop signal trials
-             if doStops
-           switch dataType
-               case 'neuron'
-                  dataSignal = 'sdf';
-               case 'lfp'
-                  dataSignal = 'lfp';
-               case 'erp'
-                  dataSignal = 'erp';
-            end
-            stopTargSig = cell(1, length(ssdArray));
-            stopTargAlign = cell(1, length(ssdArray));
-            stopDistSig = cell(1, length(ssdArray));
-            stopDistAlign = cell(1, length(ssdArray));
-            stopStopSig = cell(1, length(ssdArray));
-            stopStopAlign = cell(1, length(ssdArray));
-            for jSSDIndex = 1 : length(ssdArray)
-               stopTargSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);
-               stopTargAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime;
-               
-               stopDistSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopDist.ssd(jSSDIndex).(mEpochName).(dataSignal);
-               stopDistAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopDist.ssd(jSSDIndex).(mEpochName).alignTime;
-               
-               if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-                  stopStopSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopStop.ssd(jSSDIndex).(mEpochName).(dataSignal);
-                  stopStopAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopStop.ssd(jSSDIndex).(mEpochName).alignTime;
-               end
-               
-            end  % jSSDIndex = 1 : length(ssdArray)
-            
-            [rasStopTarg, alignStopTarg] = align_raster_sets(stopTargSig, stopTargAlign);
-            [rasStopDist, alignStopDist] = align_raster_sets(stopDistSig, stopDistAlign);
-            switch dataType
-               case 'neuron'
-                  sigStopTarg = nanmean(rasStopTarg, 1);
-                  sigStopDist = nanmean(rasStopDist, 1);
-               case {'lfp','erp'}
-                  if filterData
-                     sigStopTarg = lowpass(nanmean(rasStopTarg, 1)', stopHz)';
-                     sigStopDist = lowpass(nanmean(rasStopDist, 1)', stopHz)';
-                  else
-                     sigStopTarg = nanmean(rasStopTarg, 1);
-                     sigStopDist = nanmean(rasStopDist, 1);
-                  end
-            end
-            if size(sigStopTarg, 2) == 1, sigStopTarg = []; end;
-            if size(sigStopDist, 2) == 1, sigStopDist = []; end;
-            
-            if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-               [rasStopCorrect, alignStopCorrect] = align_raster_sets(stopStopSig, stopStopAlign);
-               switch dataType
-                  case 'neuron'
-                     sigStopCorrect = nanmean(rasStopCorrect, 1);
-                  case {'lfp','erp'}
-                     if filterData
-                        sigStopCorrect = lowpass(nanmean(rasStopCorrect, 1)', stopHz)';
-                     else
-                        sigStopCorrect = nanmean(rasStopCorrect, 1);
-                     end
-               end
-               if size(sigStopCorrect, 2) == 1, sigStopCorrect = []; end;
-            end
-            
-            
-            
-            
-            if ~isempty(sigStopTarg)
-               plot(ax(axStopGo, mEpoch), epochRange, sigStopTarg(alignStopTarg + epochRange), 'color', cMap(iPropIndexL,:), 'linewidth', targLineW)
-            end
-            if plotError && ~isempty(sigStopDist)
-               plot(ax(axStopGo, mEpoch), epochRange, sigStopDist(alignStopDist + epochRange), '--', 'color', cMap(iPropIndexL,:), 'linewidth', distLineW)
-            end
-            
-            if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-               if ~isempty(sigStopCorrect)
-                  plot(ax(axStopStop, mEpoch), epochRange, sigStopCorrect(alignStopCorrect + epochRange), 'color', cMap(iPropIndexL,:), 'linewidth', targLineW)
-               end
-            end
-             end % if doStops
-            
-            
-            
-            
-            
-            
-            % Then the right target trials
-            %                 iPropIndexR = nSignal + 1 - iPropIndex;  % Reverse order of plotting to keep color overlays similar between left and right target
-            iPropIndexR = i + nSignal/2;  % Reverse order of plotting to keep color overlays similar between left and right target
-            
-            
-            % Go trials
-            switch dataType
-               case 'neuron'
-                  dataSignal = 'sdfMean';
-               case 'lfp'
-                  dataSignal = 'lfpMean';
-               case 'erp'
-                  dataSignal = 'erp';
-            end
-            if ~strcmp(mEpochName, 'stopSignalOn')  %Stop signals
-               alignGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goTarg.(mEpochName).alignTime;
-               alignGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goDist.(mEpochName).alignTime;
-               
-               if ~isempty(alignGoTarg)
-                  sigGoTarg = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goTarg.(mEpochName).(dataSignal));
-                  %                         plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', goC(iPropIndexR,:), 'linewidth', targLineW)
-                  plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', cMap(iPropIndexR,:), 'linewidth', targLineW)
-               end
-               if plotError && ~isempty(alignGoDist)
-                  sigGoDist = mean(Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goDist.(mEpochName).(dataSignal));
-                  %                         plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', goC(iPropIndexR,:), 'linewidth', distLineW)
-                  plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', cMap(iPropIndexR,:), 'linewidth', distLineW)
-               end
-            end
-            
-            
-            
-            % Stop signal trials
-            if doStops
-                switch dataType
-               case 'neuron'
-                  dataSignal = 'sdf';
-               case 'lfp'
-                  dataSignal = 'lfp';
-               case 'erp'
-                  dataSignal = 'eeg';
-            end
-            stopTargSig = cell(1, length(ssdArray));
-            stopTargAlign = cell(1, length(ssdArray));
-            stopDistSig = cell(1, length(ssdArray));
-            stopDistAlign = cell(1, length(ssdArray));
-            stopStopSig = cell(1, length(ssdArray));
-            stopStopAlign = cell(1, length(ssdArray));
-            for jSSDIndex = 1 : length(ssdArray)
-               stopTargSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);
-               stopTargAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime;
-               
-               if plotError
-                  stopDistSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopDist.ssd(jSSDIndex).(mEpochName).(dataSignal);
-                  stopDistAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopDist.ssd(jSSDIndex).(mEpochName).alignTime;
-               end
-               
-               if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-                  stopStopSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopStop.ssd(jSSDIndex).(mEpochName).(dataSignal);
-                  stopStopAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopStop.ssd(jSSDIndex).(mEpochName).alignTime;
-               end
-               
-            end  % jSSDIndex = 1 : length(ssdArray)
-            
-            
-            [rasStopTarg, alignStopTarg] = align_raster_sets(stopTargSig, stopTargAlign);
-            [rasStopDist, alignStopDist] = align_raster_sets(stopDistSig, stopDistAlign);
-            
-            switch dataType
-               case 'neuron'
-                  sigStopTarg = nanmean(rasStopTarg, 1);
-                  sigStopDist = nanmean(rasStopDist, 1);
-               case {'lfp','erp'}
-                  if filterData
-                     sigStopTarg = lowpass(nanmean(rasStopTarg, 1)', stopHz)';
-                     sigStopDist = lowpass(nanmean(rasStopDist, 1)', stopHz)';
-                  else
-                     sigStopTarg = nanmean(rasStopTarg, 1);
-                     sigStopDist = nanmean(rasStopDist, 1);
-                  end
-            end
-            if size(sigStopTarg, 2) == 1, sigStopTarg = []; end;
-            if size(sigStopDist, 2) == 1, sigStopDist = []; end;
-            
-            if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-               [rasStopCorrect, alignStopCorrect] = align_raster_sets(stopStopSig, stopStopAlign);
-               switch dataType
-                  case 'neuron'
-                     sigStopCorrect = nanmean(rasStopCorrect, 1);
-                  case {'lfp','erp'}
-                     if filterData
-                        sigStopCorrect = lowpass(nanmean(rasStopCorrect, 1)', stopHz)';
-                     else
-                        sigStopCorrect = nanmean(rasStopCorrect, 1);
-                     end
-               end
-               if size(sigStopCorrect, 2) == 1, sigStopCorrect = []; end;
-            end
-            
-            
-            
-            if ~isempty(sigStopTarg)
-               plot(ax(axStopGo, mEpoch + nEpoch), epochRange, sigStopTarg(alignStopTarg + epochRange), 'color', cMap(iPropIndexR,:), 'linewidth', targLineW)
-            end
-            if plotError && ~isempty(sigStopDist)
-               plot(ax(axStopGo, mEpoch + nEpoch), epochRange, sigStopDist(alignStopDist + epochRange), '--', 'color', cMap(iPropIndexR,:), 'linewidth', distLineW)
-            end
-            if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-               if ~isempty(sigStopCorrect)
-                  plot(ax(axStopStop, mEpoch + nEpoch), epochRange, sigStopCorrect(alignStopCorrect + epochRange), 'color', cMap(iPropIndexR,:), 'linewidth', targLineW)
-               end
-            end
-            
-            end % if doStops
-         end % iPropIndex
-         
-      end % mEpoch
-      
-      %                             legend(ax(axGo, 1), {num2cell(pSignalArray'), num2str(pSignalArray')})
-      
-      %         colorbar('peer', ax(axGo, 1), 'location', 'west')
-      %         colorbar('peer', ax(axStopGo, 1), 'location', 'west')
-      h=axes('Position', [0 0 1 1], 'Visible', 'Off');
-      titleString = sprintf('%s \t %s', sessionID, Data(kDataIndex, jTarg).name);
-      text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top')
-      if printPlot && ~collapseSignal
-         print(figureHandle,[local_figure_path, sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'.pdf'],'-dpdf', '-r300')
-      elseif printPlot && collapseSignal
-         print(figureHandle,[local_figure_path, sessionID, '_', Data(kDataIndex, jTarg).name, '_ccm_',dataType,'_collapse.pdf'],'-dpdf', '-r300')
-      end
-   end % jTargPair
-   
-end % kDataIndex
+            %                 meanSDF = nanmean(Data.(conditionArray{c}).goDist.(opt.epochArray{e}).sdf, 1);
+            %                 align = Data.(conditionArray{c}).goDist.(opt.epochArray{e}).align;
+            %                 plot(ax(axGo, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',goInOutColor(c,:))
+        end
+        
+        
+        
+    if opt.doStops
+        %   _______ STOP TRIALS  _______
+        meanSDF = nanmean(Data.(conditionArray{c}).stopTarg.(opt.epochArray{e}).sdf, 1);
+        align = Data.(conditionArray{c}).stopTarg.(opt.epochArray{e}).align;
+        plot(ax(axStop, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',stopInOutColor(c,:))
+        
+        %         if ~strcmp(opt.epochArray{e}, 'stopSignalOn')
+        %             meanSDF = nanmean(Data.(conditionArray{c}).goFast.(opt.epochArray{e}).sdf, 1);
+        %             align = Data.(conditionArray{c}).goFast.(opt.epochArray{e}).align;
+        %             plot(ax(axStop, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',goInOutColor(c,:))
+        %         end
+        
+        
+        %   _______ STOP STOP TRIALS  _______
+        if ~strcmp(opt.epochArray{e}, 'responseOnset')
+            meanSDF = nanmean(Data.(conditionArray{c}).stopStop.(opt.epochArray{e}).sdf, 1);
+            align = Data.(conditionArray{c}).stopStop.(opt.epochArray{e}).align;
+            plot(ax(axStopStop, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',stopStopColor(c,:))
+        end
+        %         if ~strcmp(opt.epochArray{e}, 'stopSignalOn')
+        %             meanSDF = nanmean(Data.(conditionArray{c}).goSlow.(opt.epochArray{e}).sdf, 1);
+        %             align = Data.(conditionArray{c}).goSlow.(opt.epochArray{e}).align;
+        %             plot(ax(axStopStop, e), meanSDF(align+epochRange(1):end), 'LineWidth',lineWidth,'LineStyle',inOutStyle{c},'color',goInOutColor(c,:))
+        %         end
+    end  % colorCohArray
+    end
+    
+end % epochs
+
+
+h=axes('Position', [0 0 1 1], 'Visible', 'Off');
+titleString = sprintf('%s\t n = %d', opt.categoryName , size(Data.easyIn.goTarg.rt, 1));
+text(0.5,1, titleString, 'HorizontalAlignment','Center', 'VerticalAlignment','Top')
+
+if opt.printPlot
+    filePath = fullfile(projectRoot,'results',projectDate,subject);
+    if opt.easyOnly
+    fileName = ['pop_',opt.categoryName,'_easy.pdf'];
+    elseif ~opt.doStops
+    fileName = ['pop_',opt.categoryName,'_go.pdf'];
+    else
+    fileName = ['pop_',opt.categoryName,'.pdf'];
+    end
+    print(figureHandle, fullfile(filePath, fileName), '-dpdf', '-r300')
+end
+return
+
+% ________________________________________________________________________________
+% ________________________________________________________________________________
+% ________________________________________________________________________________
+% ________________________________________________________________________________
+% ________________________________________________________________________________
+
 
 

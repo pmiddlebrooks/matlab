@@ -781,7 +781,8 @@ for kTarg = 1 : nTargPair
     
     
     
-    
+    Data(kTarg).allRT                   = allRT;
+  
     
     Data(kTarg).ssrtGrand                   = ssrtGrand;
     Data(kTarg).ssrtMean                    = ssrtMean;

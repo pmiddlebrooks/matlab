@@ -54,6 +54,14 @@ alphaChoice     = .05;   % alpha criteria for choice dependence
 alphaCoherence  = .05;   % alpha criteria for coherence dependence
 
 
+
+
+
+
+
+
+
+
 % Choice dependence
 leftMetric   = trialMetric(leftTrial);
 rightMetric  = trialMetric(rightTrial);
@@ -86,7 +94,7 @@ end
 % For IN trials
 
 
-% compute the linear regression of spikeRate on signalStrength
+% Regress spikeRate vs signalStrength into RF
 [coeffIn, sIn]          = polyfit(signalP(inTrial), trialMetric(inTrial), 1);
 [yPredIn, deltaIn]  = polyval(coeffIn, signalP(inTrial), sIn);
 statsIn             = regstats(signalP(inTrial), trialMetric(inTrial));
@@ -98,7 +106,7 @@ fTestIn     = statsIn.fstat.f;
 pValIn      = statsIn.fstat.pval;
 
 
-% compute the linear regression of spikeRate on signalStrength
+% Regress spikeRate vs signalStrength out of RF
 [coeffOut, sOut]        = polyfit(signalP(outTrial), trialMetric(outTrial), 1);
 [yPredOut, deltaOut] = polyval(coeffOut, signalP(outTrial), sOut);
 statsOut            = regstats(signalP(outTrial), trialMetric(outTrial));

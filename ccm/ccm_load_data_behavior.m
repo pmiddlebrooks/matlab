@@ -1,4 +1,4 @@
-function [trialData, SessionData, ExtraVariable] = load_data_behavior_ccm(subjectID, sessionID)
+function [trialData, SessionData, ExtraVariable] = ccm_load_data_behavior(subjectID, sessionID)
 % function [trialData, SessionData] = load_data_behavior(subjectID, sessionID)
 %
 % Loads a behavioral-only data file and does some minimal processing common to lots of

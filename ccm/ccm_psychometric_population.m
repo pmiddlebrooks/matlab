@@ -240,8 +240,8 @@ if plotFlag
     
     
        % INDIVIDUAL SESSION Psychometric FUNCITONS
-       cellfun(@(x, y) plot(ax(psySess), x, y, 'k', 'linewidth', 2), propPointsX, goPsySess)
        cellfun(@(x, y) plot(ax(psySess), x, y, 'r', 'linewidth', 2), propPointsX, stopPsySess)
+       cellfun(@(x, y) plot(ax(psySess), x, y, 'k', 'linewidth', 2), propPointsX, goPsySess)
 %     for i = 1 : nSession
 %   plot(ax(psySess), goPsySess{i}, 'k', 'linewidth', 2)
 %    plot(ax(psySess), stopPsySess{i}, 'r', 'linewidth', 2)

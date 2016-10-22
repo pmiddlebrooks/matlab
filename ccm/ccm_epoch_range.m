@@ -22,6 +22,7 @@ switch breadth
     case 'plot'
         % Set a standard range so each panel of a graph
         epochRange = -99 : 400;
+        epochRange = -99 : 300;
         switch epochName
             case 'fixWindowEntered'
                 shiftRange = -100;
