@@ -12,7 +12,7 @@ nSignalLevel = length(signalArray);
 pureCyan = [0 1 1];
 pureMagenta = [1 0 1];
 
-cyanMax = 0.7;
+cyanMax = 0.85;
 magMax = 1;
 minAll = .1;
 switch nSignalLevel

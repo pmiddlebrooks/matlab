@@ -5,12 +5,12 @@ function ccm_concat_sessions_behavior(subjectID, sessionArray)
 subjectID = 'broca';
 
 % sessionSet = 'neural2';
-% sessionSet = 'behavior1';
-sessionSet = 'neural3';
+sessionSet = 'behavior2';
+% sessionSet = 'neural3';
 
 task = 'ccm';
 % if nargin < 2
-    [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
+[sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
 % end
 %
 % subjectID = 'pm'
@@ -42,11 +42,11 @@ for iSession = 1 : nSession
     % Load the data
     iSessionID = sessionArray{iSession}
     iSubjectID = subjectIDArray{iSession};
-%     if strcmp('human',subjectID)
-%         iSessionID = ['hu',iSessionID];
-%     end
+    %     if strcmp('human',subjectID)
+    %         iSessionID = ['hu',iSessionID];
+    %     end
     
-    [trialData, SessionData, ExtraVar] = load_data(iSubjectID, iSessionID);
+    [trialData, SessionData, ~] = ccm_load_data_behavior(iSubjectID, iSessionID);
     
     %     if ~strcmp(SessionData.taskID, 'ccm')
     %         error('Not a choice countermanding session, try again\n')
@@ -60,7 +60,7 @@ for iSession = 1 : nSession
     responseCueOn       = [responseCueOn; trialData.responseCueOn];
     stopSignalOn        = [stopSignalOn; trialData.stopSignalOn];
     ssd                 = [ssd; trialData.ssd];
-    targOn        = [targOn; trialData.targOn];
+    targOn              = [targOn; trialData.targOn];
     trialOutcome        = [trialOutcome; trialData.trialOutcome];
     targAngle           = [targAngle; trialData.targAngle];
     targAmp             = [targAmp; trialData.targAmp];
@@ -80,7 +80,7 @@ trialData.responseOnset     = responseOnset;
 trialData.targ1CheckerProp  = targ1CheckerProp;
 trialData.responseCueOn     = responseCueOn;
 trialData.stopSignalOn      = stopSignalOn;
-trialData.ssd               = ssd;
+trialData.ssd               = ssd_session_adjust(ssd);
 trialData.trialOutcome      = trialOutcome;
 trialData.targAngle         = targAngle;
 trialData.targAmp           = targAmp;
@@ -115,12 +115,12 @@ SessionData.taskID = 'ccm';
 %         end
 % end
 
-
+% new = trialData;
 
 if strcmp(subjectID, 'human')
-save(['~/matlab/local_data/human/human_', iSessionID, '.mat'], 'SessionData', 'trialData', '-mat')
+    save(['~/matlab/local_data/human/human_', iSessionID, '.mat'], 'SessionData', 'trialData', '-mat')
 else
-save(['~/matlab/local_data/', subjectID, '/', subjectID, '_', sessionSet, '.mat'], 'SessionData', 'trialData', '-mat')
+    save(['~/matlab/local_data/', subjectID, '/', subjectID, '_', sessionSet, '.mat'], 'trialData', 'SessionData', '-mat')
 end
 
 

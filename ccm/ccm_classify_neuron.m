@@ -9,15 +9,14 @@ function unitInfo = ccm_classify_neuron(Data)
 %%
 % unitInfo = Data(1)
 % Constants
-
+    
 
 % analyses windows relative to their aligned event
 preTargWindow       = -299 : 0;
-postTargWindow      = 51 : 150;
+postTargWindow      = 51 : 125;
 preCheckerWindow    = -99 : 0;
 postCheckerWindow   = 51 : 150;
-saccEarlyWindow       = -49 : -35;
-saccLateWindow       = -14 : 0;
+saccEarlyWindow       = -99 : -49;
 presaccWindow       = -49 : 0;
 postsaccWindow      = 41 : 140;
 rewardWindow        = 51 : 250;
@@ -25,27 +24,45 @@ intertrialWindow    = 251 : 500;
 
 
 
+% unitInfo = table();
+unitInfo = cell(1, 13);
 
-unitInfo = table();
-
-unitInfo.sessionID  = {Data.sessionID};
-unitInfo.unit       = {Data.name};
-unitInfo.hemisphere       = {Data.hemisphere};
-
+% unitInfo.sessionID  = {Data.sessionID};
+% unitInfo.unit       = {Data.name};
+% unitInfo.hemisphere       = {Data.hemisphere};
+unitInfo{1}    	= Data.sessionID;
+unitInfo{2}    	= Data.name;
+unitInfo{3}     = Data.hemisphere;
 
 
 % Figure out which direction to use to categorize the neuron
 % Does this neuron have a saccade response field?
-unitInfo.rf = {ccm_find_saccade_rf(Data)};
+% unitInfo.rf = {ccm_find_saccade_rf(Data)};
+unitInfo{4} = ccm_find_saccade_rf(Data);
 
 
-if strcmp(unitInfo.rf, 'left')
+% if strcmp(unitInfo.rf, 'left')
+%     sigInd = 1;
+% elseif strcmp(unitInfo.rf, 'right')
+%     sigInd = 2;
+%     % if there's not a clear RF side, use the contralateral hemifield for
+%     % analyses
+% elseif strcmp(unitInfo.rf, 'none')
+%     switch lower(Data.hemisphere)
+%         case 'left'
+%             sigInd = 2;
+%         case 'right'
+%             sigInd = 1;
+%     end
+% end
+% 
+if strcmp(unitInfo(4), 'left')
     sigInd = 1;
-elseif strcmp(unitInfo.rf, 'right')
+elseif strcmp(unitInfo(4), 'right')
     sigInd = 2;
     % if there's not a clear RF side, use the contralateral hemifield for
     % analyses
-elseif strcmp(unitInfo.rf, 'none')
+elseif strcmp(unitInfo(4), 'none')
     switch lower(Data.hemisphere)
         case 'left'
             sigInd = 2;
@@ -56,41 +73,39 @@ end
 
 
 
-fixAlign        = Data.signalStrength(sigInd).goTarg.targOn.alignTime;
-fixRate         = nansum(Data.signalStrength(sigInd).goTarg.targOn.raster(:,fixAlign + preTargWindow), 2)  .* 1000 ./ length(preTargWindow);
+fixAlign        = Data.targOn.colorCoh(sigInd).goTarg.alignTime;
+fixRate         = nansum(Data.targOn.colorCoh(sigInd).goTarg.raster(:,fixAlign + preTargWindow), 2)  .* 1000 ./ length(preTargWindow);
 
-targAlign    = Data.signalStrength(sigInd).goTarg.targOn.alignTime;
-targRate     = nansum(Data.signalStrength(sigInd).goTarg.targOn.raster(:,targAlign + postTargWindow), 2)  .* 1000 ./ length(postTargWindow);
+targAlign    = Data.targOn.colorCoh(sigInd).goTarg.alignTime;
+targRate     = nansum(Data.targOn.colorCoh(sigInd).goTarg.raster(:,targAlign + postTargWindow), 2)  .* 1000 ./ length(postTargWindow);
 
-preCheckerAlign    = Data.signalStrength(sigInd).goTarg.checkerOn.alignTime;
-preCheckerRate     = nansum(Data.signalStrength(sigInd).goTarg.checkerOn.raster(:,preCheckerAlign + preCheckerWindow), 2)  .* 1000 ./ length(preCheckerWindow);
+preCheckerAlign    = Data.checkerOn.colorCoh(sigInd).goTarg.alignTime;
+preCheckerRate     = nansum(Data.checkerOn.colorCoh(sigInd).goTarg.raster(:,preCheckerAlign + preCheckerWindow), 2)  .* 1000 ./ length(preCheckerWindow);
 
-postCheckerAlign    = Data.signalStrength(sigInd).goTarg.checkerOn.alignTime;
-postCheckerRate     = nansum(Data.signalStrength(sigInd).goTarg.checkerOn.raster(:,postCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
-postCheckerSDF     = nanmean(Data.signalStrength(sigInd).goTarg.checkerOn.sdf(:,postCheckerAlign + postCheckerWindow), 1);
+postCheckerAlign    = Data.checkerOn.colorCoh(sigInd).goTarg.alignTime;
+postCheckerRate     = nansum(Data.checkerOn.colorCoh(sigInd).goTarg.raster(:,postCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
+postCheckerSDF     = nanmean(Data.checkerOn.colorCoh(sigInd).goTarg.sdf(:,postCheckerAlign + postCheckerWindow), 1);
 
-presaccAlign       = Data.signalStrength(sigInd).goTarg.responseOnset.alignTime;
-presaccRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + presaccWindow), 2)  .* 1000 ./ length(presaccWindow);
-presaccSDF        = nanmean(Data.signalStrength(sigInd).goTarg.responseOnset.sdf(:,presaccAlign + presaccWindow), 1);
+presaccAlign       = Data.responseOnset.colorCoh(sigInd).goTarg.alignTime;
+presaccRate        = nansum(Data.responseOnset.colorCoh(sigInd).goTarg.raster(:,presaccAlign + presaccWindow), 2)  .* 1000 ./ length(presaccWindow);
+presaccSDF        = nanmean(Data.responseOnset.colorCoh(sigInd).goTarg.sdf(:,presaccAlign + presaccWindow), 1);
 
-presaccEarlyRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + saccEarlyWindow), 2)  .* 1000 ./ length(saccEarlyWindow);
-presaccLateRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,presaccAlign + saccLateWindow), 2)  .* 1000 ./ length(saccLateWindow);
+presaccEarlyRate        = nansum(Data.responseOnset.colorCoh(sigInd).goTarg.raster(:,presaccAlign + saccEarlyWindow), 2)  .* 1000 ./ length(saccEarlyWindow);
 
-postsaccAlign       = Data.signalStrength(sigInd).goTarg.responseOnset.alignTime;
-postsaccRate        = nansum(Data.signalStrength(sigInd).goTarg.responseOnset.raster(:,postsaccAlign + postsaccWindow), 2)  .* 1000 ./ length(postsaccWindow);
+postsaccAlign       = Data.responseOnset.colorCoh(sigInd).goTarg.alignTime;
+postsaccRate        = nansum(Data.responseOnset.colorCoh(sigInd).goTarg.raster(:,postsaccAlign + postsaccWindow), 2)  .* 1000 ./ length(postsaccWindow);
 
-rewardAlign       = Data.signalStrength(sigInd).goTarg.rewardOn.alignTime;
-rewardRate        = nansum(Data.signalStrength(sigInd).goTarg.rewardOn.raster(:,rewardAlign + rewardWindow), 2)  .* 1000 ./ length(rewardWindow);
+rewardAlign       = Data.rewardOn.colorCoh(sigInd).goTarg.alignTime;
+rewardRate        = nansum(Data.rewardOn.colorCoh(sigInd).goTarg.raster(:,rewardAlign + rewardWindow), 2)  .* 1000 ./ length(rewardWindow);
 
-intertrialRate        = nansum(Data.signalStrength(sigInd).goTarg.rewardOn.raster(:,rewardAlign + intertrialWindow), 2)  .* 1000 ./ length(intertrialWindow);
+intertrialRate        = nansum(Data.rewardOn.colorCoh(sigInd).goTarg.raster(:,rewardAlign + intertrialWindow), 2)  .* 1000 ./ length(intertrialWindow);
 
 
 fixNeuron           = 0;
 visNeuron           = 0;
 checkerNeuron       = 0;
 presaccNeuron       = 0;
-presaccMaxNeuron       = 0;
-ddmNeuron           = 0;
+presaccMaxNeuron   	= 0;
 presaccRampNeuron  	= 0;
 postsaccNeuron      = 0;
 rewardNeuron        = 0;
@@ -132,44 +147,33 @@ if mean(fixRate) < 50
     end
     
     
-    % presaccadic activity?
+    % presaccadic activity? Must be > fixation, and be raming up toward
+    % saccade (to distinguish from checker activity carryover)
     if sum([fixRate; presaccRate])
-        if max(Data.signalStrength(sigInd).goTarg.responseOnset.sdfMean) > 10
-            %             if mean(presaccRate) > mean(fixRate) + 3 * std(fixRate)
+        if max(Data.responseOnset.colorCoh(sigInd).goTarg.sdfMean) > 5
             [h , p] = ttest2(fixRate , presaccRate , .05);
             if h && mean(presaccRate) > mean(fixRate) && ...
-                mean(presaccLateRate)  > mean(presaccEarlyRate)
-                %                 [h , p] = ttest2(postCheckerRate , presaccRate , .05);
-                    %                     if mean(presaccRate) > mean(postsaccRate)
+                mean(presaccRate)  > mean(presaccEarlyRate)
                     presaccNeuron = 1;
-                    %                     end
             end
-            %             end
         end
     end
     
     % presaccadic activity that's at least 20% greater than visual activity?
     if presaccNeuron
-        if max(Data.signalStrength(sigInd).goTarg.responseOnset.sdfMean) > 1.2 * max(Data.signalStrength(sigInd).goTarg.targOn.sdfMean)
+        if max(Data.responseOnset.colorCoh(sigInd).goTarg.sdfMean) > 1.2 * max(Data.targOn.colorCoh(sigInd).goTarg.sdfMean)
             presaccMaxNeuron = 1;
         end
     end
     
-    % Drift diffusion-like activity?
-    if presaccNeuron
-        ddmLike = ccm_ddm_like(Data.subjectID, Data.sessionID, 'plotFlag', 0, 'unitArray', Data.name);
-        if ddmLike
-            ddmNeuron = 1;
-        end
-    end
     
     
     % presaccadic ramping activity?
     % A more "pure" saccadic neuron, one that ramps up and isn't dominated
     % by postsaccadic activity
     if presaccNeuron
-        if mean(presaccLateRate) > mean(presaccEarlyRate) * 1.25 &&...
-                mean(presaccLateRate) * 1.25 > mean(postsaccRate)
+        if mean(presaccRate) > mean(presaccEarlyRate) * 1.25 &&...
+                mean(presaccRate) * 1.25 > mean(postsaccRate)
             presaccRampNeuron = 1;
         end
     end
@@ -206,15 +210,24 @@ if mean(fixRate) < 50
     
 end
 
-unitInfo.fix        = fixNeuron;
-unitInfo.vis        = visNeuron;
-unitInfo.checker    = checkerNeuron;
-unitInfo.presacc    = presaccNeuron;
-unitInfo.presaccMax    = presaccMaxNeuron;
-unitInfo.ddm        = ddmNeuron;
-unitInfo.presaccRamp = presaccRampNeuron;
-unitInfo.postsacc   = postsaccNeuron;
-unitInfo.reward     = rewardNeuron;
-unitInfo.intertrial = intertrialNeuron;
+% unitInfo.fix        = fixNeuron;
+% unitInfo.vis        = visNeuron;
+% unitInfo.checker    = checkerNeuron;
+% unitInfo.presacc    = presaccNeuron;
+% unitInfo.presaccMax    = presaccMaxNeuron;
+% unitInfo.presaccRamp = presaccRampNeuron;
+% unitInfo.postsacc   = postsaccNeuron;
+% unitInfo.reward     = rewardNeuron;
+% unitInfo.intertrial = intertrialNeuron;
 
+unitInfo{5} = fixNeuron;
+unitInfo{6} = visNeuron;
+unitInfo{7} = checkerNeuron;
+unitInfo{8} = presaccNeuron;
+unitInfo{9} = presaccMaxNeuron;
+unitInfo{10} = presaccRampNeuron;
+unitInfo{11} = postsaccNeuron;
+unitInfo{12} = rewardNeuron;
+unitInfo{13} = intertrialNeuron;
+% 
 

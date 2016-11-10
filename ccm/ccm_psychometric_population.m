@@ -12,7 +12,7 @@ if nargin < 2
    sessionSet = 'behvaior';
 end
 
-figureHandle = 4945;
+figureHandle = 4946;
 
 task = 'ccm';
 if iscell(sessionSet)
@@ -26,14 +26,14 @@ end
 
 
 
-fprintf('\n\n\n\')
+fprintf('\n\n\n')
 disp('*******************************************************************************')
 disp('Populaiton psychometric : Using mean choice proportion AVERAGED across sessions')
 
-% subjectID = 'Human';
-% subjectID = 'broca';
-% subjectID = 'Xena';
-% sessionSet = 'behavior2';
+    psyOpt = ccm_psychometric;
+    psyOpt.plotFlag = false;
+    psyOpt.collapseTarg = true;
+    psyOpt.USE_TWO_COLORS    = false;
 
 
 % [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
@@ -56,16 +56,18 @@ switch lower(subjectID)
 %            otherwise
                [td, S, E] =load_data(subjectID, sessionArray{1});
                pSignalArray = E.pSignalArray;
-               if length(pSignalArray) == 6
-                   pSignalArray([2 5]) = [];
-               elseif length(pSignalArray) == 7
-                   pSignalArray([2 4 6]) = [];
-               end
 %       end
    case 'xena'
       pSignalArray = [.35 .42 .47 .5 .53 .58 .65];
 end
 
+if psyOpt.USE_TWO_COLORS
+    if length(pSignalArray) == 6
+        pSignalArray([2 5]) = [];
+    elseif length(pSignalArray) == 7
+        pSignalArray([2 4 6]) = [];
+    end
+end
 
 
 nSession = length(sessionArray);
@@ -85,7 +87,7 @@ if plotFlag
     hold(ax(psySess), 'on')
     stopColor = [1 0 0];
     goColor = [0 0 0];
-    choicePlotXMargin = .03;
+    choicePlotXMargin = .015;
 end
 
 goRightProb = [];
@@ -109,9 +111,6 @@ for iSession = 1 : nSession
     iSessionID = sessionArray{iSession};
     fprintf('Processing %d of %d\t %s\n', iSession, nSession, iSessionID)
     
-    psyOpt = ccm_psychometric;
-    psyOpt.plotFlag = false;
-    psyOpt.collapseTarg = true;
     iData = ccm_psychometric(subjectIDArray{iSession}, sessionArray{iSession}, psyOpt);
     
     

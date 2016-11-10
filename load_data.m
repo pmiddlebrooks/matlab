@@ -76,30 +76,29 @@ if strcmp(task, 'ccm') || strcmp(task, 'cmd')
     % differences in SSD values
     ssd = trialData.stopSignalOn - trialData.responseCueOn;
     
-    % %    Old method
-    %        ssdArray = unique(trialData.stopSignalOn - trialData.responseCueOn);
-    %        ssdArray(isnan(ssdArray)) = [];
-    %        if ~isempty(ssdArray)
-    %            diffExist = 1;
-    %            while diffExist
-    %                a = diff(ssdArray);
-    %                addOne = ssdArray(a == 1);
-    %                [d,i] = ismember(ssd, addOne);
-    %                if sum(d) == 0
-    %                    diffExist = 0;
-    %                else
-    %                    ssd(d) = ssd(d) + 1;
-    %                    % ssdArray(a == 1) = ssdArray(a == 1) + 1;
-    %                    ssdArray = unique(ssd(~isnan(ssd)));
-    %                end
-    %            end
-    %        end
-    %        trialData.ssd = ssd;
-    %        ExtraVariable.ssdArray = ssdArray;
+%     %    Old method
+%            ssdArray = unique(trialData.stopSignalOn - trialData.responseCueOn);
+%            ssdArray(isnan(ssdArray)) = [];
+%            if ~isempty(ssdArray)
+%                diffExist = 1;
+%                while diffExist
+%                    a = diff(ssdArray);
+%                    addOne = ssdArray(a == 1);
+%                    [d,i] = ismember(ssd, addOne);
+%                    if sum(d) == 0
+%                        diffExist = 0;
+%                    else
+%                        ssd(d) = ssd(d) + 1;
+%                        % ssdArray(a == 1) = ssdArray(a == 1) + 1;
+%                        ssdArray = unique(ssd(~isnan(ssd)));
+%                    end
+%                end
+%            end
+%            trialData.ssd = ssd;
+%            ExtraVariable.ssdArray = ssdArray;
     
     % New method (3/18/14)
     trialData.ssd = ssd_session_adjust(ssd);
-    %    trialData.ssd = trialData.ssd - 14;
     ExtraVariable.ssdArray = unique(trialData.ssd(~isnan(trialData.ssd)));
 end
 

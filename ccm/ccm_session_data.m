@@ -1,6 +1,10 @@
 function Data = ccm_session_data(subjectID, sessionID, Opt)
 %
-% function Data = ccm_single_neuron(subjectID, sessionID, plotFlag, Opt.unitArray)
+% function Data = ccm_session_data(subjectID, sessionID, plotFlag, Opt.unitArray)
+%
+% Creates a processed data struct for other functions to use, and
+% optionally plots session neurophysiology data
+%
 %
 % Single neuron analyses for choice countermanding task. Only plots the
 % sdfs. To see rasters, use ccm_single_neuron_rasters, which displays all
@@ -45,19 +49,11 @@ function Data = ccm_session_data(subjectID, sessionID, Opt)
 %
 % Returns Data structure with fields:
 %
-%   Data.signalStrength(x).(condition).ssd(x).(epoch name)
+%   Data.(epoch).colorCoherence(x).(outcome).ssd(x)
 %
-%   condition can be:  goTarg, goDist, stopTarg, stopDist, stopStop
+%   outcome can be:  goTarg, goDist, stopTarg, stopDist, stopStop
 %   ssd(x):  only applies for stop trials, else the field is absent
 %   epoch name: fixOn, targOn, checkerOn, etc.
-%   nGo
-%   nGoRight
-%   nStopIncorrect
-%   nStopIncorrectRight
-%   goRightLogical
-%   goRightSignalStrength
-%   stopRightLogical
-%   stopRightSignalStrength
 
 %%
 clear Data
@@ -66,11 +62,29 @@ if nargin < 3
     Opt = ccm_options;
     Opt.trialData = [];
 end
+if iscell(sessionID)
+    Opt = ccm_options;
+    Opt.printFlag = 0;
+    Opt.plotFlag = 0;
+    Opt.doStops = 1;
+    Opt.collapseSignal = 0;
+    Opt.collapseTarg = 1;
+    
+    Opt.unitArray = sessionID(2);
+    sessionID = sessionID{1};
+end
+
+% Arrays for looping through data
+epochArray          = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn', 'rewardOn'};
+goOutcomeArray      = {'goTarg', 'goDist'};
+stopOutcomeArray    = {'stopTarg', 'stopDist', 'stopStop'};
+nEpoch              = length(epochArray);
+nOutcome            = length(goOutcomeArray) + length(stopOutcomeArray);
 
 
 if isempty(Opt.trialData)
     % Load the data
-[trialData, SessionData, ExtraVar] = ccm_load_data_behavior(subjectID, sessionID);
+    [trialData, SessionData, ExtraVar] = ccm_load_data_behavior(subjectID, sessionID);
 else
     trialData = Opt.trialData;
     SessionData = Opt.SessionData;
@@ -96,17 +110,12 @@ STD_MULTIPLE    = 3;
 Kernel.method = 'postsynaptic potential';
 Kernel.growth = 1;
 Kernel.decay = 20;
-
 % Kernel.method = 'gaussian';
 % Kernel.sigma = 10;
 
 
 cropWindow  = -1000 : 2000;  % used to extract a semi-small portion of signal for each epoch/alignemnt
 baseWindow 	= -149 : 0;   % To baseline-shift the eeg signals, relative to event alignment index;
-
-
-
-
 
 
 
@@ -128,13 +137,15 @@ end
 % If there was not a custom set of units or channels input to process, do
 % them all
 if isempty(Opt.unitArray)
-if strcmp(Opt.howProcess, 'each') || strcmp(Opt.howProcess, 'step') || strcmp(Opt.howProcess, 'print')
-    Opt.unitArray     = dataArray;
+    if strcmp(Opt.howProcess, 'each') || strcmp(Opt.howProcess, 'step') || strcmp(Opt.howProcess, 'print')
+        Opt.unitArray     = dataArray;
+    end
 end
-end
+
 
 % How many units were recorded?
 nUnit = length(Opt.unitArray);
+
 
 % Load each spike unit and add it to the trialData table
 for i = 1 : nUnit
@@ -167,14 +178,6 @@ else
     nTargPair = sum(rightTargInd);
     % do nothing, all target angles will be considered separately
 end
-
-
-
-
-
-epochArray = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn', 'rewardOn'};
-nEpoch = length(epochArray);
-nOutcome = 5; % Used to find the maximum signal levels for normalization if desired
 
 
 
@@ -213,7 +216,7 @@ end
 
 % If there weren't stop trials, skip all stop-related analyses
 if isempty(ssdArray) || ~Opt.doStops
-%     disp('ccm_inhibition.m: No stop trials or stop trial analyses not requested');
+    %     disp('ccm_inhibition.m: No stop trials or stop trial analyses not requested');
     Opt.doStops = false;
 end
 
@@ -250,7 +253,6 @@ for kDataInd = 1 : nUnit
     switch dataType
         case 'neuron'
             kUnit = kDataInd;
-%             [a, kUnit] = ismember(Opt.unitArray{kDataInd}, SessionData.spikeUnitArray);
         case 'lfp'
             [a, kUnit] = ismember(chNum(kDataInd), SessionData.lfpChannel);
         case 'erp'
@@ -290,20 +292,20 @@ for kDataInd = 1 : nUnit
         
         
         % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %                    LOOP THROUGH SIGNAL STRENGTHS
+        %                    LOOP THROUGH COLOR COHERENCE VALUES
         % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        for iPropIndex = 1 : nSignal;
+        for iColor = 1 : nSignal;
             
             
             % If we're collapsing over signal strength or we actually only have
             % 2 levels of signal, determine which iPct (signal) to use this
             % loop iteration
-            if iPropIndex == 1 && nSignal == 2
+            if iColor == 1 && nSignal == 2
                 iPct = pSignalArray(pSignalArray < .5);
-            elseif iPropIndex == 2 && nSignal == 2
+            elseif iColor == 2 && nSignal == 2
                 iPct = pSignalArray(pSignalArray > .5);
             else
-                iPct = pSignalArray(iPropIndex);
+                iPct = pSignalArray(iColor);
             end
             iPct = iPct .* 100;
             selectOpt.rightCheckerPct = iPct;
@@ -311,23 +313,6 @@ for kDataInd = 1 : nUnit
             
             
             
-            
-            
-            %       if Opt.collapseSignal
-            %          targetHemifield = 'all';
-            %       else
-            %          % If it's not 50% or if there's only one 50% condition in
-            %          % targPropArray
-            %          if iPct ~= 50 || (iPct == 50 &&  pSignalArray(iPropIndex-1) ~= 50 &&  pSignalArray(iPropIndex+1) ~= 50)
-            %             targetHemifield = 'all';
-            %             % If it's the first (left target) 50% condition
-            %          elseif iPct == 50 && pSignalArray(iPropIndex-1) ~= 50
-            %             targetHemifield = 'left';
-            %             % If it's the second (right target) 50% condition
-            %          elseif iPct == 50 && pSignalArray(iPropIndex-1) == 50
-            %             targetHemifield = 'right';
-            %          end
-            %       end
             
             % If collapsing into all left and all right or all up/all down,
             % need to note here that there are "2" angles to deal with
@@ -350,449 +335,304 @@ for kDataInd = 1 : nUnit
             
             
             
-            
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %              GO TRIALS
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            selectOpt.ssd = 'none';
-            % Select appropriate trials to analyzie
-            selectOpt.outcome     = {'goCorrectTarget', 'targetHoldAbort'};
-            iGoTargTrial = ccm_trial_selection(trialData, selectOpt);
-            selectOpt.outcome     = {'goCorrectDistractor', 'distractorHoldAbort'};
-            iGoDistTrial = ccm_trial_selection(trialData, selectOpt);
-            
-            
-            
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %                    LOOP THROUGH EPOCHS
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             for mEpoch = 1 : length(epochArray)
                 mEpochName = epochArray{mEpoch};
-                if ~strcmp(mEpochName, 'stopSignalOn')  % No stop signals on go trials
+                
+                
+                
+                % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                %              GO TRIALS
+                % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                selectOpt.ssd = 'none';
+                for g = 1 : length(goOutcomeArray)
+                    % Select appropriate trials to analyzie
+                    switch goOutcomeArray{g}
+                        case 'goTarg'
+                            selectOpt.outcome     = {'goCorrectTarget', 'targetHoldAbort'};
+                        case 'goDist'
+                            selectOpt.outcome     = {'goCorrectDistractor', 'distractorHoldAbort'};
+                    end
+                    iGoTrial = ccm_trial_selection(trialData, selectOpt);
                     
-                    alignListGoTarg = trialData.(mEpochName)(iGoTargTrial);
-                    Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).alignTimeList = alignListGoTarg;   % Keep track of trial-by-trial alignemnt
-                    alignListGoDist = trialData.(mEpochName)(iGoDistTrial);
-                    Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).alignTimeList = alignListGoDist;   % Keep track of trial-by-trial alignemnt
+                    % Save go Target trial list for this
+                    % color/epoch/outcome, to be used for latency matching
+                    % below
+                    if mEpoch == 1 && strcmp(goOutcomeArray{g}, 'goTarg')
+                    iGoTargTrial = iGoTrial;
+                    end
                     
+                    if ~strcmp(mEpochName, 'stopSignalOn')  % No stop signals on go trials
                         
-                    
-                    switch dataType
-                        
-                        
-                        case 'neuron'
-                            % Go to Target trials
-                            [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(iGoTargTrial, kUnit), alignListGoTarg);
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).alignTime = alignmentIndex;
-                            sdf = spike_density_function(alignedRasters, Kernel);
-                            if ~isempty(sdf); yMax(mEpoch, iPropIndex, 1, 1) = nanmax(nanmean(sdf, 1)); end;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).raster = alignedRasters;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).sdf = sdf;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).sdfMean = nanmean(sdf, 1);
-                            
-                            % Go to Distractor trials
-                            [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(iGoDistTrial, kUnit), alignListGoDist);
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).alignTime = alignmentIndex;
-                            sdf = spike_density_function(alignedRasters, Kernel);
-                            if ~isempty(sdf); yMax(mEpoch, iPropIndex, 1, 2) = nanmax(nanmean(sdf, 1)); end;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).raster = alignedRasters;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).sdf = sdf;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).sdfMean = nanmean(sdf, 1);
-                            
-                            clear alignedRasters sdf
-                            
-                        case 'lfp'
-                            % Go to Target trials
-                            [targLFP, alignIndex] 	= align_signals(trialData.lfpData(iGoTargTrial, kUnit), alignListGoTarg, cropWindow);
-                            satTrial                = signal_reject_saturate(targLFP, 'alignIndex', alignIndex);
-                            iGoTargTrial(satTrial) = [];
-                            targLFP(satTrial,:)     = [];
-                            if Opt.baselineCorrect
-                                targLFP                 = signal_baseline_correct(targLFP, baseWindow, alignIndex);
-                            end
-                            if Opt.filterData
-                                targLFPMean = lowpass(nanmean(targLFP, 1)', Opt.stopHz);
-                            else
-                                targLFPMean = nanmean(targLFP, 1);
-                            end
-                            
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).alignTime = alignIndex;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).lfp = targLFP;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).lfpMean = targLFPMean;
-                            if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                if ~isempty(targLFP)
-                                    yMax(mEpoch, iPropIndex, 1, 1) = nanmax(nanmean(targLFP, 1));
-                                    yMin(mEpoch, iPropIndex, 1, 1) = nanmin(nanmean(targLFP, 1));
-                                end
-                            end
-                            
-                            % Go to Distractor trials
-                            [distLFP, alignIndex]	= align_signals(trialData.lfpData(iGoDistTrial, kUnit), alignListGoDist, cropWindow);
-                            satTrial                = signal_reject_saturate(distLFP, 'alignIndex', alignIndex);
-                            iGoDistTrial(satTrial) = [];
-                            distLFP(satTrial,:)     = [];
-                            if Opt.baselineCorrect
-                                distLFP                 = signal_baseline_correct(distLFP, baseWindow, alignIndex);
-                            end
-                            if Opt.filterData
-                                distLFPMean = lowpass(nanmean(distLFP, 1)', Opt.stopHz);
-                            else
-                                distLFPMean = nanmean(distLFP, 1);
-                            end
-                            
-                            
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).alignTime = alignIndex;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).lfp = distLFP;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).lfpMean = distLFPMean;
-                            if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                if ~isempty(distLFP)
-                                    yMax(mEpoch, iPropIndex, 1, 2) = nanmax(nanmean(distLFP, 1));
-                                    yMin(mEpoch, iPropIndex, 1, 2) = nanmin(nanmean(distLFP, 1));
-                                end
-                            end
-                            
-                            
-                            
-                            
-                        case 'erp'
-                            % Go to Target trials
-                            [targEEG, alignIndex] 	= align_signals(trialData.eegData(iGoTargTrial, kUnit), alignListGoTarg, cropWindow);
-                            satTrial                = signal_reject_saturate(targEEG, 'alignIndex', alignIndex);
-                            iGoTargTrial(satTrial) = [];
-                            targEEG(satTrial,:)     = [];
-                            targEEG                 = signal_baseline_correct(targEEG, baseWindow, alignIndex);
-                            if Opt.filterData
-                                targEEGMean = lowpass(nanmean(targEEG, 1)', Opt.stopHz);
-                            else
-                                targEEGMean = nanmean(targEEG, 1);
-                            end
-                            
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).alignTime = alignIndex;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).eeg = targEEG;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).erp = targEEGMean;
-                            if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                if ~isempty(targEEG)
-                                    yMax(kDataInd, mEpoch, iPropIndex, 1) = nanmax(nanmean(targEEG, 1));
-                                    yMin(kDataInd, mEpoch, iPropIndex, 1) = nanmin(nanmean(targEEG, 1));
-                                end
-                            end
-                            
-                            % Go to Distractor trials
-                            [distEEG, alignIndex]	= align_signals(trialData.eegData(iGoDistTrial, kUnit), alignListGoDist, cropWindow);
-                            satTrial                = signal_reject_saturate(distEEG, 'alignIndex', alignIndex);
-                            iGoDistTrial(satTrial) = [];
-                            distEEG(satTrial,:)     = [];
-                            distEEG                 = signal_baseline_correct(distEEG, baseWindow, alignIndex);
-                            if Opt.filterData
-                                distEEGMean = lowpass(nanmean(distEEG, 1)', Opt.stopHz);
-                            else
-                                distEEGMean = nanmean(distEEG, 1);
-                            end
-                            
-                            
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).alignTime = alignIndex;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).eeg = distEEG;
-                            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).erp = distEEGMean;
-                            if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                % if ~isempty(targEEG)
-                                %                         yMax(mEpoch, iPropIndex, 1, 2) = nanmax(nanmean(distEEG, 1));
-                                %                         yMin(mEpoch, iPropIndex, 1, 2) = nanmin(nanmean(distEEG, 1));
-                                %                      end
-                            end
-                            
-                    end % switch dataType
-                end % ~strcmp(mEpochName, 'stopSignalOn')
-            end % mEpoch
-            
-            % add go RTs here
-            Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.rt = trialData.rt(iGoTargTrial);
-            Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.rt = trialData.rt(iGoDistTrial);
-            
-            
-            
-            
-            
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % Stop trials
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-            if Opt.doStops
-                for jSSDIndex = 1 : nSSD
-                    jSSD = ssdArray(jSSDIndex);
-                    selectOpt.ssd       = jSSD;
-                    
-                    selectOpt.outcome       = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectPreSSDTarget'};
-                    jStopTargTrial = ccm_trial_selection(trialData, selectOpt);
-
-                    selectOpt.outcome       =  {'stopIncorrectDistractor', 'distractorHoldAbort', 'stopIncorrectPreSSDDistractor'};
-                    jStopDistTrial = ccm_trial_selection(trialData, selectOpt);
-
-                    selectOpt.outcome       = {'stopCorrect'};
-                    jstopStopTrial = ccm_trial_selection(trialData, selectOpt);
-                    
-                    for mEpoch = 1 : length(epochArray)
-                        mEpochName = epochArray{mEpoch};
-                        
-                        alignListStopTarg = trialData.(mEpochName)(jStopTargTrial);
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListStopTarg;   % Keep track of trial-by-trial alignemnt
-                        alignListStopDist = trialData.(mEpochName)(jStopDistTrial);
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListStopDist;   % Keep track of trial-by-trial alignemnt
-                        alignListstopStop = trialData.(mEpochName)(jstopStopTrial);
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListstopStop;   % Keep track of trial-by-trial alignemnt
+                        alignListGo = trialData.(mEpochName)(iGoTrial);
+                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTimeList = alignListGo;   % Keep track of trial-by-trial alignemnt
                         
                         
                         
                         switch dataType
+                            
+                            
                             case 'neuron'
-                                % Stop to Target trials
-                                [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(jStopTargTrial, kUnit), alignListStopTarg);
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime = alignmentIndex;
-                                
+                                % Go to TargetDistractor trials
+                                [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(iGoTrial, kUnit), alignListGo);
+                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTime = alignmentIndex;
                                 sdf = spike_density_function(alignedRasters, Kernel);
-                                if ~isempty(sdf); yMax(mEpoch, iPropIndex, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).raster = alignedRasters;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).sdf = sdf;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).sdfMean = nanmean(sdf, 1);
+                                if ~isempty(sdf); yMax(mEpoch, iColor, 1, 1) = nanmax(nanmean(sdf, 1)); end;
+                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).raster = alignedRasters;
+                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf = sdf;
+                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdfMean = nanmean(sdf, 1);
                                 
                                 
-                                % Stop to Distractor trials
-                                [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(jStopDistTrial, kUnit), alignListStopDist );
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).alignTime = alignmentIndex;
-                                
-                                sdf = spike_density_function(alignedRasters, Kernel);
-                                if ~isempty(sdf); yMax(mEpoch, iPropIndex, jSSDIndex+1, 4) = nanmax(nanmean(sdf, 1)); end;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).raster = alignedRasters;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).sdf = sdf;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).sdfMean = nanmean(sdf, 1);
-                                
-                                
-                                if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-                                    % Canceled Stop trials
-                                    [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(jstopStopTrial, kUnit), alignListstopStop);
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).alignTime = alignmentIndex;
-                                    
-                                    sdf = spike_density_function(alignedRasters, Kernel);
-                                    if ~isempty(sdf); yMax(mEpoch, iPropIndex, jSSDIndex+1, 5) = nanmax(nanmean(sdf, 1)); end;
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).raster = alignedRasters;
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).sdf = sdf;
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).sdfMean = nanmean(sdf, 1);
-                                    
-                                end
                                 clear alignedRasters sdf
                                 
-                                
-                                
-                                
-                            case 'lfp'
-                                
-                                % Stop to Target trials
-                                [targLFP, alignIndex] 	= align_signals(trialData.lfpData(jStopTargTrial, kUnit), alignListStopTarg, cropWindow);
-                                satTrial                = signal_reject_saturate(targLFP, 'alignIndex', alignIndex);
-                                jStopTargTrial(satTrial,:)     = [];
-                                targLFP(satTrial,:)     = [];
-                                if Opt.baselineCorrect
-                                    targLFP                 = signal_baseline_correct(targLFP, baseWindow, alignIndex);
-                                end
-                                if Opt.filterData
-                                    targLFPMean = lowpass(nanmean(targLFP, 1)', Opt.stopHz);
-                                else
-                                    targLFPMean = nanmean(targLFP, 1);
-                                end
-                                
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).lfp = targLFP;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).lfpMean = targLFPMean;
-                                if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                    % if ~isempty(targLFP)
-                                    %                         yMax(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 3) = nanmax(nanmean(targLFP, 1));
-                                    %                         yMin(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 3) = nanmin(nanmean(targLFP, 1));
-                                    % end
-                                end
-                                
-                                % Stop to Distractor trials
-                                [distLFP, alignIndex] 	= align_signals(trialData.lfpData(jStopDistTrial, kUnit), alignListStopDist, cropWindow);
-                                satTrial                = signal_reject_saturate(distLFP, 'alignIndex', alignIndex);
-                                jStopDistTrial(satTrial,:)     = [];
-                                distLFP(satTrial,:)     = [];
-                                if Opt.baselineCorrect
-                                    distLFP                 = signal_baseline_correct(distLFP, baseWindow, alignIndex);
-                                end
-                                if Opt.filterData
-                                    distLFPMean = lowpass(nanmean(distLFP, 1)', Opt.stopHz);
-                                else
-                                    distLFPMean = nanmean(distLFP, 1);
-                                end
-                                
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).lfp = distLFP;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).lfpMean = distLFPMean;
-                                if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                    % if ~isempty(distLFP)
-                                    %                         yMax(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 4) = nanmax(nanmean(distLFP, 1));
-                                    %                         yMin(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 4) = nanmin(nanmean(distLFP, 1));
-                                    % end
-                                end
-                                
-                                
-                                if ~strcmp(mEpochName, 'responseOnset')  % No response on correct Stop trials
-                                    % Correct Stop trials
-                                    [stopLFP, alignIndex] 	= align_signals(trialData.lfpData(jstopStopTrial, kUnit), alignListstopStop, cropWindow);
-                                    satTrial                = signal_reject_saturate(stopLFP, 'alignIndex', alignIndex);
-                                    stopLFP(satTrial,:)     = [];
-                                    if Opt.baselineCorrect
-                                        stopLFP                 = signal_baseline_correct(stopLFP, baseWindow, alignIndex);
-                                    end
-                                    if Opt.filterData
-                                        stopLFPMean = lowpass(nanmean(stopLFP, 1)', Opt.stopHz);
-                                    else
-                                        stopLFPMean = nanmean(stopLFP, 1);
-                                    end
-                                    
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).lfp = stopLFP;
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).lfpMean = stopLFPMean;
-                                    if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                        if ~isempty(stopLFP)
-                                            yMax(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 5) = nanmax(nanmean(stopLFP, 1));
-                                            yMin(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 5) = nanmin(nanmean(stopLFP, 1));
-                                        end
-                                    end
-                                    
-                                end
-                                
-                                
-                                
-                            case 'erp'
-                                % Stop to Target trials
-                                [targEEG, alignIndex] 	= align_signals(trialData.eegData(jStopTargTrial, kUnit), alignListStopTarg, cropWindow);
-                                satTrial                = signal_reject_saturate(targEEG, 'alignIndex', alignIndex);
-                                jStopTargTrial(satTrial,:)     = [];
-                                targEEG(satTrial,:)     = [];
-                                targEEG                 = signal_baseline_correct(targEEG, baseWindow, alignIndex);
-                                if Opt.filterData
-                                    targEEGMean = lowpass(nanmean(targEEG, 1)', Opt.stopHz);
-                                else
-                                    targEEGMean = nanmean(targEEG, 1);
-                                end
-                                
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).eeg = targEEG;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).erp = targEEGMean;
-                                if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                    % if ~isempty(targEEG)
-                                    %                         yMax(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 3) = nanmax(nanmean(targEEG, 1));
-                                    %                         yMin(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 3) = nanmin(nanmean(targEEG, 1));
-                                    %                      end
-                                end
-                                
-                                
-                                % Stop to Distractor trials
-                                [distEEG, alignIndex] 	= align_signals(trialData.eegData(jStopDistTrial, kUnit), alignListStopDist, cropWindow);
-                                satTrial                = signal_reject_saturate(distEEG, 'alignIndex', alignIndex);
-                                jStopDistTrial(satTrial,:)     = [];
-                                distEEG(satTrial,:)     = [];
-                                distEEG                 = signal_baseline_correct(distEEG, baseWindow, alignIndex);
-                                if Opt.filterData
-                                    distEEGMean = lowpass(nanmean(distEEG, 1)', Opt.stopHz);
-                                else
-                                    distEEGMean = nanmean(distEEG, 1);
-                                end
-                                
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).eeg = distEEG;
-                                Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).erp = distEEGMean;
-                                if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                    % if ~isempty(distEEG)
-                                    %                         yMax(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 4) = nanmax(nanmean(distEEG, 1));
-                                    %                         yMin(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 4) = nanmin(nanmean(distEEG, 1));
-                                    %                      end
-                                end
-                                
-                                
-                                if ~strcmp(mEpochName, 'responseOnset')  % No response on correct Stop trials
-                                    % Correct Stop trials
-                                    [stopEEG, alignIndex] 	= align_signals(trialData.eegData(jstopStopTrial, kUnit), alignListstopStop, cropWindow);
-                                    satTrial                = signal_reject_saturate(stopEEG, 'alignIndex', alignIndex);
-                                    stopEEG(satTrial,:)     = [];
-                                    stopEEG                 = signal_baseline_correct(stopEEG, baseWindow, alignIndex);
-                                    if Opt.filterData
-                                        stopEEGMean = lowpass(nanmean(stopEEG, 1)', Opt.stopHz);
-                                    else
-                                        stopEEGMean = nanmean(stopEEG, 1);
-                                    end
-                                    
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).alignTime = alignIndex;
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).eeg = stopEEG;
-                                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).erp = stopEEGMean;
-                                    if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
-                                        if ~isempty(stopEEG)
-                                            yMax(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 5) = nanmax(nanmean(stopEEG, 1));
-                                            yMin(kDataInd, mEpoch, iPropIndex, jSSDIndex + 1, 5) = nanmin(nanmean(stopEEG, 1));
-                                        end
-                                    end
-                                end
-                                
+                                %                         case 'lfp'
+                                %                             % Go  trials
+                                %                             [targLFP, alignIndex] 	= align_signals(trialData.lfpData(iGoTargTrial, kUnit), alignListGoTarg, cropWindow);
+                                %                             satTrial                = signal_reject_saturate(targLFP, 'alignIndex', alignIndex);
+                                %                             iGoTargTrial(satTrial) = [];
+                                %                             targLFP(satTrial,:)     = [];
+                                %                             if Opt.baselineCorrect
+                                %                                 targLFP                 = signal_baseline_correct(targLFP, baseWindow, alignIndex);
+                                %                             end
+                                %                             if Opt.filterData
+                                %                                 targLFPMean = lowpass(nanmean(targLFP, 1)', Opt.stopHz);
+                                %                             else
+                                %                                 targLFPMean = nanmean(targLFP, 1);
+                                %                             end
+                                %
+                                %                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTime = alignIndex;
+                                %                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfp = targLFP;
+                                %                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfpMean = targLFPMean;
+                                %                             if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
+                                %                                 if ~isempty(targLFP)
+                                %                                     yMax(mEpoch, iColor, 1, 1) = nanmax(nanmean(targLFP, 1));
+                                %                                     yMin(mEpoch, iColor, 1, 1) = nanmin(nanmean(targLFP, 1));
+                                %                                 end
+                                %                             end
+                                %
+                                %
+                                %
+                                %
+                                %
+                                %                         case 'erp'
+                                %                             % Go to Target trials
+                                %                             [targEEG, alignIndex] 	= align_signals(trialData.eegData(iGoTargTrial, kUnit), alignListGoTarg, cropWindow);
+                                %                             satTrial                = signal_reject_saturate(targEEG, 'alignIndex', alignIndex);
+                                %                             iGoTargTrial(satTrial) = [];
+                                %                             targEEG(satTrial,:)     = [];
+                                %                             targEEG                 = signal_baseline_correct(targEEG, baseWindow, alignIndex);
+                                %                             if Opt.filterData
+                                %                                 targEEGMean = lowpass(nanmean(targEEG, 1)', Opt.stopHz);
+                                %                             else
+                                %                                 targEEGMean = nanmean(targEEG, 1);
+                                %                             end
+                                %
+                                %                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTime = alignIndex;
+                                %                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).eeg = targEEG;
+                                %                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).erp = targEEGMean;
+                                %                             if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
+                                %                                 if ~isempty(targEEG)
+                                %                                     yMax(kDataInd, mEpoch, iColor, 1) = nanmax(nanmean(targEEG, 1));
+                                %                                     yMin(kDataInd, mEpoch, iColor, 1) = nanmin(nanmean(targEEG, 1));
+                                %                                 end
+                                %                             end
+                                %
                         end % switch dataType
-                    end % mEpoch
+                    end % ~strcmp(mEpochName, 'stopSignalOn')
                     
                     
-                    % Move stop rts here
-                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).rt = trialData.rt(jStopTargTrial);
-                    Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).rt = trialData.rt(jStopDistTrial);
+                    % add go RTs here
+                    if strcmp(mEpochName, 'checkerOn')
+                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).rt = trialData.rt(iGoTrial);
+                    end
                     
-                    
-                    
-                    
-                    
-                    % Get latency matched Go trials
-                    mOpt.matchMethod = 'ssrt';
-                    mOpt.ssrt = ssrt;
-                    mOpt.ssd = ssdArray(jSSDIndex);
-                    mOpt.stopRT = trialData.rt(jStopTargTrial);
-                    [goFastTrial, goSlowTrial] = latency_match(trialData.rt(iGoTargTrial), mOpt);
-                    goFastTrial = iGoTargTrial(goFastTrial);
-                    goSlowTrial = iGoTargTrial(goSlowTrial);
-                    for mEpoch = 1 : length(epochArray)
-                        mEpochName = epochArray{mEpoch};
+                end % GO TRIAL OUTCOMES
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % STOP TRIALS   and lantency matched GO trials (to target
+                % only - no latency matched choice error data collected
+                % here
+                % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                
+                
+                if Opt.doStops
+                    for jSSDIndex = 1 : nSSD
+                        jSSD = ssdArray(jSSDIndex);
+                        selectOpt.ssd       = jSSD;
+                        
+                        for s = 1 : length(stopOutcomeArray)
+                            % Select appropriate trials to analyzie
+                            switch stopOutcomeArray{s}
+                                case 'stopTarg'
+                                    selectOpt.outcome       = {'stopIncorrectTarget', 'targetHoldAbort', 'stopIncorrectPreSSDTarget'};
+                                case 'stopDist'
+                                    selectOpt.outcome       =  {'stopIncorrectDistractor', 'distractorHoldAbort', 'stopIncorrectPreSSDDistractor'};
+                                case 'stopStop'
+                                    selectOpt.outcome       = {'stopCorrect'};
+                            end
+                            jStopTrial = ccm_trial_selection(trialData, selectOpt);
+                            
+                            
+                            alignListStop = trialData.(mEpochName)(jStopTrial);
+                            Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTimeList = alignListStop;   % Keep track of trial-by-trial alignemnt
+                            
+                            
+                            
+                            switch dataType
+                                case 'neuron'
+                                    
+                                    
+                                    if ~(strcmp(stopOutcomeArray{s}, 'stopStop') && strcmp(mEpochName, 'responseOnset'))  % No stop signals on go trials
+                                        % Canceled Stop trials
+                                        [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(jStopTrial, kUnit), alignListStop);
+                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTime = alignmentIndex;
+                                        
+                                        sdf = spike_density_function(alignedRasters, Kernel);
+                                        if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 5) = nanmax(nanmean(sdf, 1)); end;
+                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).raster = alignedRasters;
+                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf = sdf;
+                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
+                                        
+                                    end
+                                    clear alignedRasters sdf
+                                    
+                                    
+                                    
+                                    %
+                                    %                             case 'lfp'
+                                    %
+                                    %
+                                    %                                 if ~strcmp(mEpochName, 'responseOnset')  % No response on correct Stop trials
+                                    %                                     % Correct Stop trials
+                                    %                                     [stopLFP, alignIndex] 	= align_signals(trialData.lfpData(jstopStopTrial, kUnit), alignListstopStop, cropWindow);
+                                    %                                     satTrial                = signal_reject_saturate(stopLFP, 'alignIndex', alignIndex);
+                                    %                                     stopLFP(satTrial,:)     = [];
+                                    %                                     if Opt.baselineCorrect
+                                    %                                         stopLFP                 = signal_baseline_correct(stopLFP, baseWindow, alignIndex);
+                                    %                                     end
+                                    %                                     if Opt.filterData
+                                    %                                         stopLFPMean = lowpass(nanmean(stopLFP, 1)', Opt.stopHz);
+                                    %                                     else
+                                    %                                         stopLFPMean = nanmean(stopLFP, 1);
+                                    %                                     end
+                                    %
+                                    %                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTime = alignIndex;
+                                    %                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfp = stopLFP;
+                                    %                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfpMean = stopLFPMean;
+                                    %                                     if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
+                                    %                                         if ~isempty(stopLFP)
+                                    %                                             yMax(kDataInd, mEpoch, iColor, jSSDIndex + 1, 5) = nanmax(nanmean(stopLFP, 1));
+                                    %                                             yMin(kDataInd, mEpoch, iColor, jSSDIndex + 1, 5) = nanmin(nanmean(stopLFP, 1));
+                                    %                                         end
+                                    %                                     end
+                                    %
+                                    %                                 end
+                                    %
+                                    %
+                                    %
+                                    %                             case 'erp'
+                                    %                                 if ~strcmp(mEpochName, 'responseOnset')  % No response on correct Stop trials
+                                    %                                     % Correct Stop trials
+                                    %                                     [stopEEG, alignIndex] 	= align_signals(trialData.eegData(jstopStopTrial, kUnit), alignListstopStop, cropWindow);
+                                    %                                     satTrial                = signal_reject_saturate(stopEEG, 'alignIndex', alignIndex);
+                                    %                                     stopEEG(satTrial,:)     = [];
+                                    %                                     stopEEG                 = signal_baseline_correct(stopEEG, baseWindow, alignIndex);
+                                    %                                     if Opt.filterData
+                                    %                                         stopEEGMean = lowpass(nanmean(stopEEG, 1)', Opt.stopHz);
+                                    %                                     else
+                                    %                                         stopEEGMean = nanmean(stopEEG, 1);
+                                    %                                     end
+                                    %
+                                    %                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTime = alignIndex;
+                                    %                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).eeg = stopEEG;
+                                    %                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).erp = stopEEGMean;
+                                    %                                     if ~strcmp(mEpochName, 'rewardOn') && ~strcmp(mEpochName, 'responseOnset')
+                                    %                                         if ~isempty(stopEEG)
+                                    %                                             yMax(kDataInd, mEpoch, iColor, jSSDIndex + 1, 5) = nanmax(nanmean(stopEEG, 1));
+                                    %                                             yMin(kDataInd, mEpoch, iColor, jSSDIndex + 1, 5) = nanmin(nanmean(stopEEG, 1));
+                                    %                                         end
+                                    %                                     end
+                                    %                                 end
+                                    
+                            end % switch dataType
                         
                         
-                        alignListGoFast = trialData.(mEpochName)(goFastTrial);
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goFast.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListGoFast;   % Keep track of trial-by-trial alignemnt
-                        alignListGoSlow = trialData.(mEpochName)(goSlowTrial);
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goSlow.ssd(jSSDIndex).(mEpochName).alignTimeList = alignListGoSlow;   % Keep track of trial-by-trial alignemnt
+                        % Move stop rts here
+                        if strcmp(mEpochName, 'checkerOn') && ~strcmp(stopOutcomeArray(s), 'stopStop')
+                            Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).rt = trialData.rt(jStopTrial);
+                        end
+                        
+                        end % stopOutcomeArray
+                        
+                        
+                        
+                        
+                        % Get latency matched Go trials
+                        mOpt.matchMethod = 'ssrt';
+                        mOpt.ssrt = ssrt;
+                        mOpt.ssd = ssdArray(jSSDIndex);
+                        mOpt.stopRT = trialData.rt(jStopTrial);
+                        [goFastTrial, goSlowTrial] = latency_match(trialData.rt(iGoTargTrial), mOpt);
+                        goFastTrial = iGoTargTrial(goFastTrial);
+                        goSlowTrial = iGoTargTrial(goSlowTrial);
+                            
+                        % Move stop rts here
+                        if strcmp(mEpochName, 'checkerOn') && ~strcmp(stopOutcomeArray(s), 'goSlow')
+                            Data(kDataInd, jTarg).checkerOn.colorCoh(iColor).goFast.ssd(jSSDIndex).rt = trialData.rt(goFastTrial);
+                        end
 
-                        switch dataType
-                            case 'neuron'
-                       % Go Fast data
-                        [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goFastTrial, kUnit), alignListGoFast);
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goFast.ssd(jSSDIndex).(mEpochName).alignTime = alignmentIndex;
+                            alignListGoFast = trialData.(mEpochName)(goFastTrial);
+                            Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).alignTimeList = alignListGoFast;   % Keep track of trial-by-trial alignemnt
+                            alignListGoSlow = trialData.(mEpochName)(goSlowTrial);
+                            Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).alignTimeList = alignListGoSlow;   % Keep track of trial-by-trial alignemnt
+                            
+                            switch dataType
+                                case 'neuron'
+                                    % Go Fast data
+                                    [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goFastTrial, kUnit), alignListGoFast);
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).alignTime = alignmentIndex;
+                                    
+                                    sdf = spike_density_function(alignedRasters, Kernel);
+                                    if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).raster = alignedRasters;
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).sdf = sdf;
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
+                                    
+                                    
+                                    % Go Slow data
+                                    [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goSlowTrial, kUnit), alignListGoSlow);
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).alignTime = alignmentIndex;
+                                    
+                                    sdf = spike_density_function(alignedRasters, Kernel);
+                                    if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).raster = alignedRasters;
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).sdf = sdf;
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
+                                    
+                                case 'lfp'
+                                    disp('Need to implement latency matching in lfp data')
+                                case 'erp'
+                                    disp('Need to implement latency matching in erp data')
+                            end
                         
-                        sdf = spike_density_function(alignedRasters, Kernel);
-                        if ~isempty(sdf); yMax(mEpoch, iPropIndex, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goFast.ssd(jSSDIndex).(mEpochName).raster = alignedRasters;
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goFast.ssd(jSSDIndex).(mEpochName).sdf = sdf;
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goFast.ssd(jSSDIndex).(mEpochName).sdfMean = nanmean(sdf, 1);
-                        
-                        
-                        % Go Slow data
-                        [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goSlowTrial, kUnit), alignListGoSlow);
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goSlow.ssd(jSSDIndex).(mEpochName).alignTime = alignmentIndex;
-                        
-                        sdf = spike_density_function(alignedRasters, Kernel);
-                        if ~isempty(sdf); yMax(mEpoch, iPropIndex, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goSlow.ssd(jSSDIndex).(mEpochName).raster = alignedRasters;
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goSlow.ssd(jSSDIndex).(mEpochName).sdf = sdf;
-                        Data(kDataInd, jTarg).signalStrength(iPropIndex).goSlow.ssd(jSSDIndex).(mEpochName).sdfMean = nanmean(sdf, 1);
-                        
-                             case 'lfp'
-                                 disp('Need to implement latency matching in lfp data')
-                             case 'erp'
-                                  disp('Need to implement latency matching in erp data')
-                         end
-                   end
-                    
-                end % jSSD
-            end % if Opt.doStops
-            
-        end %iPropIndex
+                    end % jSSD
+                end % if Opt.doStops
+                
+                
+                
+                
+            end % Epochs loop
+        end %iColor
         
         
         
@@ -808,9 +648,6 @@ for kDataInd = 1 : nUnit
         
         Data(kDataInd, jTarg).yMax = max([a(:); nanmean(b(:))]);
         Data(kDataInd, jTarg).yMin = min([c(:); nanmean(d(:))]);
-        %    Data(kDataInd, jTarg).yMax = max([yMax(:,:,1,:); nanmean(nanmax(yMax(:,:,2:end,:)))]);
-        %    Data(kDataInd, jTarg).yMin = max([yMin(:,:,1,:); nanmean(nanmax(yMin(:,:,2:end,:)))]);
-        %    Data(kDataInd, jTarg).yMin = nanmin(yMin(:));
         
         
         
@@ -826,7 +663,7 @@ for kDataInd = 1 : nUnit
                     if strcmp(howProcess, 'step')
                         pause
                     end
-                    clear Data
+%                     clear Data
             end
         end
     end % jTarg
@@ -859,7 +696,7 @@ end % kDataInd
 %
 % if Opt.normalize
 %     for kDataInd = 1 : nUnit
-%         for iPropIndex = 1 : nSignal;
+%         for iColor = 1 : nSignal;
 %             for mEpoch = 1 : length(epochArray)
 %                 mEpochName = epochArray{mEpoch};
 %
@@ -871,45 +708,26 @@ end % kDataInd
 %                     switch dataType
 %                         case 'neuron'
 %                             % Go to Target trials
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).sdf = ...
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).sdf ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).sdfMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).sdf, 1);
-%
-%                             % Go to Distractor trials
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).sdf = ...
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).sdf ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).sdfMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).sdf, 1);
+%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf = ...
+%                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf ./ Data(kDataInd, jTarg).yMax;
+%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdfMean = ...
+%                                 nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf, 1);
 %
 %
 %                         case 'lfp'
 %                             % Go to Target trials
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).lfp = ...
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).lfp ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).lfpMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).lfp, 1);
-%
-%                             % Go to Distractor trials
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).lfp = ...
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).lfp ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).lfpMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).lfp, 1);
+%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfp = ...
+%                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfp ./ Data(kDataInd, jTarg).yMax;
+%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfpMean = ...
+%                                 nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfp, 1);
 %
 %
 %                         case 'erp'
 %                             % Go to Target trials
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).eeg = ...
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).eeg ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).lfpMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).goTarg.(mEpochName).eeg, 1);
-%
-%                             % Go to Distractor trials
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).eeg = ...
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).eeg ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).erp = ...
-%                                 nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).goDist.(mEpochName).eeg, 1);
-%
+%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).eeg = ...
+%                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).eeg ./ Data(kDataInd, jTarg).yMax;
+%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfpMean = ...
+%                                 nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).eeg, 1);
 %
 %                     end % switch dataType
 %                 end % ~strcmp(mEpochName, 'stopSignalOn')
@@ -926,75 +744,37 @@ end % kDataInd
 %
 %                         switch dataType
 %                             case 'neuron'
-%                                 % Stop to Target trials
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).sdf = ...
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).sdf ./ Data(kDataInd, jTarg).yMax;
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).sdfMean = ...
-%                                     nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).sdf, 1);
-%
-%                                 % Stop to Distractor trials
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).sdf = ...
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).sdf ./ Data(kDataInd, jTarg).yMax;
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).sdfMean = ...
-%                                     nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).sdf, 1);
-%
 %                                 if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
 %
 %                                     % Stop Correct trials
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).sdf = ...
-%                                         Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).sdf ./ Data(kDataInd, jTarg).yMax;
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).sdfMean = ...
-%                                         nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).sdf, 1);
+%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf = ...
+%                                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf ./ Data(kDataInd, jTarg).yMax;
+%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdfMean = ...
+%                                         nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf, 1);
 %
 %                                 end % ~strcmp(mEpochName, 'responseOnset')
 %
 %
 %                             case 'lfp'
 %
-%                                 % Stop to Target trials
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).lfp = ...
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).lfp ./ Data(kDataInd, jTarg).yMax;
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).lfpMean = ...
-%                                     nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).lfp, 1);
-%
-%                                 % Stop to Distractor trials
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).lfp = ...
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).lfp ./ Data(kDataInd, jTarg).yMax;
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).lfpMean = ...
-%                                     nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).lfp, 1);
-%
-%                                 if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-%
 %                                     % Stop Correct trials
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).lfp = ...
-%                                         Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).lfp ./ Data(kDataInd, jTarg).yMax;
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).lfpMean = ...
-%                                         nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).lfp, 1);
+%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfp = ...
+%                                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfp ./ Data(kDataInd, jTarg).yMax;
+%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfpMean = ...
+%                                         nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfp, 1);
 %
 %                                 end % ~strcmp(mEpochName, 'responseOnset')
 %
 %
 %                             case 'erp'
 %
-%                                 % Stop to Target trials
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).eeg = ...
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).eeg ./ Data(kDataInd, jTarg).yMax;
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).erp = ...
-%                                     nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopTarg.ssd(jSSDIndex).(mEpochName).eeg, 1);
-%
-%                                 % Stop to Distractor trials
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).eeg = ...
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).eeg ./ Data(kDataInd, jTarg).yMax;
-%                                 Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).erp = ...
-%                                     nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopDist.ssd(jSSDIndex).(mEpochName).eeg, 1);
-%
 %                                 if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
 %
 %                                     % Stop Correct trials
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).eeg = ...
-%                                         Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).eeg ./ Data(kDataInd, jTarg).yMax;
-%                                     Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).erp = ...
-%                                         nanmean(Data(kDataInd, jTarg).signalStrength(iPropIndex).stopStop.ssd(jSSDIndex).(mEpochName).eeg, 1);
+%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).eeg = ...
+%                                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).eeg ./ Data(kDataInd, jTarg).yMax;
+%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).erp = ...
+%                                         nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).eeg, 1);
 %
 %                                 end % ~strcmp(mEpochName, 'responseOnset')
 %
@@ -1048,21 +828,21 @@ end
 % ################################################################################
 
 %     function [goFastTrial, goSlowTrial] = latency_match(goRT, stopRT)
-%         
+%
 %         goFastTrial = [];
 %         goSlowTrial = [];
 %         if isempty(stopRT) || isempty(goRT)
 %             return
 %         end
-%         
+%
 %         [rt, ind] = sort(goRT);
-%         
+%
 %         lastInd = 1;
 %         while nanmean(rt(lastInd:end)) < nanmean(stopRT)
 %             goFastTrial = [goFastTrial; ind(lastInd)];
 %             lastInd = lastInd + 1;
-%             
-%             
+%
+%
 %         end
 %         goSlowTrial = ind(lastInd:end);
 %         %         trialList = 1 : length(goRT);
@@ -1077,8 +857,8 @@ end
 %         %
 %         %         end
 %         %         goFastTrial = remaining;
-%         
-%         
+%
+%
 %     end
 
 end

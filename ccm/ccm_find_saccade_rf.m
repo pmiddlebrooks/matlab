@@ -12,19 +12,19 @@ preSaccWindow       = -49 : 0;
 
 rf = 'none'; % Default is no RF
 
-leftFixAlign        = Data.signalStrength(1).goTarg.targOn.alignTime;
-rightFixAlign       = Data.signalStrength(end).goTarg.targOn.alignTime;
-leftCheckerAlign    = Data.signalStrength(1).goTarg.checkerOn.alignTime;
-rightCheckerAlign   = Data.signalStrength(end).goTarg.checkerOn.alignTime;
-leftSaccAlign       = Data.signalStrength(1).goTarg.responseOnset.alignTime;
-rightSaccAlign      = Data.signalStrength(end).goTarg.responseOnset.alignTime;
+leftFixAlign        = Data.targOn.colorCoh(1).goTarg.alignTime;
+rightFixAlign       = Data.targOn.colorCoh(end).goTarg.alignTime;
+leftCheckerAlign    = Data.checkerOn.colorCoh(1).goTarg.alignTime;
+rightCheckerAlign   = Data.checkerOn.colorCoh(end).goTarg.alignTime;
+leftSaccAlign       = Data.responseOnset.colorCoh(1).goTarg.alignTime;
+rightSaccAlign      = Data.responseOnset.colorCoh(end).goTarg.alignTime;
 
-leftFixRate         = nansum(Data.signalStrength(1).goTarg.targOn.raster(:,leftFixAlign + preTargWindow), 2)  .* 1000 ./ length(preTargWindow);
-rightFixRate        = nansum(Data.signalStrength(end).goTarg.targOn.raster(:,rightFixAlign + preTargWindow), 2)  .* 1000 ./ length(preTargWindow);
-leftCheckerRate     = nansum(Data.signalStrength(1).goTarg.checkerOn.raster(:,leftCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
-rightCheckerRate 	= nansum(Data.signalStrength(end).goTarg.checkerOn.raster(:,rightCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
-leftSaccRate        = nansum(Data.signalStrength(1).goTarg.responseOnset.raster(:,leftSaccAlign + preSaccWindow), 2)  .* 1000 ./ length(preSaccWindow);
-rightSaccRate       = nansum(Data.signalStrength(end).goTarg.responseOnset.raster(:,rightSaccAlign + preSaccWindow), 2)  .* 1000 ./ length(preSaccWindow);
+leftFixRate         = nansum(Data.targOn.colorCoh(1).goTarg.raster(:,leftFixAlign + preTargWindow), 2)  .* 1000 ./ length(preTargWindow);
+rightFixRate        = nansum(Data.targOn.colorCoh(end).goTarg.raster(:,rightFixAlign + preTargWindow), 2)  .* 1000 ./ length(preTargWindow);
+leftCheckerRate     = nansum(Data.checkerOn.colorCoh(1).goTarg.raster(:,leftCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
+rightCheckerRate 	= nansum(Data.checkerOn.colorCoh(end).goTarg.raster(:,rightCheckerAlign + postCheckerWindow), 2)  .* 1000 ./ length(postCheckerWindow);
+leftSaccRate        = nansum(Data.responseOnset.colorCoh(1).goTarg.raster(:,leftSaccAlign + preSaccWindow), 2)  .* 1000 ./ length(preSaccWindow);
+rightSaccRate       = nansum(Data.responseOnset.colorCoh(end).goTarg.raster(:,rightSaccAlign + preSaccWindow), 2)  .* 1000 ./ length(preSaccWindow);
 
 
 % Is there leftward presaccadic activity?

@@ -41,9 +41,9 @@ end
 
 % These will determine the trial-to-trial epochs used for analyses:
 epochOffset = 150;  % When to begin spike rate analysis after stimulus (checkerboard) onset
-preSaccadeBuffer = 50; % When to cut off spike rate analysis before saccade onset
-minEpochDuration = 20; % Only include trials for which the determined epoch is this long
-
+preSaccadeBuffer = 10; % When to cut off spike rate analysis before saccade onset
+minEpochDuration = 10; % Only include trials for which the determined epoch is this long
+epochDuration = 120;
 
 
 % Load the data
@@ -97,6 +97,8 @@ leftTrial = ccm_trial_selection(trialData, selectOpt);
 selectOpt.rightCheckerPct = signalRightP * 100;
 rightTrial = ccm_trial_selection(trialData, selectOpt);
 
+% Rearrange trialData table so it's organized orderly by left trials then
+% right triasls
 trialData = [trialData(leftTrial,:); trialData(rightTrial,:)];
 nTrial = size(trialData, 1);
 leftTrial = 1 : length(leftTrial);
@@ -110,13 +112,15 @@ rightTrial = 1 + length(leftTrial) : nTrial;
 
    % Get trials of easiest left and right color coherence, to define trial by
 % trial epoch end during the STIM period of Ding and Gold
-selectOpt.rightCheckerPct = pSignalArray(1) * 100;
+selectOpt.rightCheckerPct = min(pSignalArray) * 100;
 easyLeftTrial = ccm_trial_selection(trialData, selectOpt);
-medianLeftRT = nanmedian(trialData.rt(easyLeftTrial));
+% medianLeftRT = nanmedian(trialData.rt(easyLeftTrial));
+medianLeftRT = nanmean(trialData.rt(easyLeftTrial));
 
-selectOpt.rightCheckerPct = pSignalArray(end) * 100;
+selectOpt.rightCheckerPct = max(pSignalArray) * 100;
 easyRightTrial = ccm_trial_selection(trialData, selectOpt);
-medianRightRT = nanmedian(trialData.rt(easyRightTrial));
+% medianRightRT = nanmedian(trialData.rt(easyRightTrial));
+medianRightRT = nanmean(trialData.rt(easyRightTrial));
 
 
 
@@ -135,19 +139,28 @@ for iUnit = 1 : length(spikeUnit)
     
    % Initialize end of epoch as median RTs from easiect choice
    % conditions
-%    epochEnd = [medianLeftRT * ones(length(leftTrial), 1); medianRightRT * ones(length(rightTrial), 1)];
-%    % Replace epoch-cutoffs for trials with rts shorter than the median RT
-%    earlyRTTrial = trialData.rt < epochEnd;
-%    epochEnd(earlyRTTrial) = trialData.rt(earlyRTTrial);
-%    epochEnd = epochEnd + alignmentIndex - preSaccadeBuffer;
-%    epochBegin = alignmentIndex + epochOffset * ones(nTrial, 1);
-epochEnd = alignmentIndex + trialData.rt - preSaccadeBuffer;
-epochBegin = epochEnd - 70;
-   epochDuration = epochEnd - epochBegin;
+   epochEnd = ceil([medianLeftRT * ones(length(leftTrial), 1); medianRightRT * ones(length(rightTrial), 1)]);
+% epochBegin = epochEnd - epochDuration;
+epochBegin = ceil(.5 * epochEnd);
+% epochBegin = epochOffset * ones(
    
-   excludeTrial = find(epochDuration < minEpochDuration);
-   leftTrial(ismember(leftTrial, excludeTrial))= [];
-   rightTrial(ismember(rightTrial, excludeTrial))= [];
+   % Replace epoch-cutoffs for trials with rts shorter than the median RT
+   earlyRTTrial = trialData.rt < epochEnd + preSaccadeBuffer;
+   epochEnd(earlyRTTrial) = trialData.rt(earlyRTTrial) - preSaccadeBuffer;
+   
+   
+   % Adjust for the alignment index
+   epochEnd = epochEnd + alignmentIndex;
+   epochBegin = epochBegin + alignmentIndex;
+
+      % If there are trials with negative epochs because of the 
+negativeEpochTrial = epochEnd < epochBegin + minEpochDuration;
+   epochBegin(negativeEpochTrial) = epochEnd(negativeEpochTrial) - minEpochDuration;
+
+   epochDuration = epochEnd - epochBegin;
+%    excludeTrial = find(epochDuration < minEpochDuration);
+%    leftTrial(ismember(leftTrial, excludeTrial))= [];
+%    rightTrial(ismember(rightTrial, excludeTrial))= [];
    
    nSpike = cellfun(@(x,y,z) sum(x(y:z)), alignedRasters, num2cell(epochBegin), num2cell(epochEnd), 'uniformoutput', false);
    spikeRate = cell2mat(nSpike) .* 1000 ./ epochDuration;
@@ -186,7 +199,7 @@ epochBegin = epochEnd - 70;
       % SET UP PLOT
       lineW = 2;
       plotEpochRange = [-200 : 300];
-      plotEpochRange = [-49 : 350];
+      plotEpochRange = [-49 : 450];
       cMap = ccm_colormap(pSignalArray);
       leftColor = cMap(1,:) .* .8;
       rightColor = cMap(end,:) .* .8;
@@ -243,16 +256,16 @@ epochBegin = epochEnd - 70;
       
       sdfMax = max(max(sdfLeft(alignmentIndex + plotEpochRange)), max(sdfRight(alignmentIndex + plotEpochRange)));
       yMax = 1.1 * sdfMax;
-      fillX = [min(epochBegin)-alignmentIndex, nanmean(epochEnd)-alignmentIndex, nanmean(epochEnd)-alignmentIndex, min(epochBegin)-alignmentIndex];
+%       fillX = [mean(epochBegin)-alignmentIndex, mean(epochEnd)-alignmentIndex, mean(epochEnd)-alignmentIndex, mean(epochBegin)-alignmentIndex];
+      fillXLeft = [mean(epochBegin(leftTrial))-alignmentIndex, mean(epochEnd(leftTrial))-alignmentIndex, mean(epochEnd(leftTrial))-alignmentIndex, mean(epochBegin(leftTrial))-alignmentIndex];
+      fillXRight = [mean(epochBegin(rightTrial))-alignmentIndex, mean(epochEnd(rightTrial))-alignmentIndex, mean(epochEnd(rightTrial))-alignmentIndex, mean(epochBegin(rightTrial))-alignmentIndex];
       fillY = [.1 .1 yMax yMax];
       fillColor = [1 1 .5];
       
       % CHOICE DEPENDENCE PLOTTING(LEFT VS. RIGHT CHOICE FOR CORRECT TRIALS)
       axes(ax(axChoice))
-      h = fill(fillX, fillY, fillColor);
-      set(h, 'edgecolor', 'none');
-%       plot(ax(axChoice), [min(epochEnd)-alignmentIndex min(epochEnd)-alignmentIndex], [0 yMax], '-b', 'linewidth', 1);
-%       plot(ax(axChoice), [max(epochEnd)-alignmentIndex max(epochEnd)-alignmentIndex], [0 yMax], '-b', 'linewidth', 1);
+%       h = fill(fillX, fillY, fillColor);
+%       set(h, 'edgecolor', 'none');
       plot(ax(axChoice), plotEpochRange, sdfLeft(alignmentIndex + plotEpochRange), 'color', leftColor, 'linewidth', lineW)
       plot(ax(axChoice), plotEpochRange, sdfRight(alignmentIndex + plotEpochRange), 'color', rightColor, 'linewidth', lineW)
       plot(ax(axChoice), [1 1], [0 yMax], '-k', 'linewidth', 2);
@@ -273,7 +286,7 @@ epochBegin = epochEnd - 70;
       
       plot(ax(axCohL), [0 0], [0 yMax], '-k', 'linewidth', 2);
       axes(ax(axCohL))
-      h = fill(fillX, fillY, fillColor);
+      h = fill(fillXLeft, fillY, fillColor);
       set(h, 'edgecolor', 'none');
       
       for i = 1 : length(signalLeftP)
@@ -294,9 +307,6 @@ epochBegin = epochEnd - 70;
          plot(ax(axCohL), plotEpochRange, sdfLeft(alignmentIndex + plotEpochRange), 'color', inhColor, 'linewidth', lineW)
          set(ax(axCohL), 'xlim', [plotEpochRange(1) plotEpochRange(end)], 'ylim', [0 yMax])
          
-%          scatter(ax(axCoh), trialData.targ1CheckerProp(signalTrial), spikeRate(signalTrial), 'o', 'markeredgecolor', inhColor, 'markerfacecolor', inhColor, 'sizedata', 20)
-%          boxplot(ax(axCoh), trialData.targ1CheckerProp(signalTrial), spikeRate(signalTrial))
-%          boxplot(ax(axCoh), spikeRate(signalTrial), trialData.targ1CheckerProp(signalTrial))
       end % for i = 1 : length(signalLeftP)
       
       
@@ -305,7 +315,7 @@ epochBegin = epochEnd - 70;
       
       plot(ax(axCohR), [0 0], [0 yMax], '-k', 'linewidth', 2);
       axes(ax(axCohR))
-      h = fill(fillX, fillY, fillColor);
+      h = fill(fillXRight, fillY, fillColor);
       set(h, 'edgecolor', 'none');
       for i = (i+1) : (length(signalLeftP) + length(signalRightP))
          iProp = pSignalArray(i);

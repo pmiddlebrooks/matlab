@@ -176,16 +176,16 @@ for kDataIndex = 1 : nUnit
             
             if ~strcmp(mEpochName, 'stopSignalOn')  % No stop signals on go trials
                
-               alignGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goTarg.(mEpochName).alignTime;
-               alignGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goDist.(mEpochName).alignTime;
+               alignGoTarg = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).goTarg.alignTime;
+               alignGoDist = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).goDist.alignTime;
                
                if ~isempty(alignGoTarg)
-                  sigGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goTarg.(mEpochName).(dataSignal);
+                  sigGoTarg = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).goTarg.(dataSignal);
                   %                         plot(ax(axGo, mEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', goC(iPropIndex,:), 'linewidth', targLineW)
                   plot(ax(axGo, mEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', cMap(iPropIndexL,:), 'linewidth', targLineW)
                end
                if ~isempty(alignGoDist) && PLOT_ERROR
-                  sigGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).goDist.(mEpochName).(dataSignal);
+                  sigGoDist = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).goDist.(dataSignal);
                   plot(ax(axGo, mEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', cMap(iPropIndexL,:), 'linewidth', distLineW)
                end
             end
@@ -208,15 +208,15 @@ for kDataIndex = 1 : nUnit
             stopStopSig = cell(1, length(ssdArray));
             stopStopAlign = cell(1, length(ssdArray));
             for jSSDIndex = 1 : length(ssdArray)
-               stopTargSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);
-               stopTargAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime;
+               stopTargSig{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).stopTarg.ssd(jSSDIndex).(dataSignal);
+               stopTargAlign{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).stopTarg.ssd(jSSDIndex).alignTime;
                
-               stopDistSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopDist.ssd(jSSDIndex).(mEpochName).(dataSignal);
-               stopDistAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopDist.ssd(jSSDIndex).(mEpochName).alignTime;
+               stopDistSig{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).stopDist.ssd(jSSDIndex).(dataSignal);
+               stopDistAlign{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).stopDist.ssd(jSSDIndex).alignTime;
                
                if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-                  stopStopSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopStop.ssd(jSSDIndex).(mEpochName).(dataSignal);
-                  stopStopAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexL).stopStop.ssd(jSSDIndex).(mEpochName).alignTime;
+                  stopStopSig{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).stopStop.ssd(jSSDIndex).(dataSignal);
+                  stopStopAlign{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexL).stopStop.ssd(jSSDIndex).alignTime;
                end
                
             end  % jSSDIndex = 1 : length(ssdArray)
@@ -291,16 +291,16 @@ for kDataIndex = 1 : nUnit
                   dataSignal = 'erp';
             end
             if ~strcmp(mEpochName, 'stopSignalOn')  %Stop signals
-               alignGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goTarg.(mEpochName).alignTime;
-               alignGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goDist.(mEpochName).alignTime;
+               alignGoTarg = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).goTarg.alignTime;
+               alignGoDist = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).goDist.alignTime;
                
                if ~isempty(alignGoTarg)
-                  sigGoTarg = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goTarg.(mEpochName).(dataSignal);
+                  sigGoTarg = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).goTarg.(dataSignal);
                   %                         plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', goC(iPropIndexR,:), 'linewidth', targLineW)
                   plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoTarg(alignGoTarg + epochRange), 'color', cMap(iPropIndexR,:), 'linewidth', targLineW)
                end
                if PLOT_ERROR && ~isempty(alignGoDist)
-                  sigGoDist = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).goDist.(mEpochName).(dataSignal);
+                  sigGoDist = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).goDist.(dataSignal);
                   %                         plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', goC(iPropIndexR,:), 'linewidth', distLineW)
                   plot(ax(axGo, mEpoch + nEpoch), epochRange, sigGoDist(alignGoDist + epochRange), '--', 'color', cMap(iPropIndexR,:), 'linewidth', distLineW)
                end
@@ -325,17 +325,17 @@ for kDataIndex = 1 : nUnit
             stopStopSig = cell(1, length(ssdArray));
             stopStopAlign = cell(1, length(ssdArray));
             for jSSDIndex = 1 : length(ssdArray)
-               stopTargSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(mEpochName).(dataSignal);
-               stopTargAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopTarg.ssd(jSSDIndex).(mEpochName).alignTime;
+               stopTargSig{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).stopTarg.ssd(jSSDIndex).(dataSignal);
+               stopTargAlign{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).stopTarg.ssd(jSSDIndex).alignTime;
                
                if PLOT_ERROR
-                  stopDistSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopDist.ssd(jSSDIndex).(mEpochName).(dataSignal);
-                  stopDistAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopDist.ssd(jSSDIndex).(mEpochName).alignTime;
+                  stopDistSig{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).stopDist.ssd(jSSDIndex).(dataSignal);
+                  stopDistAlign{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).stopDist.ssd(jSSDIndex).alignTime;
                end
                
                if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-                  stopStopSig{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopStop.ssd(jSSDIndex).(mEpochName).(dataSignal);
-                  stopStopAlign{jSSDIndex} = Data(kDataIndex, jTarg).signalStrength(iPropIndexR).stopStop.ssd(jSSDIndex).(mEpochName).alignTime;
+                  stopStopSig{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).stopStop.ssd(jSSDIndex).(dataSignal);
+                  stopStopAlign{jSSDIndex} = Data(kDataIndex, jTarg).(mEpochName).colorCoh(iPropIndexR).stopStop.ssd(jSSDIndex).alignTime;
                end
                
             end  % jSSDIndex = 1 : length(ssdArray)

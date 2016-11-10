@@ -12,7 +12,7 @@ function ccm_inhibition_of_return(subjectArray, sessionArray, options)
 %             a single batch session term that refers to a collection of sesssions data file (e.g. {'behavior1'}
 %
 %   options: A structure with various ways to select/organize data: If
-%   ccm_session_data.m is called without input arguments, the default
+%   ccm_inhibition_of_return.m is called without input arguments, the default
 %   options structure is returned. options has the following fields with
 %   possible values (default listed first):
 %

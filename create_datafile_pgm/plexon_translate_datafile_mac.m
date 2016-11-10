@@ -9,9 +9,6 @@ function [trialData, SessionData] = plexon_translate_datafile_mac(monkey, sessio
 %                       'lfp': only lfp data
 %                       'eeg': only eeg data
 %
-if nargin < 3
-    Opt.whichData = 'all';
-end;
 % note the current directory.
 cdir = pwd;
 
@@ -22,6 +19,11 @@ tic
 if nargin < 3
     Opt.whichData   = 'all';
     Opt.saveFile    = true;
+    if nargin == 0
+        trialData = Opt;
+        SessionData = [];
+        return
+    end
 end
 
 %__________________________________________________________________________
@@ -451,6 +453,9 @@ for iTrial = 1 : nTrial
         jEvent = char(eventArray(j));
         jCode = char(eventNumArray(j));
         eval(sprintf('codeNumber = %s;',jCode));
+%             if strcmp(jEvent, 'Target_')
+%                 disp('why target')
+%             end
         if sum(iStrobes == codeNumber) > 0   % If there was at least one dropped code for the current event....
             jPossTime = iTimeStamps(iStrobes == codeNumber);
             eval(sprintf('%s(iTrial) = round(jPossTime(end));',jEvent));
@@ -830,8 +835,8 @@ photodiode  = photodiode - ts;
 switch taskName
     case 'Countermanding'
         trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
-        trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
-        trialData.stopSignalOn      = photodiode_check(photodiode(:,3), Choice_ + ssd);
+        trialData.targOn            = photodiode_check(photodiode(:,2), FixSpotOff_);
+        trialData.stopSignalOn      = photodiode_check(photodiode(:,3), FixSpotOff_ + ssd);
         stopTrial                   = ~isnan(trialData.stopSignalOn);
     case 'ChoiceCountermanding'
         trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
@@ -993,6 +998,10 @@ switch taskID
         
         
     case 'cmd'
+        trialData.fixOn     = FixSpotOn(:, 1);
+        trialData.targOn     = FixSpotOff_(:, 1);
+        trialData.stopSignalOn     = FixSpotOff_(:, 1) + ssd;
+
         trialData.fixWindowEntered     = Fixate_(:, 1);
         trialData.targWindowEntered       = Decide_(:, 1);
         trialData.targAmp                   = targAmp;
@@ -1196,7 +1205,6 @@ switch Opt.whichData
         nSpikeChannel               = length(plx.SpikeChannels);
         
         SessionData.spikeUnitArray  = {};
-        spikeChannelArray           = [];
         nUnitInd                 = 1; % nUnitFilled gets incremented with each unit
         
         
@@ -1399,15 +1407,18 @@ if Opt.saveFile
     saveLocalName = [localDataPath, sessionID];
     save(saveLocalName, 'trialData', 'SessionData','-v7.3')
     
+    
+    if isfield(SessionData, 'spikeUnitArray')
     % Create local files of each individual unit data
     nUnit = length(SessionData.spikeUnitArray);
     
     for j = 1 : nUnit
-        jUnitName = S.spikeUnitArray{j};
+        jUnitName = SessionData.spikeUnitArray{j};
         saveFileName = [sessionID, '_', jUnitName];
         
         spikeData = trialData.spikeData(:, j);
-        save(fullfile(local_data_path, subject, saveFileName), 'spikeData')
+        save(fullfile(local_data_path, monkey, saveFileName), 'spikeData')
+    end
     end
 end
 toc

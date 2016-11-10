@@ -14,7 +14,7 @@ if testCode
     opt             = ccm_concat_neural_conditions;
     opt.epochName   = 'responseOnset';
     opt.eventMarkName = 'checkerOn';
-    opt.colorCohArray = Unit(1).pSignalArray(sigInd);
+    opt.colorCohArray = Unit(1).(opt.epochName).pSignalArray(sigInd);
     
     opt.conditionArray = {'goTarg'};
     dataGoTarg      = ccm_concat_neural_conditions(Unit(1), opt);

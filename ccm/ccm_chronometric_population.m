@@ -14,11 +14,13 @@ end
 fprintf('\n\n\n\n')
 disp('*******************************************************************************')
 disp('Populaiton chronometric')
-% subjectID = 'Human';
-% subjectID = 'Xena';
-% sessionSet = 'behavior';
-% subjectID = 'xena';
-% sessionSet = 'behavior1';
+
+chronOpt = ccm_chronometric;
+chronOpt.collapseTarg = true;
+chronOpt.plotFlag = false;
+chronOpt.USE_TWO_COLORS = false;
+
+task = 'ccm';
 
 if iscell(sessionSet)
     % If user enters sessionSet, get rid of repeated sessions in case there
@@ -29,7 +31,6 @@ else
     [sessionArray, subjectIDArray] = task_session_array(subjectID, task, sessionSet);
 end
 
-task = 'ccm';
 figureHandle = 4950;
 % end
 printFlag = true;
@@ -51,7 +52,7 @@ switch lower(subjectID)
         %           case 'neural2'
         %         pSignalArray = [.42 .44 .46 .54 .56 .58];
         %            otherwise
-        [td, S, E] =load_data(subjectID, sessionArray{end});
+        [~, ~, E] =ccm_load_data_behavior(subjectID, sessionArray{end});
         pSignalArray = E.pSignalArray;
         %        end
     case 'xena'
@@ -77,12 +78,12 @@ if plotFlag
     %     stopColor = [.5 .5 .5];
     stopColor = [1 0 0];
     goColor = [0 0 0];
-    choicePlotXMargin = .03;
+    choicePlotXMargin = .015;
     switch subjectID
         case 'Human'
             set(ax(rtAx), 'Ylim', [400 900])
         otherwise
-            set(ax(rtAx), 'Ylim', [250 450])
+            set(ax(rtAx), 'Ylim', [250 500])
     end
     hold(ax(rtAx), 'on')
     hold(ax(ssdAx), 'on')
@@ -106,13 +107,9 @@ stopDistSessionMean = [];
 sessionData = [];
 ssdData = [];
 ssdRTData = [];
-for iSession = 1 : nSession
+for iSession = 1 :  nSession
     
     display(sessionArray{iSession})
-    chronOpt = ccm_chronometric;
-    chronOpt.collapseTarg = true;
-    chronOpt.plotFlag = false;
-    chronOpt.USE_TWO_COLORS = true;
     iData = ccm_chronometric(subjectIDArray{iSession}, sessionArray{iSession}, chronOpt);
     % go and stop means for the session collapsed across signal strength
     goTargSessionMean = [goTargSessionMean; nanmean([cell2mat(iData.goLeftToTarg(:)); cell2mat(iData.goRightToTarg(:))])];
@@ -178,14 +175,13 @@ for iSession = 1 : nSession
         end
     end
     
-    if iSession == 1
-  pSignalArrayLeft = iData.pSignalArrayLeft;
-pSignalArrayRight = iData.pSignalArrayRight;
+    if iSession == nSession
+        pSignalArrayLeft = iData.pSignalArrayLeft;
+        pSignalArrayRight = iData.pSignalArrayRight;
     end
-          clear iData
-
+    clear iData
+    
 end
-
 
 
 
@@ -204,22 +200,22 @@ yVal = p(1) * xVal + p(2);
 
 
 goLeftTargMean = nanmean(goLeftToTarg);
-goLeftTargStd = nanstd(goLeftToTarg);
+goLeftTargStd = nanstd(goLeftToTarg)/sqrt(length(goLeftToTarg));
 goRightDistMean = nanmean(goRightToDist);
 goRightDistStd = nanstd(goRightToDist);
 
 goRightTargMean = nanmean(goRightToTarg);
-goRightTargStd = nanstd(goRightToTarg);
+goRightTargStd = nanstd(goRightToTarg)/sqrt(length(goRightToTarg));
 goLeftDistMean = nanmean(goLeftToDist);
 goLeftDistStd = nanstd(goLeftToDist);
 
 stopLeftTargMean = nanmean(stopLeftToTarg);
-stopLeftTargStd = nanstd(stopLeftToTarg);
+stopLeftTargStd = nanstd(stopLeftToTarg)/sqrt(length(stopLeftToTarg));
 stopRightDistMean = nanmean(stopRightToDist);
 stopRightDistStd = nanstd(stopRightToDist);
 
 stopRightTargMean = nanmean(stopRightToTarg);
-stopRightTargStd = nanstd(stopRightToTarg);
+stopRightTargStd = nanstd(stopRightToTarg)/sqrt(length(stopRightToTarg));
 stopLeftDistMean = nanmean(stopLeftToDist);
 stopLeftDistStd = nanstd(stopLeftToDist);
 

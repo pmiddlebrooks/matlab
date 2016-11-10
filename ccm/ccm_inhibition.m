@@ -53,7 +53,7 @@ if nargin < 3
     
     options.plotFlag            = true;
     options.printPlot           = false;
-    options.figureHandle      	= 402;
+    options.figureHandle      	= 403;
     
     % Return just the default options struct if no input
     if nargin == 0

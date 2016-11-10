@@ -28,7 +28,7 @@ sessionBehavior = [sessionID, '_behavior'];
 % If the file hasn't already been created in a local directory, do it now
 if exist(localDataFile, 'file') ~= 2
     
-    [trialData, SessionData] = load_data(subjectID, sessionID);
+    [trialData, SessionData, ExtraVariable] = load_data(subjectID, sessionID);
     
     variables = trialData.Properties.VariableNames;
     removeVar = {'spikeData', 'lfpData', 'eegData'};
@@ -43,6 +43,9 @@ if exist(localDataFile, 'file') ~= 2
     
 else
     load(localDataFile);
+    % New method (3/18/14)
+    trialData.ssd = ssd_session_adjust(trialData.ssd);
+    ExtraVariable.ssdArray = unique(trialData.ssd(~isnan(trialData.ssd)));
 end
 
 if isa(trialData, 'dataset')
@@ -79,38 +82,6 @@ end
 
 
 
-
-if strcmp(task, 'ccm') || strcmp(task, 'cmd')
-    % Need to do a little SSD value adjusting, due to ms difference and 1-frame
-    % differences in SSD values
-    ssd = trialData.stopSignalOn - trialData.responseCueOn;
-    
-    % %    Old method
-    %        ssdArray = unique(trialData.stopSignalOn - trialData.responseCueOn);
-    %        ssdArray(isnan(ssdArray)) = [];
-    %        if ~isempty(ssdArray)
-    %            diffExist = 1;
-    %            while diffExist
-    %                a = diff(ssdArray);
-    %                addOne = ssdArray(a == 1);
-    %                [d,i] = ismember(ssd, addOne);
-    %                if sum(d) == 0
-    %                    diffExist = 0;
-    %                else
-    %                    ssd(d) = ssd(d) + 1;
-    %                    % ssdArray(a == 1) = ssdArray(a == 1) + 1;
-    %                    ssdArray = unique(ssd(~isnan(ssd)));
-    %                end
-    %            end
-    %        end
-    %        trialData.ssd = ssd;
-    %        ExtraVariable.ssdArray = ssdArray;
-    
-    % New method (3/18/14)
-    trialData.ssd = ssd_session_adjust(ssd);
-    %    trialData.ssd = trialData.ssd - 14;
-    ExtraVariable.ssdArray = unique(trialData.ssd(~isnan(trialData.ssd)));
-end
 
 
 if ~strcmp(task, 'maskbet')

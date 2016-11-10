@@ -69,21 +69,22 @@ for k = 1 : nUnit
                 
                 
                 
-                alignList = [alignList; Unit(k).signalStrength(sigIndex).(condition).(epochName).alignTimeList];
-                alignCell = [alignCell; Unit(k).signalStrength(sigIndex).(condition).(epochName).alignTime];
-                iEventLatency = get_event_latency(Unit(k).signalStrength(sigIndex).(condition), epochName, eventMarkName);
+                alignList = [alignList; Unit(k).(epochName).colorCoh(sigIndex).(condition).alignTimeList];
+                alignCell = [alignCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).alignTime];
+                iEventLatency = Unit(k).(eventMarkName).colorCoh(sigIndex).(condition).alignTimeList - Unit(k).(epochName).colorCoh(sigIndex).(condition).alignTimeList;
+%                 iEventLatency = get_event_latency(Unit(k).(epochName).colorCoh(sigIndex).(condition), epochName, eventMarkName);
                 eventLatency = [eventLatency; iEventLatency];
                 
                 
                 switch dataType
                     case 'neuron'
-                        signalCell = [signalCell; Unit(k).signalStrength(sigIndex).(condition).(epochName).raster];
+                        signalCell = [signalCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).raster];
                         
                     case 'lfp'
-                        signalCell = [signalCell; Unit(k).signalStrength(sigIndex).(condition).(epochName).lfp];
+                        signalCell = [signalCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).lfp];
                         
                     case 'erp'
-                        signalCell = [signalCell; Unit(k).signalStrength(sigIndex).(condition).(epochName).eeg];
+                        signalCell = [signalCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).eeg];
                 end
                 
                 
@@ -97,27 +98,28 @@ for k = 1 : nUnit
                     % Don't include stopStop trials if aligning on
                     % response onset
                     if ~(strcmp(epochName, 'responseOnset') && strcmp(condition, 'stopStop'))
-                        alignList = [alignList; Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex).(epochName).alignTimeList];
-                        alignCell = [alignCell; Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex).(epochName).alignTime];
+                        alignList = [alignList; Unit(k).(epochName).colorCoh(sigIndex).(condition).ssd(ssdIndex).alignTimeList];
+                        alignCell = [alignCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).ssd(ssdIndex).alignTime];
                         % Don't get response onset event marks for stop correct
                         if ~(strcmp(eventMarkName, 'responseOnset') && strcmp(condition, 'stopStop'))
-                            jEventLatency = get_event_latency(Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex), epochName, eventMarkName);
+                jEventLatency = Unit(k).(eventMarkName).colorCoh(sigIndex).(condition).ssd(ssdIndex).alignTimeList - Unit(k).(epochName).colorCoh(sigIndex).(condition).ssd(ssdIndex).alignTimeList;
+%                             jEventLatency = get_event_latency(Unit(k).(epochName).colorCoh(sigIndex).(condition).ssd(ssdIndex), epochName, eventMarkName);
                             eventLatency = [eventLatency; jEventLatency];
                         end
                         switch dataType
                             case 'neuron'
-                                signalCell = [signalCell; Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex).(epochName).raster];
+                                signalCell = [signalCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).ssd(ssdIndex).raster];
                                 
                             case 'lfp'
-                                signalCell = [signalCell; Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex).(epochName).lfp];
+                                signalCell = [signalCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).ssd(ssdIndex).lfp];
                                 
                             case 'erp'
-                                signalCell = [signalCell; Unit(k).signalStrength(sigIndex).(condition).ssd(ssdIndex).(epochName).eeg];
+                                signalCell = [signalCell; Unit(k).(epochName).colorCoh(sigIndex).(condition).ssd(ssdIndex).eeg];
                         end
                     end
                 end % j = 1 : length(ssdIndex)
             end % if ismember(condition, {'stopTarg','stopDist','stopStop','goFast','goSlow'})
-        end % i = 1 : length(signalStrengthIndex)
+        end % i = 1 : length(colorCohIndex)
     end % for c = 1 : length(conditionArray)
     
     % Get trial-wise signal (rasters, lfps, eegs, etc) and across-trial function of signal (sdf, or mean, etc) for each set of trials

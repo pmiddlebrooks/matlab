@@ -638,25 +638,22 @@ category = 'presacc';
 load(fullfile(dataPath, ['ccm_',category,'_neurons']))
 sessionSet = unique(neurons.sessionID);
 
-% dataInh = ccm_inhibition_population(subject, sessionSet);
+dataInh = ccm_inhibition_population(subject, sessionSet);
 % dataChron =  ccm_chronometric_population(subject, sessionSet);
-ccm_psychometric_population(subject, sessionSet);
+% ccm_psychometric_population(subject, sessionSet);
 
 %% Population behavioral measures
 % subject = 'joule';
 subject = 'broca';
-dataPath = fullfile(projectRoot,'data',projectDate,subject);
 
-% category = 'presacc';
+% category = 'vis';
 % load(fullfile(dataPath, ['ccm_',category,'_neurons']))
 % sessionSet = unique(neurons.sessionID);
 
-load(fullfile(dataPath, 'ccm_neuronTypes'))
-sessionSet = unique(neuronTypes.sessionID);
 
-
-ccm_chronometric_population(subject, sessionSet);
-ccm_psychometric_population(subject, sessionSet);
+sessionSet = 'behavior1';
+% ccm_chronometric_population(subject, sessionSet);
+% ccm_psychometric_population(subject, sessionSet);
 % ccm_rt_distribution_population(subject, sessionSet);
 ccm_inhibition_population(subject, sessionSet);
 
@@ -1202,3 +1199,48 @@ opt.categoryName = categoryList{i};
 
     ccm_population_neuron_plot(subject,projectRoot,projectDate,opt)
 end
+
+%%
+
+ccm_classify_neuron_pop(subject,projectRoot,projectDate, append)
+ccm_neuron_stop_vs_go_pop(subject,projectRoot,projectDate, append)
+
+
+%%
+dataPath = fullfile(projectRoot,'data',projectDate,subject);
+original = load(fullfile(dataPath, 'ccm_neuronTypes'));
+
+sessionID = original.neuronTypes.sessionID;
+unit = original.neuronTypes.unit;
+rf = original.neuronTypes.rf;
+
+starInd = find(strcmp(sessionID, 'bp244n02'), 1);
+% Loop through the sessions and add the data to the table.
+% poolID = parpool(4);
+for i = starInd : size(original.neuronTypes, 1)
+    iUnit = [sessionID(i), unit(i)];
+    iData               = ccm_session_data(subject, iUnit);
+end
+% delete(poolID)
+
+
+
+
+%%  Compile a list of known duplicate units to 
+duplicates = table();
+
+duplicates.sessionID = {...
+    'bp160n01',...
+    'bp229n02-mm',...
+    'bp229n02-mm',...
+    };
+
+duplicates.Unit = {...
+    'spikeUnit17a',...
+    'spikeUnit03a',...
+    'spikeUnit03b',...
+};    
+
+save(fullfile(dataPath, 'ccm_duplicate_neurons'), 'duplicates')
+
+

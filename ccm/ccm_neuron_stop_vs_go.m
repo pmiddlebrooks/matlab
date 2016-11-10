@@ -773,7 +773,7 @@ for kUnitIndex = 1 : nUnit
     
     
     % Collect the data for later analyses
-   Data(kUnitIndex).rf      = {rf};
+   Data(kUnitIndex).rf      = rf;
    Data(kUnitIndex).ssrt      = ssrt;
 
     %               Nonanceled Stop vs latency-matched (Fast) Go:

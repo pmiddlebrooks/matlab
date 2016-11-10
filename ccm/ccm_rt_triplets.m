@@ -16,7 +16,7 @@ function data = ccm_rt_triplets(subjectArray, sessionArray, Opt)
 %             a single batch session term that refers to a collection of sesssions data file (e.g. {'behavior1'}
 %
 %   Opt: A structure with various ways to select/organize data: If
-%   ccm_session_data.m is called without input arguments, the default
+%   ccm_rt_triplets.m is called without input arguments, the default
 %   Opt structure is returned. Opt has the following fields with
 %   possible values (default listed first):
 %
