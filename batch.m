@@ -754,7 +754,7 @@ for i = 1 : length(sessions)
     
 end
 disp('done')
-%% Total number of sessions, trial numbers for all recorded sessions
+%% Total number of sessions, trial numbers for all recorded sessions. 32 channel neuronexus, u-probe, etc
 subject = 'broca';
 % subject = 'joule';
 
@@ -1242,5 +1242,154 @@ duplicates.Unit = {...
 };    
 
 save(fullfile(dataPath, 'ccm_duplicate_neurons'), 'duplicates')
+
+%%
+sessionList = number.session(number.channels == 32);
+for i = 2 : length(sessionList)
+    [Data, Opt] = ccm_session_data_pop('broca',sessionList{i});
+ccm_session_data_plot_pop(Data, Opt);
+end
+%% comparing cmd and ccm SSRTs
+subject = 'joule';
+fid=  fopen(fullfile(local_data_path,subject,['cmd_sessions_',subject,'.csv']));
+nCol = 5;
+formatSpec = '%s';
+mHeader = textscan(fid, formatSpec, nCol, 'Delimiter', ',');
+
+mData = textscan(fid, '%s %s %d %d %d', 'Delimiter', ',','TreatAsEmpty',{'NA','na'});
+cmdSessionList     = mData{1};
+
+
+optT = plexon_translate_datafile_mac;
+optT.whichData = 'behavior';
+for i = 1 : length(cmdSessionList)
+    i
+    cmdSessionList{i}
+    plexon_translate_datafile_mac(subject, cmdSessionList{i}, optT);
+end
+%%
+subject = 'joule';
+cmdSessionList = {...
+    'jp093n01',...
+    'jp102n01',...
+    'jp103n01',...
+    'jp105n01'...
+    'jp108n01'...
+    'jp109n01'...
+};
+opt = cmd_options;
+opt.plotFlag = false;
+cmdSsrt = nan(length(cmdSessionList), 1);
+for i = 1 : length(cmdSessionList)
+    i
+    cmdSessionList{i}
+    cmd = cmd_inhibition(subject, cmdSessionList{i}, opt);
+    cmdSsrt(i) = cmd.ssrtIntegrationWeighted;
+end
+
+%%
+subject = 'joule';
+ccmSessionList = {...
+    'jp093n02',...
+    'jp102n02',...
+    'jp103n02',...
+    'jp105n02'...
+    'jp108n02'...
+    'jp109n02'...
+};
+optT = plexon_translate_datafile_mac;
+optT.whichData = 'behavior';
+for i = 1 : length(ccmSessionList)
+    i
+    ccmSessionList{i}
+    plexon_translate_datafile_mac(subject, ccmSessionList{i}, optT);
+end
+%%
+subject = 'joule';
+ccmSessionList = {...
+    'jp093n02',...
+    'jp102n02',...
+    'jp103n02',...
+    'jp105n02'...
+    'jp108n02'...
+    'jp109n02'...
+};
+
+opt = ccm_options;
+opt.plotFlag = false;
+ccmSsrt = nan(length(ccmSessionList), 1);
+for i = 1 : length(ccmSessionList)
+    i
+    ccmSessionList{i}
+    ccm = ccm_inhibition(subject, ccmSessionList{i}, opt);
+    ccmSsrt(i) = ccm.ssrtCollapseIntegrationWeighted;
+end
+
+%% comparing cmd and ccm SSRTs
+subject = 'broca';
+fid=  fopen(fullfile(local_data_path,subject,['cmd_sessions_',subject,'.csv']));
+nCol = 5;
+formatSpec = '%s';
+mHeader = textscan(fid, formatSpec, nCol, 'Delimiter', ',');
+
+mData = textscan(fid, '%s %s %d %d %d', 'Delimiter', ',','TreatAsEmpty',{'NA','na'});
+cmdSessionList     = mData{1};
+
+
+optT = plexon_translate_datafile_mac;
+optT.whichData = 'behavior';
+
+opt = cmd_options;
+opt.plotFlag = false;
+cmdSsrt = nan(length(cmdSessionList), 1);
+% for i = 1 : length(cmdSessionList)
+%     i
+%     cmdSessionList{i}
+%     plexon_translate_datafile_mac(subject, cmdSessionList{i}, optT);
+% end
+for i = 1 : length(cmdSessionList)
+    i
+    cmdSessionList{i}
+
+    cmd = cmd_inhibition(subject, cmdSessionList{i}, opt);
+    cmdSsrt(i) = cmd.ssrtIntegrationWeighted;
+end
+%%
+
+subject = 'broca';
+fid=  fopen(fullfile(local_data_path,subject,['ccm_sessions_',subject,'.csv']));
+nCol = 5;
+formatSpec = '%s';
+mHeader = textscan(fid, formatSpec, nCol, 'Delimiter', ',');
+
+mData = textscan(fid, '%s %s %d %d %d', 'Delimiter', ',','TreatAsEmpty',{'NA','na'});
+ccmSessionList     = mData{1};
+
+
+optT = plexon_translate_datafile_mac;
+optT.whichData = 'behavior';
+
+opt = ccm_options;
+opt.plotFlag = false;
+ccmSsrt = nan(length(ccmSessionList), 1);
+for i = 1 : length(ccmSessionList)
+    i
+    ccmSessionList{i}
+    ccm = ccm_inhibition(subject, ccmSessionList{i}, opt);
+    if ~isempty(ccm)
+    ccmSsrt(i) = ccm.ssrtCollapseIntegrationWeighted;
+    end
+end
+
+%%
+figure(56)
+clf
+plot([1 2], [nanmean(cmdSsrt) nanmean(ccmSsrt)], 'ok', 'markersize', 15)
+hold all
+errorbar([1 2], [nanmean(cmdSsrt) nanmean(ccmSsrt)],  [nanstd(cmdSsrt)/sqrt(length(cmdSsrt)) nanstd(ccmSsrt)/sqrt(length(ccmSsrt))], 'linestyle' , 'none', 'color', 'k', 'linewidth' , 2)
+xlim([.5 2.5])
+ylim([0 110])
+set(gca, 'xtick', [1 2], 'xticklabel', {'CMD', 'CCM'})
+title('Joule')
 
 

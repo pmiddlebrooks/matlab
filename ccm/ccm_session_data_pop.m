@@ -1,4 +1,4 @@
-function Data = ccm_session_data(subjectID, sessionID, Opt)
+function [Data, Opt] = ccm_session_data_pop(subjectID, sessionID, Opt)
 %
 % function Data = ccm_session_data(subjectID, sessionID, plotFlag, Opt.unitArray)
 %
@@ -32,15 +32,6 @@ function Data = ccm_session_data(subjectID, sessionID, Opt)
 %    Opt.filterData 	= false, true;
 %    Opt.stopHz         = 50, <any number, above which signal is filtered;
 %    Opt.normalize      = false, true;
-%    Opt.howProcess      = how to step through the list of units
-%                                 'each' to plot all,
-%                                 'step' (default): step through to see one
-%                                 plot at a time, pausing between
-%                                 'print' (default): step through each plot
-%                                 individually, printing each to file
-%                                   'pop'- plot the population of units
-%                                   from the session alog the depth of the
-%                                   electrode
 %    Opt.unitArray      = units you want to analyze (default gets filled
 %                                   with all available).
 %                                 {'spikeUnit17a'}, input a cell of units for a list of individaul units
@@ -80,7 +71,7 @@ if iscell(sessionID)
 end
 
 % Arrays for looping through data
-epochArray          = {'fixWindowEntered', 'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn', 'rewardOn'};
+epochArray          = {'targOn', 'checkerOn', 'stopSignalOn', 'responseOnset', 'toneOn', 'rewardOn'};
 goOutcomeArray      = {'goTarg', 'goDist'};
 stopOutcomeArray    = {'stopTarg', 'stopDist', 'stopStop'};
 nEpoch              = length(epochArray);
@@ -119,12 +110,11 @@ Kernel.decay = 20;
 % Kernel.sigma = 10;
 
 
-cropWindow  = -1000 : 2000;  % used to extract a semi-small portion of signal for each epoch/alignemnt
-baseWindow 	= -149 : 0;   % To baseline-shift the eeg signals, relative to event alignment index;
-
 
 
 % Set defaults
+nChannel = 32;
+[unitIndex, unitArrayNew] = neuronexus_plexon_mapping(SessionData.spikeUnitArray, nChannel);
 dataType = Opt.dataType;
 switch dataType
     case 'neuron'
@@ -136,16 +126,8 @@ switch dataType
     case 'erp'
         dataArray     = eeg_electrode_map(subjectID);
 end
+Opt.unitArray     = unitArrayNew;
 
-
-
-% If there was not a custom set of units or channels input to process, do
-% them all
-if isempty(Opt.unitArray)
-    if strcmp(Opt.howProcess, 'each') || strcmp(Opt.howProcess, 'step') || strcmp(Opt.howProcess, 'print') || strcmp(Opt.howProcess, 'pop')
-        Opt.unitArray     = dataArray;
-    end
-end
 
 
 % How many units were recorded?
@@ -229,16 +211,16 @@ end
 
 
 
-% Get ssrt for the session (to be used for latency matching below)
-optInh                  = ccm_options;
-optInh.collapseTarg     = true;
-optInh.printPlot        = false;
-optInh.plotFlag         = false;
-dataInh                 = ccm_inhibition(subjectID, sessionID, optInh);
-% Which ssrt estimate should we use for latency matching? For now, use a
-% collapsed, across color coherence value. Later might want to use
-% estimates within each color coherence.
-ssrt = dataInh.ssrtCollapseIntegrationWeighted;
+% % Get ssrt for the session (to be used for latency matching below)
+% optInh                  = ccm_options;
+% optInh.collapseTarg     = true;
+% optInh.printPlot        = false;
+% optInh.plotFlag         = false;
+% dataInh                 = ccm_inhibition(subjectID, sessionID, optInh);
+% % Which ssrt estimate should we use for latency matching? For now, use a
+% % collapsed, across color coherence value. Later might want to use
+% % estimates within each color coherence.
+% ssrt = dataInh.ssrtCollapseIntegrationWeighted;
 
 
 
@@ -337,6 +319,7 @@ for kDataInd = 1 : nUnit
             % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             for mEpoch = 1 : length(epochArray)
                 mEpochName = epochArray{mEpoch};
+                epochRange = ccm_epoch_range(mEpochName, 'plot');
                 
                 
                 
@@ -374,7 +357,7 @@ for kDataInd = 1 : nUnit
                     if ~strcmp(mEpochName, 'stopSignalOn')  % No stop signals on go trials
                         
                         alignListGo = trialData.(mEpochName)(iGoTrial);
-                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTimeList = alignListGo;   % Keep track of trial-by-trial alignemnt
+                        %                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTimeList = alignListGo;   % Keep track of trial-by-trial alignemnt
                         
                         
                         
@@ -384,13 +367,22 @@ for kDataInd = 1 : nUnit
                             case 'neuron'
                                 % Go to TargetDistractor trials
                                 [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(iGoTrial, kUnit), alignListGo);
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTime = alignmentIndex;
+                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).alignTime = -epochRange(1);
                                 sdf = spike_density_function(alignedRasters, Kernel);
-                                if ~isempty(sdf); yMax(mEpoch, iColor, 1, 1) = nanmax(nanmean(sdf, 1)); end;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).raster = alignedRasters;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf = sdf;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdfMean = nanmean(sdf, 1);
-                                
+                                if ~isempty(sdf)
+                                    sdfMean = nanmean(sdf(:,epochRange + alignmentIndex), 1);
+                                    if ~strcmp(mEpochName, 'rewardOn') &&...
+                                            ~strcmp(mEpochName, 'toneOn') &&...
+                                            size(alignedRasters, 1) >= 10
+                                        yMax(mEpoch, iColor, 1, g) = nanmax(sdfMean);
+%                                     plot(sdfMean)
+%                                     title(['go ',mEpochName])
+%                                     pause
+                                    end
+                                    Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdfMean = sdfMean;
+                                    %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).raster = alignedRasters;
+                                    %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf = sdf;
+                                end
                                 
                                 clear alignedRasters sdf
                                 
@@ -502,7 +494,7 @@ for kDataInd = 1 : nUnit
                             
                             
                             alignListStop = trialData.(mEpochName)(jStopTrial);
-                            Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTimeList = alignListStop;   % Keep track of trial-by-trial alignemnt
+                            %                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTimeList = alignListStop;   % Keep track of trial-by-trial alignemnt
                             
                             
                             
@@ -513,14 +505,31 @@ for kDataInd = 1 : nUnit
                                     if ~(strcmp(stopOutcomeArray{s}, 'stopStop') && strcmp(mEpochName, 'responseOnset'))  % No stop signals on go trials
                                         % Canceled Stop trials
                                         [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(jStopTrial, kUnit), alignListStop);
-                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTime = alignmentIndex;
+                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).alignTime = -epochRange(1);
                                         
                                         sdf = spike_density_function(alignedRasters, Kernel);
-                                        if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 5) = nanmax(nanmean(sdf, 1)); end;
-                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).raster = alignedRasters;
-                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf = sdf;
-                                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
-                                        
+                                        % Only include conditions
+                                        % with at least 10 trials
+                                        % in it (reduce noise
+                                        % contribution), and don't
+                                        % include reward/tone
+                                        % epochs because of reward
+                                        % artifact
+                                        if ~isempty(sdf)
+                                            sdf = sdf(:,epochRange + alignmentIndex);
+                                            sdfMean = nanmean(sdf, 1);
+                                            if  ~strcmp(mEpochName, 'rewardOn') &&...
+                                                    ~strcmp(mEpochName, 'toneOn') &&...
+                                                    size(alignedRasters, 1) >= 10
+                                                yMax(mEpoch, iColor, jSSDIndex+1, length(goOutcomeArray) + s) = nanmax(sdfMean);
+%                                     plot(sdfMean)
+%                                     title(['stop ',mEpochName])
+%                                     pause
+                                            end
+                                            %                                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).raster = alignedRasters;
+                                            Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf = sdf;
+                                            Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdfMean = sdfMean;
+                                        end
                                     end
                                     clear alignedRasters sdf
                                     
@@ -595,53 +604,53 @@ for kDataInd = 1 : nUnit
                         
                         
                         
-                        % Get latency matched Go trials
-                        mOpt.matchMethod = 'ssrt';
-                        mOpt.ssrt = ssrt;
-                        mOpt.ssd = ssdArray(jSSDIndex);
-                        mOpt.stopRT = trialData.rt(jStopTrial);
-                        [goFastTrial, goSlowTrial] = latency_match(trialData.rt(iGoTargTrial), mOpt);
-                        goFastTrial = iGoTargTrial(goFastTrial);
-                        goSlowTrial = iGoTargTrial(goSlowTrial);
-                        
-                        % Move stop rts here
-                        if strcmp(mEpochName, 'checkerOn') && ~strcmp(stopOutcomeArray(s), 'goSlow')
-                            Data(kDataInd, jTarg).checkerOn.colorCoh(iColor).goFast.ssd(jSSDIndex).rt = trialData.rt(goFastTrial);
-                        end
-                        
-                        alignListGoFast = trialData.(mEpochName)(goFastTrial);
-                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).alignTimeList = alignListGoFast;   % Keep track of trial-by-trial alignemnt
-                        alignListGoSlow = trialData.(mEpochName)(goSlowTrial);
-                        Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).alignTimeList = alignListGoSlow;   % Keep track of trial-by-trial alignemnt
-                        
-                        switch dataType
-                            case 'neuron'
-                                % Go Fast data
-                                [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goFastTrial, kUnit), alignListGoFast);
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).alignTime = alignmentIndex;
-                                
-                                sdf = spike_density_function(alignedRasters, Kernel);
-                                if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).raster = alignedRasters;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).sdf = sdf;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
-                                
-                                
-                                % Go Slow data
-                                [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goSlowTrial, kUnit), alignListGoSlow);
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).alignTime = alignmentIndex;
-                                
-                                sdf = spike_density_function(alignedRasters, Kernel);
-                                if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).raster = alignedRasters;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).sdf = sdf;
-                                Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
-                                
-                            case 'lfp'
-                                disp('Need to implement latency matching in lfp data')
-                            case 'erp'
-                                disp('Need to implement latency matching in erp data')
-                        end
+                        %                         % Get latency matched Go trials
+                        %                         mOpt.matchMethod = 'ssrt';
+                        %                         mOpt.ssrt = ssrt;
+                        %                         mOpt.ssd = ssdArray(jSSDIndex);
+                        %                         mOpt.stopRT = trialData.rt(jStopTrial);
+                        %                         [goFastTrial, goSlowTrial] = latency_match(trialData.rt(iGoTargTrial), mOpt);
+                        %                         goFastTrial = iGoTargTrial(goFastTrial);
+                        %                         goSlowTrial = iGoTargTrial(goSlowTrial);
+                        %
+                        %                         % Move stop rts here
+                        %                         if strcmp(mEpochName, 'checkerOn') && ~strcmp(stopOutcomeArray(s), 'goSlow')
+                        %                             Data(kDataInd, jTarg).checkerOn.colorCoh(iColor).goFast.ssd(jSSDIndex).rt = trialData.rt(goFastTrial);
+                        %                         end
+                        %
+                        %                         alignListGoFast = trialData.(mEpochName)(goFastTrial);
+                        %                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).alignTimeList = alignListGoFast;   % Keep track of trial-by-trial alignemnt
+                        %                         alignListGoSlow = trialData.(mEpochName)(goSlowTrial);
+                        %                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).alignTimeList = alignListGoSlow;   % Keep track of trial-by-trial alignemnt
+                        %
+                        %                         switch dataType
+                        %                             case 'neuron'
+                        %                                 % Go Fast data
+                        %                                 [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goFastTrial, kUnit), alignListGoFast);
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).alignTime = alignmentIndex;
+                        %
+                        %                                 sdf = spike_density_function(alignedRasters, Kernel);
+                        %                                 if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).raster = alignedRasters;
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).sdf = sdf;
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goFast.ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
+                        %
+                        %
+                        %                                 % Go Slow data
+                        %                                 [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(goSlowTrial, kUnit), alignListGoSlow);
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).alignTime = alignmentIndex;
+                        %
+                        %                                 sdf = spike_density_function(alignedRasters, Kernel);
+                        %                                 if ~isempty(sdf); yMax(mEpoch, iColor, jSSDIndex+1, 3) = nanmax(nanmean(sdf, 1)); end;
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).raster = alignedRasters;
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).sdf = sdf;
+                        %                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).goSlow.ssd(jSSDIndex).sdfMean = nanmean(sdf, 1);
+                        %
+                        %                             case 'lfp'
+                        %                                 disp('Need to implement latency matching in lfp data')
+                        %                             case 'erp'
+                        %                                 disp('Need to implement latency matching in erp data')
+                        %                         end
                         
                     end % jSSD
                 end % if Opt.doStops
@@ -670,20 +679,6 @@ for kDataInd = 1 : nUnit
         
         
         
-        
-        
-        % print the figure if we're stepping through
-        if Opt.plotFlag
-            howProcess = Opt.howProcess;
-            switch howProcess
-                case {'step','print','each'}
-                    ccm_session_data_plot(Data(kDataInd, jTarg), Opt)
-                    if strcmp(howProcess, 'step')
-                        pause
-                    end
-                                        clear Data
-            end
-        end
     end % jTarg
 end % kDataInd
 
@@ -701,131 +696,10 @@ end % kDataInd
 
 
 
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %                   Opt.normalize
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%
-%
-% % If we want the signal to be normalized to the maximum value for each
-% % unit/channel, loop back through and Opt.normalize here...
-% %
-% %  Haven't tested this in a while, probably needs work
-%
-% if Opt.normalize
-%     for kDataInd = 1 : nUnit
-%         for iColor = 1 : nSignal;
-%             for mEpoch = 1 : length(epochArray)
-%                 mEpochName = epochArray{mEpoch};
-%
-%                 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                 % Go trials
-%                 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                 if ~strcmp(mEpochName, 'stopSignalOn')  % No stop signals on go trials
-%
-%                     switch dataType
-%                         case 'neuron'
-%                             % Go to Target trials
-%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf = ...
-%                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdfMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).sdf, 1);
-%
-%
-%                         case 'lfp'
-%                             % Go to Target trials
-%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfp = ...
-%                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfp ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfpMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfp, 1);
-%
-%
-%                         case 'erp'
-%                             % Go to Target trials
-%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).eeg = ...
-%                                 Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).eeg ./ Data(kDataInd, jTarg).yMax;
-%                             Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).lfpMean = ...
-%                                 nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(goOutcomeArray{g}).eeg, 1);
-%
-%                     end % switch dataType
-%                 end % ~strcmp(mEpochName, 'stopSignalOn')
-%
-%
-%
-%
-%
-%                 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                 % Stop trials
-%                 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                 if Opt.doStops
-%                     for jSSDIndex = 1 : nSSD
-%
-%                         switch dataType
-%                             case 'neuron'
-%                                 if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-%
-%                                     % Stop Correct trials
-%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf = ...
-%                                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf ./ Data(kDataInd, jTarg).yMax;
-%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdfMean = ...
-%                                         nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).sdf, 1);
-%
-%                                 end % ~strcmp(mEpochName, 'responseOnset')
-%
-%
-%                             case 'lfp'
-%
-%                                     % Stop Correct trials
-%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfp = ...
-%                                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfp ./ Data(kDataInd, jTarg).yMax;
-%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfpMean = ...
-%                                         nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).lfp, 1);
-%
-%                                 end % ~strcmp(mEpochName, 'responseOnset')
-%
-%
-%                             case 'erp'
-%
-%                                 if ~strcmp(mEpochName, 'responseOnset')  % No stop signals on go trials
-%
-%                                     % Stop Correct trials
-%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).eeg = ...
-%                                         Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).eeg ./ Data(kDataInd, jTarg).yMax;
-%                                     Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).erp = ...
-%                                         nanmean(Data(kDataInd, jTarg).(mEpochName).colorCoh(iColor).(stopOutcomeArray{s}).ssd(jSSDIndex).eeg, 1);
-%
-%                                 end % ~strcmp(mEpochName, 'responseOnset')
-%
-%                         end % switch dataType
-%                     end % jSSD
-%                 end % if Opt.doStops
-%             end % mEpoch
-%         end % for mEpoch = 1 : length(epochArray)
-%         Data(kDataInd, jTarg).yMax = 1.1;
-%         switch dataType
-%             case 'neuron'
-%                 Data(kDataInd, jTarg).yMin = 0;
-%             case {'lfp', 'erp'}
-%                 Data(kDataInd, jTarg).yMin = -1.1;
-%         end
-%
-%
-%
-%     end % for kDataInd = 1 : nUnit
-%
-%
-% end % if Opt.normalize
-
-
-
-
-
-
 
 disp('completed data collection')
 
-Data(1).unitArray       = Opt.unitArray;
-Data(1).howProcess       = Opt.howProcess;
+% Data(1).unitArray       = Opt.unitArray;
 Data(1).dataArray       = dataArray;
 Data(1).pSignalArray    = pSignalArray;
 Data(1).targAngleArray  = targAngleArray;
@@ -833,56 +707,12 @@ Data(1).ssdArray        = ssdArray;
 Data(1).sessionID       = sessionID;
 Data(1).subjectID       = subjectID;
 Data(1).hemisphere       = SessionData.hemisphere;
-Data(1).spikeUnitArray       = SessionData.spikeUnitArray;
+Data(1).spikeUnitArray       = unitArrayNew;
 Data(1).Opt             = Opt;
 
 
-if Opt.plotFlag &&...
-        ~strcmp(Opt.howProcess, 'step') &&...
-        ~strcmp(Opt.howProcess, 'each') &&...
-        ~strcmp(Opt.howProcess, 'pop') &&...
-        ~strcmp(Opt.howProcess, 'print')
-    ccm_session_data_plot(Data, Opt)
-elseif strcmp(Opt.howProcess, 'pop')
-    ccm_session_data_plot_pop(Data, Opt)
-end
+%     ccm_session_data_plot_pop(Data, Opt)
 
-% ################################################################################
-% ############################   SUB FUNCTIONS    ################################
-% ################################################################################
 
-%     function [goFastTrial, goSlowTrial] = latency_match(goRT, stopRT)
-%
-%         goFastTrial = [];
-%         goSlowTrial = [];
-%         if isempty(stopRT) || isempty(goRT)
-%             return
-%         end
-%
-%         [rt, ind] = sort(goRT);
-%
-%         lastInd = 1;
-%         while nanmean(rt(lastInd:end)) < nanmean(stopRT)
-%             goFastTrial = [goFastTrial; ind(lastInd)];
-%             lastInd = lastInd + 1;
-%
-%
-%         end
-%         goSlowTrial = ind(lastInd:end);
-%         %         trialList = 1 : length(goRT);
-%         %         remaining = 1 : length(goRT);
-%         %         remove = [];
-%         %         goFastTrial = remaining;
-%         %         while nanmean(goRT(remaining)) > nanmean(stopRT)
-%         %             [y,i] = max(goRT(remaining));
-%         %             remove = [remove; i]
-%         %             goSlowTrial = [goSlowTrial; i];
-%         %
-%         %
-%         %         end
-%         %         goFastTrial = remaining;
-%
-%
-%     end
 
 end

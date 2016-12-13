@@ -21,14 +21,14 @@ tebaPath = '/Volumes/SchallLab/data/';
 
 
 for i = 1 : length(session)
-[~, SessionData] = load_data(subject, session{i});
-
-SessionData.hemisphere = 'left';
-
-save(fullfile(local_data_path, subject, [session{i}, '.mat']), 'SessionData', '-append')
-save(fullfile(tebaPath, subject, [session{i}, '.mat']), 'SessionData', '-append')
-
-
+    [~, SessionData] = load_data(subject, session{i});
+    
+    SessionData.hemisphere = 'left';
+    
+    save(fullfile(local_data_path, subject, [session{i}, '.mat']), 'SessionData', '-append')
+    save(fullfile(tebaPath, subject, [session{i}, '.mat']), 'SessionData', '-append')
+    
+    
 end
 
 %%
@@ -43,13 +43,13 @@ eopchLBegin = epochBegin(trialData.targ1CheckerProp == .58);
 epochLEnd = epochEnd(trialData.targ1CheckerProp == .58);
 for i = 1 : length(epochBegin)
     
-clf
-hold on
+    clf
+    hold on
     plot(sdf53);
-plot(sdf58, 'k')
-plot([eopchLBegin(i) eopchLBegin(i)], [0 50])
-plot([epochLEnd(i) epochLEnd(i)], [0 50])
-pause
+    plot(sdf58, 'k')
+    plot([eopchLBegin(i) eopchLBegin(i)], [0 50])
+    plot([epochLEnd(i) epochLEnd(i)], [0 50])
+    pause
 end
 %%
 size(ddm, 1);
@@ -87,7 +87,7 @@ ssdKeep = setxor(ssdIndAltered, 1:length(E.ssdArray));
 ssdWeighted = nan(length(belowCritera), 1);
 for i = 1 : length(belowCritera)
     
-    ssdInd = [belowCritera(i) belowCritera(i)+1]; 
+    ssdInd = [belowCritera(i) belowCritera(i)+1];
     ssdWeighted(i) = round(sum(E.ssdArray(ssdInd) .* nSsd(ssdInd) / sum(nSsd(ssdInd))));
     td.ssd(td.ssd == E.ssdArray(ssdInd(1)) | td.ssd == E.ssdArray(ssdInd(2))) = ssdWeighted(i);
 end
@@ -134,9 +134,9 @@ rtLCorr2 = nanmean(td2.rt(lCorr2))
 rtLCorr3 = nanmean(td3.rt(lCorr3))
 
 leftRT = [td1.rt(lCorr1); td2.rt(lCorr2); td3.rt(lCorr3)];
-leftGroup = [ones(length(td1.rt(lCorr1)), 1); 2*ones(length(td2.rt(lCorr2)), 1); 3* ones(length(td3.rt(lCorr3)), 1)]; 
+leftGroup = [ones(length(td1.rt(lCorr1)), 1); 2*ones(length(td2.rt(lCorr2)), 1); 3* ones(length(td3.rt(lCorr3)), 1)];
 rightRT = [td1.rt(rCorr1); td2.rt(rCorr2); td3.rt(rCorr3)];
-rightGroup = [ones(length(td1.rt(rCorr1)), 1); 2*ones(length(td2.rt(rCorr2)), 1); 3* ones(length(td3.rt(rCorr3)), 1)]; 
+rightGroup = [ones(length(td1.rt(rCorr1)), 1); 2*ones(length(td2.rt(rCorr2)), 1); 3* ones(length(td3.rt(rCorr3)), 1)];
 % [pL, tableL, statsL] = anova1(leftRT, leftGroup, 'display', 'off');
 % [pR, tableR, statsR] = anova1(rightRT, rightGroup, 'display', 'off');
 save(fullfile(local_data_path, 'anodal.mat'), 'leftRT', 'leftGroup', 'rightRT', 'rightGroup')
@@ -151,30 +151,30 @@ plot([rtRCorr1, rtRCorr2, rtRCorr3], '--b')
 %%
 ssd = new.ssd;
 
-    ssdList = unique(ssd(~isnan(ssd)))
-    nSSD = nan(length(ssdList), 1);
-    for i = 1 : length(ssdList)
-        nSSD(i) = sum(trialData.ssd == ssdList(i));
-    end
+ssdList = unique(ssd(~isnan(ssd)))
+nSSD = nan(length(ssdList), 1);
+for i = 1 : length(ssdList)
+    nSSD(i) = sum(trialData.ssd == ssdList(i));
+end
 
- %%
+%%
 
-                     % plot Average unit dynamics
-                    dynTime = mean(cell2mat(prd.dyn{iTrialCatGo}.stopICorr.stopStim.targetGO.sX));
-                    dynAct = mean(cell2mat(prd.dyn{iTrialCatGo}.stopICorr.stopStim.targetGO.sY));
-                    plot(dynTime, dynAct, 'Color','k','LineStyle',unitLnStyle{unitGoCorr},'LineWidth',unitLnWidth(unitGoCorr))
-                    
-                    dynTime = prd.dyn{iTrialCatGo}.stopICorr.goStim.targetGO.sX;
-                    dynAct = prd.dyn{iTrialCatGo}.stopICorr.goStim.targetGO.sY;
-                    cellfun(@(x,y) plot(x,y, 'Color',unitLnClr(unitGoCorr,:),'LineStyle',unitLnStyle{unitGoCorr},'LineWidth',1), dynTime,dynAct, 'uni', false)
+% plot Average unit dynamics
+dynTime = mean(cell2mat(prd.dyn{iTrialCatGo}.stopICorr.stopStim.targetGO.sX));
+dynAct = mean(cell2mat(prd.dyn{iTrialCatGo}.stopICorr.stopStim.targetGO.sY));
+plot(dynTime, dynAct, 'Color','k','LineStyle',unitLnStyle{unitGoCorr},'LineWidth',unitLnWidth(unitGoCorr))
 
- 
-                     plot(dynTime(iSsd+1:end), dynAct(iSsd+1:end), 'Color',unitLnClr(unitStop,:),'LineStyle',unitLnStyle{unitStop},'LineWidth',unitLnWidth(unitStop))
-                     plot(dynTime(iSsd+1:end), dynAct(iSsd+1:end), 'Color','b','LineStyle',unitLnStyle{unitStop},'LineWidth',unitLnWidth(unitStop))
+dynTime = prd.dyn{iTrialCatGo}.stopICorr.goStim.targetGO.sX;
+dynAct = prd.dyn{iTrialCatGo}.stopICorr.goStim.targetGO.sY;
+cellfun(@(x,y) plot(x,y, 'Color',unitLnClr(unitGoCorr,:),'LineStyle',unitLnStyle{unitGoCorr},'LineWidth',1), dynTime,dynAct, 'uni', false)
 
-                     normAct = cell(size(dynActGoCorr));
-                     lastNonNan = cellfun(@(x) find(isnan(x), 1), dynActGoCorr);
-                     lastNonNan = max(lastNonNan) - 1;
+
+plot(dynTime(iSsd+1:end), dynAct(iSsd+1:end), 'Color',unitLnClr(unitStop,:),'LineStyle',unitLnStyle{unitStop},'LineWidth',unitLnWidth(unitStop))
+plot(dynTime(iSsd+1:end), dynAct(iSsd+1:end), 'Color','b','LineStyle',unitLnStyle{unitStop},'LineWidth',unitLnWidth(unitStop))
+
+normAct = cell(size(dynActGoCorr));
+lastNonNan = cellfun(@(x) find(isnan(x), 1), dynActGoCorr);
+lastNonNan = max(lastNonNan) - 1;
 for i = 1 : size(dynActGoCorr, 1)
     iLast = find(isnan(dynActGoCorr{i}), 1) - 1;
     iScale = lastNonNan / iLast;
@@ -183,3 +183,73 @@ end
 cellfun(@(x,y) plot(x,y, 'Color','k','LineStyle',unitLnStyle{unitGoCorr},'LineWidth',1), dynTimeGoCorr,normAct, 'uni', false)
 
 meanFn = nanmean(cell2mat(normAct));
+
+%%
+
+% [trialData, S, E] = load_data('joule','jp098n02');
+[trialData, S, E] = load_data('broca','bp244n02');
+%%
+
+pSignalArray    = E.pSignalArray;
+mEpochName = 'checkerOn';
+mEpochName = 'responseOnset';
+Kernel.method = 'postsynaptic potential';
+Kernel.growth = 1;
+Kernel.decay = 20;
+
+[unitIndex, unitArrayNew] = neuronexus_plexon_mapping(S.spikeUnitArray, 32);
+
+
+selectOpt = ccm_options;
+selectOpt.rightCheckerPct = pSignalArray(end) * 100;
+selectOpt.ssd = 'none';
+selectOpt.outcome     = {'goCorrectTarget', 'targetHoldAbort', 'toneAbort'};
+
+
+iGoTrial = ccm_trial_selection(trialData, selectOpt);
+alignListGo = trialData.(mEpochName)(iGoTrial);
+
+sdf = [];
+epochWindow = [-199:400];
+normWindow = [-299:0];
+for kUnit = unitIndex
+alignListTarg = trialData.targOn(iGoTrial);
+    [alignedRasters, ~] = spike_to_raster(trialData.spikeData(iGoTrial, kUnit), alignListTarg);
+    iSdfTarg = nanmean(spike_density_function(alignedRasters, Kernel));
+    iNormTarg = max(iSdfTarg);
+
+ alignListSacc = trialData.responseOnset(iGoTrial);
+    [alignedRasters, ~] = spike_to_raster(trialData.spikeData(iGoTrial, kUnit), alignListSacc);
+    iSdfSacc = nanmean(spike_density_function(alignedRasters, Kernel));
+    iNormSacc = max(iSdfSacc);
+
+    alignListChecker = trialData.targOn(iGoTrial);
+    [alignedRasters, ~] = spike_to_raster(trialData.spikeData(iGoTrial, kUnit), alignListChecker);
+    iSdfChecker = nanmean(spike_density_function(alignedRasters, Kernel));
+    iNormChecker = max(iSdfChecker);
+
+    iNorm = max([iNormTarg, iNormSacc, iNormChecker]);
+    
+    [alignedRasters, alignmentIndex] = spike_to_raster(trialData.spikeData(iGoTrial, kUnit), alignListGo);
+    iSDF = nanmean(spike_density_function(alignedRasters, Kernel)) / iNorm;
+    sdf = [sdf; iSDF(alignmentIndex + epochWindow)];
+end
+
+%%
+for i = 1 : length(Data)
+    disp(Data(i).name)
+    disp(Data(i).yMax)
+    pause
+end
+%%
+td = trialData;
+td = td(isnan(td.abortTime),:);
+
+stopTrial = strcmp(td.trialOutcome, 'stopIncorrectTarget') | strcmp(td.trialOutcome, 'stopIncorrectDistractor');
+tdStop = td(stopTrial,:);
+goTrial = strcmp(td.trialOutcome, 'goCorrectTarget') | strcmp(td.trialOutcome, 'goCorrectDistractor');
+tdGo = td(goTrial,:);
+%%
+histogram(tdGo.rt)
+histogram(tdStop.rt)
+histogram(tdStop.stopSignalOn - tdStop.checkerOn)

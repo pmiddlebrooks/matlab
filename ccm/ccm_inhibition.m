@@ -795,6 +795,7 @@ for kTarg = 1 : nTargPair
     Data(kTarg).ssrtCollapseMean            = ssrtCollapseMean;
     Data(kTarg).ssd                = ssd;
     
+    Data(kTarg).goTotalRT       = goTotalRT;
     Data(kTarg).goTargRT       = goTargRT;
     Data(kTarg).goDistRT       = goDistRT;
     Data(kTarg).stopTargRT       = stopTargRT;

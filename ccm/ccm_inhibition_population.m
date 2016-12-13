@@ -27,7 +27,7 @@ optInh              = ccm_inhibition;
 optInh.plotFlag     = 0;
 optInh.include50    = 0;
 optInh.collapseTarg    = true;
-optInh.USE_TWO_COLORS = false;
+optInh.USE_TWO_COLORS = true;
 
 
 
@@ -128,6 +128,7 @@ dataSignalStrength  = [];
 dataProbRespond     = [];
 dataSession         = [];
 dataRTSSD           = [];
+rtGo             = nan(nSession, 1);
 inhEach             = cell(1, nSignalStrength);
 inhEachFit             = cell(1, nSignalStrength);
 inhRTSSD            = cell(1, nSignalStrength);
@@ -160,7 +161,7 @@ for iSession = 1 : nSession
     % GRAND INHIBITION FN ***********************
     ssdArrayGrand       = [ssdArrayGrand; iData.ssdArray];
     stopRespondGrand    = [stopRespondGrand; iData.stopRespondProbGrand];
-    
+    rtGo(iSession)     	= nanmean(cell2mat(iData.goTotalRT(:,1)));
     
     % SIGNAL STRENGTH INHIBITION FNS *************
     for j = 1 : nSignalStrength
@@ -522,7 +523,7 @@ end
 
 data.ssrtIntWeight = ssrtIntWeight;
 data.ssrtGrandIntWeight = ssrtGrandIntWeight;
-
+data.rtGo = rtGo;
 
 
 

@@ -25,7 +25,7 @@ switch breadth
         epochRange = -99 : 300;
         switch epochName
             case 'fixWindowEntered'
-                shiftRange = -100;
+                shiftRange = 0;
             case 'targOn'
                 shiftRange = 0;
             case 'checkerOn'

@@ -1,4 +1,4 @@
-function Data = cmd_inhibition(subjectID, sessionID, varargin)
+function Data = cmd_inhibition(subjectID, sessionID, options)
 %%
 %
 % function data = ccm_inhibition(subjectID, sessionID, plotFlag, figureHandle)
@@ -17,21 +17,25 @@ function Data = cmd_inhibition(subjectID, sessionID, varargin)
 %   stopRightSignalStrength
 
 % Set defaults
-figureHandle = 7575;
-plotFlag = 1;
-printPlot = 0;
-for i = 1 : 2 : length(varargin)
-    switch varargin{i}
-        case 'plotFlag'
-            plotFlag = varargin{i+1};
-        case 'printPlot'
-            printPlot = varargin{i+1};
-        case 'figureHandle'
-            figureHandle = varargin{i+1};
-        otherwise
+% Set default options or return a default options structure
+if nargin < 3
+    options.collapseTarg        = true;
+    options.include50           = false;
+    options.USE_PRE_SSD         = true;
+    
+    options.plotFlag            = true;
+    options.printPlot           = false;
+    options.figureHandle      	= 7575;
+    
+    % Return just the default options struct if no input
+    if nargin == 0
+        Data           = options;
+        return
     end
 end
-
+plotFlag        = options.plotFlag;
+printPlot       = options.printPlot;
+figureHandle    = options.figureHandle;
 
 
 % Load the data

@@ -14,6 +14,7 @@ sumFig = figure(figureHandle);
 interSpaceX = .5;
 % interSpaceX = 1.3;
 interSpaceY = 1.5;
+interSpaceY = .5;
 leftRightMargin = 1.5;
 topBottomMargin = 1.5;
 

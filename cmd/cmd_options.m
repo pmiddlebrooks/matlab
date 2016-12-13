@@ -1,4 +1,4 @@
-function Opt = ccm_options
+function Opt = cmd_options
 % function Opt = ccm_options
 %
 % Returns default Opt structure for use as input in choice
@@ -13,7 +13,6 @@ function Opt = ccm_options
 %    Opt.figureHandle   = 1000;
 %    Opt.printPlot      = false, true;
 %    Opt.plotFlag       = true, false;
-%    Opt.collapseSignal = false, true;
 %    Opt.collapseTarg         = false, true;
 %    Opt.doStops        = true, false;
 %    Opt.filterData 	= false, true;
@@ -42,14 +41,6 @@ function Opt = ccm_options
 %
 %           valid = any non-aborts
 %
-%     Opt.choiceAccuracy  = default is collapse across all choices. Segments
-%           with respect to weather a choice was correct or error (does not count
-%           if no choice was made.
-%           Opt: 'collapse' (default), 'correct', 'error'.
-%
-%     Opt.rightCheckerPct  = range of checkerboard percentage of right target checkers:
-%           {'collapse', 'right', 'left'
-%           a double array containing the values, e.g. [40 50 60]
 %     Opt.ssd    = range of SSDs to include in the trial list:
 %           {'collapse', 'any', 'none', or
 %           a double array containing the values, e.g. [43 86 129]
@@ -70,7 +61,6 @@ Opt.figureHandle     = 1000;
 Opt.printPlot        = true;
 Opt.plotFlag         = true;
 
-Opt.collapseSignal   = false;
 Opt.collapseTarg     = true;
 Opt.doStops          = true;
 
@@ -78,22 +68,18 @@ Opt.filterData       = false;
 Opt.stopHz           = 50;
 Opt.normalize        = false;
 Opt.baselineCorrect  = false;
-Opt.epochName       = 'checkerOn';
+Opt.epochName       = 'targetOn';
 Opt.eventMarkName       = 'responseOnset';
 Opt.epochWindow     = -299:300;
 
 
 Opt.outcome             = 'valid';
-Opt.choiceAccuracy      = 'collapse';
-Opt.rightCheckerPct     = 'collapse';
 Opt.ssd                 = 'any';
-Opt.allowRtPreSsd     = true;
 Opt.targDir             = 'collapse';
 Opt.responseDir    = {'collapse'}; % {'left', 'right'};
 Opt.ssrt                 = [];
 
 
-Opt.include50           = false; % include 50% color coherence conditions?
 Opt.deleteAborts     = true;
 Opt.USE_PRE_SSD   	= true; % Use noncanceled stop trials when RT precedes SSD?
 Opt.USE_TWO_COLORS         = false; % Only use one easy and one hard color for both sides

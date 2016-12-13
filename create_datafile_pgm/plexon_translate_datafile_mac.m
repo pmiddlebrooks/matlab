@@ -11,6 +11,7 @@ function [trialData, SessionData] = plexon_translate_datafile_mac(monkey, sessio
 %
 % note the current directory.
 cdir = pwd;
+USE_PHOTODIODE = true;
 
 % switch to translation code directory multiple versions
 cd ~/matlab/create_datafile_pgm/
@@ -52,19 +53,24 @@ nError = 0;
 
 switch Opt.whichData
     case {'all','lfp','eeg','spike'}
-        prompt = 'Which hemisphere was recording from (right, left, both, none)? ';
+        prompt = 'Which hemisphere was recorded (right, left, both, none)? ';
         hemisphere = input(prompt, 's');
-        prompt = 'Are these LFP and EEG channels correct (y or n)? ';
-        disp(sprintf('Spike/LFP Channels: %d\n', LFP_CHANNELS))
-        disp(sprintf('EEG Channels: %d\n', EEG_CHANNELS))
-        answer = input(prompt, 's');
-        
-        if strcmp(answer, 'n')
-            prompt = 'Enter LFP Channels ';
-            LFP_CHANNELS = input(prompt);
-            prompt = 'Enter EEG Channels ';
-            EEG_CHANNELS = input(prompt);
+        if strcmp(hemisphere, 'none')
+            LFP_CHANNELS = [];
+            EEG_CHANNELS = [];
+        else
+            prompt = 'Are these LFP and EEG channels correct (y or n)? ';
+            disp(sprintf('Spike/LFP Channels: %d\n', LFP_CHANNELS))
+            disp(sprintf('EEG Channels: %d\n', EEG_CHANNELS))
+            answer = input(prompt, 's');
             
+            if strcmp(answer, 'n')
+                prompt = 'Enter LFP Channels ';
+                LFP_CHANNELS = input(prompt);
+                prompt = 'Enter EEG Channels ';
+                EEG_CHANNELS = input(prompt);
+                
+            end
         end
     case 'behavior' % Otherwise it's behavior only (for now)
         hemisphere = 'none';
@@ -453,9 +459,9 @@ for iTrial = 1 : nTrial
         jEvent = char(eventArray(j));
         jCode = char(eventNumArray(j));
         eval(sprintf('codeNumber = %s;',jCode));
-%             if strcmp(jEvent, 'Target_')
-%                 disp('why target')
-%             end
+        %             if strcmp(jEvent, 'Target_')
+        %                 disp('why target')
+        %             end
         if sum(iStrobes == codeNumber) > 0   % If there was at least one dropped code for the current event....
             jPossTime = iTimeStamps(iStrobes == codeNumber);
             eval(sprintf('%s(iTrial) = round(jPossTime(end));',jEvent));
@@ -708,7 +714,7 @@ temp(trialOutcome == 1) = {'noFixation'};
 temp(trialOutcome == 2) = {'fixationAbort'};
 temp(trialOutcome == 3) = {'goIncorrect'};
 temp(trialOutcome == 4) = {'stopCorrect'};
-temp(trialOutcome == 5) = {'sacadeAbort'};
+temp(trialOutcome == 5) = {'saccadeAbort'};
 temp(trialOutcome == 6) = {'targetHoldAbort'};
 temp(trialOutcome == 7) = {'goCorrectTarget'};
 temp(trialOutcome == 8) = {'stopIncorrectTarget'};
@@ -729,6 +735,7 @@ temp(trialOutcome == 22) = {'targHighBet'};
 temp(trialOutcome == 23) = {'disHighBet'};
 temp(trialOutcome == 24) = {'targLowBet'};
 temp(trialOutcome == 25) = {'distLowBet'};
+temp(trialOutcome == 26) = {'toneAbort'};
 trialData.trialOutcome = temp;
 % trialData.trialOutcome = temp(1:nTrial);
 
@@ -744,7 +751,6 @@ temp(trialType == 6) = {'retro'};
 temp(trialType == 7) = {'pro'};
 trialData.trialType = temp;
 % trialData.trialType = temp(1:nTrial);
-
 
 
 
@@ -788,7 +794,7 @@ end
 flicker_test = diff(photodiode,1,2);
 zero_pad(1:length(flicker_test(:,1)),1) = 0;
 flicker_test = [zero_pad flicker_test];
-flicker_test = flicker_test > 0 & flicker_test < 20; % estimated based on 70Hz refresh
+flicker_test = (flicker_test > 0 & flicker_test < 30) | flicker_test < -1; % estimated based on 70Hz refresh
 photodiode(flicker_test) = nan;
 photodiode = [photodiode zero_pad];
 
@@ -798,25 +804,7 @@ photodiode = [photodiode zero_pad];
 pdCell = num2cell(photodiode, 2);
 pdCell = cellfun(@(x) [x(~isnan(x)) x(isnan(x))], pdCell, 'uniformoutput', false);
 photodiode = cell2mat(pdCell);
-% for iColumn = 2 : N_PHOTODIODE_POSSIBLE % there can only be maximum of N_PHOTODIODE_POSSIBLE photodiode events on any given trial
-%     next_iColumn = iColumn + 1;
-%     iNan = find(isnan(photodiode(:,iColumn)));
-%     while ~isempty(iNan)
-%         iColumn
-%         sum(isnan(photodiode(:,iColumn-1)))
-%         photodiode(1:20,:)
-%         pause
-%         photodiode(iNan, iColumn) = photodiode(iNan, next_iColumn);
-%         photodiode(iNan, next_iColumn) = nan;
-%         next_iColumn = next_iColumn + 1;
-%         iNan = find(isnan(photodiode(:,iColumn)));
-%         if iColumn > 2 && sum(isnan(photodiode(:,iColumn-1))) == 0
-%             if sum(photodiode(:,iColumn-1)) == 0
-%                 iNan = [];
-%             end
-%         end
-%     end
-% end
+photodiode(photodiode == 0) = nan; % up to this point nans were used for flicker testing
 
 
 
@@ -824,7 +812,6 @@ clear eventCodes timeStamps
 
 
 
-photodiode(photodiode == 0) = nan; % up to this point nans were used for flicker testing
 
 
 
@@ -853,6 +840,21 @@ switch taskName
             trialData.stopSignalOn  = photodiode_check(photodiode(:,5), Choice_ + ssd);
         end
         stopTrial = ~isnan(trialData.stopSignalOn);
+%     case 'ChoiceCountermanding'
+%         trialData.fixOn             = FixSpotOn;
+%         trialData.targOn            = Target_;
+%         trialData.checkerOn         = Choice_;
+%         % Differentiate here between the delayed-vs-rt version of ccm
+%         if nanmean(soa) == 0 || isnan(nanmean(soa))
+%             trialData.fixOff        = trialData.checkerOn;
+%             trialData.responseCueOn = trialData.checkerOn;
+%             trialData.stopSignalOn  = Choice_ + ssd;
+%         elseif nanmean(soa) > 0
+%             trialData.fixOff        = photodiode_check(photodiode(:,4), Cue_);
+%             trialData.responseCueOn = trialData.fixOff;
+%             trialData.stopSignalOn  = photodiode_check(photodiode(:,5), Choice_ + ssd);
+%         end
+%         stopTrial = ~isnan(trialData.stopSignalOn);
     case 'GoNoGo'
         trialData.fixOn             = photodiode_check(photodiode(:,1), FixSpotOn);
         trialData.targOn            = photodiode_check(photodiode(:,2), Target_);
@@ -1001,7 +1003,7 @@ switch taskID
         trialData.fixOn     = FixSpotOn(:, 1);
         trialData.targOn     = FixSpotOff_(:, 1);
         trialData.stopSignalOn     = FixSpotOff_(:, 1) + ssd;
-
+        
         trialData.fixWindowEntered     = Fixate_(:, 1);
         trialData.targWindowEntered       = Decide_(:, 1);
         trialData.targAmp                   = targAmp;
@@ -1341,7 +1343,7 @@ for iChannel = 1:nADChannel
         if iTrial < nTrial
             iData{iTrial}            = adValues(firstTrialStart + trialData.trialOnset(iTrial) : firstTrialStart + trialData.trialOnset(iTrial+1));
         elseif iTrial == nTrial
-            iData{iTrial}            = adValues(firstTrialStart + trialData.trialOnset(iTrial) : firstTrialStart + trialData.trialOnset(iTrial) + trialData.trialDuration(iTrial));
+            iData{iTrial}            = adValues(firstTrialStart + trialData.trialOnset(iTrial) : min(length(adValues), firstTrialStart + trialData.trialOnset(iTrial) + trialData.trialDuration(iTrial)));
         end
         
         
@@ -1408,18 +1410,36 @@ if Opt.saveFile
     save(saveLocalName, 'trialData', 'SessionData','-v7.3')
     
     
-    if isfield(SessionData, 'spikeUnitArray')
-    % Create local files of each individual unit data
-    nUnit = length(SessionData.spikeUnitArray);
     
-    for j = 1 : nUnit
-        jUnitName = SessionData.spikeUnitArray{j};
-        saveFileName = [sessionID, '_', jUnitName];
+    if isfield(SessionData, 'spikeUnitArray')
+        % Create local files of each individual unit data
+        nUnit = length(SessionData.spikeUnitArray);
         
-        spikeData = trialData.spikeData(:, j);
-        save(fullfile(local_data_path, monkey, saveFileName), 'spikeData')
+        for j = 1 : nUnit
+            jUnitName = SessionData.spikeUnitArray{j};
+            saveFileName = [sessionID, '_', jUnitName];
+            
+            spikeData = trialData.spikeData(:, j);
+            save(fullfile(local_data_path, monkey, saveFileName), 'spikeData')
+        end
     end
+    
+    
+    % Save a local version of behavior-only (might be duplicate,but that's
+    % ok- if the session is only behavior to begin with, it won't take up
+    % much memory)
+    variables = trialData.Properties.VariableNames;
+    removeVar = {'spikeData', 'lfpData', 'eegData'};
+    
+    % If it has pyshiology data, remove it and save the file locally
+    physData = ismember(variables, removeVar);
+    if sum(physData)
+        trialData(:, physData) = [];
+        save([saveLocalName,'_behavior'], 'trialData', 'SessionData','-v7.3')
+        
     end
+    
+    
 end
 toc
 

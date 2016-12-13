@@ -151,6 +151,55 @@ end
 
 
 
+% Trials w.r.t. response direction (or no response)
+if isfield(selectOpt, 'responseDir') && ~strcmp(selectOpt.responseDir, 'collapse')
+    
+    if ismember('responseDirection', trialData.Properties.VariableNames)
+        saccTrial = strcmp(trialData.responseDirection, selectOpt.responseDir);
+        responseTrial = ~isnan(trialData.rt);
+    elseif ~strcmp(selectOpt.responseDir ,'none')
+        saccAngle = nan(nTrial, 1);
+        responseTrial = ~isnan(trialData.saccToTargIndex);
+        
+        %    trialData.saccAngle(nanResp) = cellfun(@(x) [x 0], trialData.saccAngle(nanResp), 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
+        saccAngle(responseTrial) = cellfun(@(x,y) x(y), trialData.saccAngle(responseTrial), num2cell(trialData.saccToTargIndex(responseTrial)));
+        %    saccAngle = cell2num(trialData.saccAngle);
+        %     switch selectOpt.responseDir
+        if strcmp(selectOpt.responseDir, 'collapse')
+            % Do nothing
+            saccTrial = ones(nTrial, 1);
+        elseif strcmp(selectOpt.responseDir, 'right')
+            saccTrial = ((saccAngle > 270) & (saccAngle <= 360)) | ...
+                ((saccAngle >= 0) & (saccAngle < 90)) | ...
+                ((saccAngle > -90) & (saccAngle < 0)) | ...
+                ((saccAngle >= -360) & (saccAngle < -270));
+        elseif strcmp(selectOpt.responseDir, 'left')
+            saccTrial = ((saccAngle > 90) & (saccAngle <= 270)) | ...
+                ((saccAngle < -90) & (saccAngle > -270));
+        elseif strcmp(selectOpt.responseDir, 'leftUp')
+            saccTrial = saccAngle == decAngleLeftUp;
+        elseif strcmp(selectOpt.responseDir, 'leftDown')
+            saccTrial = saccAngle == decAngleLeftDown;
+        elseif strcmp(selectOpt.responseDir, 'rightUp')
+            saccTrial = saccAngle == decAngleRightUp;
+        elseif strcmp(selectOpt.responseDir, 'rightDown')
+            saccTrial = saccAngle == decAngleRightDown;
+        else
+            saccTrial = ismember(saccAngle,selectOpt.responseDir);
+        end
+    elseif strcmp(selectOpt.responseDir ,'none')
+        saccTrial = isnan(trialData.saccToTargIndex);
+    end
+    trialLogical = trialLogical & saccTrial;
+    % For go trials and noncanceled stop trials, get rid of trials without
+    % responses (for canceled stop trials all of them should be trials
+    % without responses, so leave them in)
+    if strcmp(selectOpt.ssd, 'none')
+        trialLogical = trialLogical & responseTrial;
+    end
+end
+
+
 
 
 % Trials w.r.t. the SSDs and whether to allow RTs that preceded SSD on noncanceled stop trials
@@ -212,51 +261,6 @@ trialLogical = trialLogical & targTrial;
 
 
 
-
-if isfield(selectOpt, 'responseDir') && ~strcmp(selectOpt.responseDir, 'collapse')
-    
-    if ismember('responseDirection', trialData.Properties.VariableNames)
-        saccTrial = strcmp(trialData.responseDirection, selectOpt.responseDir);
-        responseTrial = ~isnan(trialData.rt);
-    else
-        saccAngle = nan(nTrial, 1);
-        responseTrial = ~isnan(trialData.saccToTargIndex);
-        
-        %    trialData.saccAngle(nanResp) = cellfun(@(x) [x 0], trialData.saccAngle(nanResp), 'uni', false);  % For trials without responses, need to pretend there is one to sort data (these trials won't be included in trialList)
-        saccAngle(responseTrial) = cellfun(@(x,y) x(y), trialData.saccAngle(responseTrial), num2cell(trialData.saccToTargIndex(responseTrial)));
-        %    saccAngle = cell2num(trialData.saccAngle);
-        %     switch selectOpt.responseDir
-        if strcmp(selectOpt.responseDir, 'collapse')
-            % Do nothing
-            saccTrial = ones(nTrial, 1);
-        elseif strcmp(selectOpt.responseDir, 'right')
-            saccTrial = ((saccAngle > 270) & (saccAngle <= 360)) | ...
-                ((saccAngle >= 0) & (saccAngle < 90)) | ...
-                ((saccAngle > -90) & (saccAngle < 0)) | ...
-                ((saccAngle >= -360) & (saccAngle < -270));
-        elseif strcmp(selectOpt.responseDir, 'left')
-            saccTrial = ((saccAngle > 90) & (saccAngle <= 270)) | ...
-                ((saccAngle < -90) & (saccAngle > -270));
-        elseif strcmp(selectOpt.responseDir, 'leftUp')
-            saccTrial = saccAngle == decAngleLeftUp;
-        elseif strcmp(selectOpt.responseDir, 'leftDown')
-            saccTrial = saccAngle == decAngleLeftDown;
-        elseif strcmp(selectOpt.responseDir, 'rightUp')
-            saccTrial = saccAngle == decAngleRightUp;
-        elseif strcmp(selectOpt.responseDir, 'rightDown')
-            saccTrial = saccAngle == decAngleRightDown;
-        else
-            saccTrial = ismember(saccAngle,selectOpt.responseDir);
-        end
-    end
-    trialLogical = trialLogical & saccTrial;
-    % For go trials and noncanceled stop trials, get rid of trials without
-    % responses (for canceled stop trials all of them should be trials
-    % without responses, so leave them in)
-    if strcmp(selectOpt.ssd, 'none')
-        trialLogical = trialLogical & responseTrial;
-    end
-end
 
 % If there was supposed to be an RT but there wasn't (if there is a NaN for
 % RT, get rid of those trials
